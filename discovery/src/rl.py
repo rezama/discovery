@@ -938,32 +938,32 @@ class Mutator(object):
                     selected_featurizer = featurizer
         return selected_featurizer
     
-    def mutateo(self, agent):
-        feature_list = agent.feature_set.get_feature_list_copy()
-        
-        new_feature = None
-        while new_feature is None:
-            featurizer = self.select_featurizer()
-            new_feature = featurizer.generate_feature(feature_list)
-            
-        feature_list.append(new_feature)
-        new_feature_set = FeatureSet(feature_list)
-        
-        agent_class = agent.__class__
-        new_agent = agent_class(new_feature_set)
-        
-        if MUTATE_NEW_FEATURE_WEIGHTS == INIT_WEIGHTS_OPTIMISTIC or len(feature_list) == 1:
-            new_segment_weights = ((agent.environment.get_max_episode_reward() * 
-                              INIT_Q_VALUE_MULTIPLIER) / 
-                              new_feature_set.get_num_features())
-        else:
-            new_segment_weights = 0
-        
-        for action in agent.all_actions():
-            new_agent.algorithm.w[action] = agent.algorithm.w[action] + \
-                    [new_segment_weights] * new_feature.get_encoding_length()
-        
-        return new_agent
+#    def mutate_old(self, agent):
+#        feature_list = agent.feature_set.get_feature_list_copy()
+#        
+#        new_feature = None
+#        while new_feature is None:
+#            featurizer = self.select_featurizer()
+#            new_feature = featurizer.generate_feature(feature_list)
+#            
+#        feature_list.append(new_feature)
+#        new_feature_set = FeatureSet(feature_list)
+#        
+#        agent_class = agent.__class__
+#        new_agent = agent_class(new_feature_set)
+#        
+#        if MUTATE_NEW_FEATURE_WEIGHTS == INIT_WEIGHTS_OPTIMISTIC or len(feature_list) == 1:
+#            new_segment_weights = ((agent.environment.get_max_episode_reward() * 
+#                              INIT_Q_VALUE_MULTIPLIER) / 
+#                              new_feature_set.get_num_features())
+#        else:
+#            new_segment_weights = 0
+#        
+#        for action in agent.all_actions():
+#            new_agent.algorithm.w[action] = agent.algorithm.w[action] + \
+#                    [new_segment_weights] * new_feature.get_encoding_length()
+#        
+#        return new_agent
         
     def mutate(self, agent):
         feature_list = agent.feature_set.feature_list
@@ -978,30 +978,30 @@ class Mutator(object):
 
         return new_agent
         
-    def cross_overo(self, agent1, agent2):
-        new_feature_list = agent1.feature_set.get_feature_list_copy()
-        feature_list_from_agent2 = agent2.feature_set.get_feature_list_copy()
-        last_feature_from_agent2 = feature_list_from_agent2[-1]
-        new_feature_list.append(last_feature_from_agent2)
-
-        new_feature_set = FeatureSet(new_feature_list)
-        
-        agent_class = agent1.__class__
-        new_agent = agent_class(new_feature_set)
-        
-        for action in agent1.actions.all_actions():
-            len_last_feature_from_agent2 = \
-                last_feature_from_agent2.get_encoding_length()
-            if MUTATE_CROSS_OVER_WEIGHTS == INIT_WEIGHTS_COPY:
-                feature_w_from_agent_2 = \
-                    agent2.algorithm.w[action][-len_last_feature_from_agent2:]
-                new_agent.algorithm.w[action] = \
-                    agent1.algorithm.w[action] + feature_w_from_agent_2
-            else:
-                new_agent.algorithm.w[action] = \
-                    agent1.algorithm.w[action] + [0] * len_last_feature_from_agent2
-        
-        return new_agent
+#    def cross_over_old(self, agent1, agent2):
+#        new_feature_list = agent1.feature_set.get_feature_list_copy()
+#        feature_list_from_agent2 = agent2.feature_set.get_feature_list_copy()
+#        last_feature_from_agent2 = feature_list_from_agent2[-1]
+#        new_feature_list.append(last_feature_from_agent2)
+#
+#        new_feature_set = FeatureSet(new_feature_list)
+#        
+#        agent_class = agent1.__class__
+#        new_agent = agent_class(new_feature_set)
+#        
+#        for action in agent1.actions.all_actions():
+#            len_last_feature_from_agent2 = \
+#                last_feature_from_agent2.get_encoding_length()
+#            if MUTATE_CROSS_OVER_WEIGHTS == INIT_WEIGHTS_COPY:
+#                feature_w_from_agent_2 = \
+#                    agent2.algorithm.w[action][-len_last_feature_from_agent2:]
+#                new_agent.algorithm.w[action] = \
+#                    agent1.algorithm.w[action] + feature_w_from_agent_2
+#            else:
+#                new_agent.algorithm.w[action] = \
+#                    agent1.algorithm.w[action] + [0] * len_last_feature_from_agent2
+#        
+#        return new_agent
 
     def cross_over(self, agent1, agent2):
         feature_list_from_agent2 = agent2.feature_set.feature_list
@@ -1296,7 +1296,20 @@ class SarsaLambdaFeaturized(Sarsa):
             new_segment_weights = 0
         
         if MUTATE_ADJUST_EXISTING_WEIGHTS:
-            multiplier = float(num_features - 1) / float(num_features) 
+#            multiplier = float(num_features - 1) / float(num_features)
+            # now we have to factor in MUTATE_OPTIMISTIC_WEIGHT_MULTIPLIER
+            # 1 2 ... n          n+1
+            # w w w w w           W
+            # 
+            # * n/(n+1) * x     * 1/(n+1) * M
+            # 
+            # n/(n+1) + 1/(n+1) = 1
+            # n/(n+1) * x + 1/n+1 * M = 1
+            # n/(n+1) * x = 1 - M/(n+1)
+            #     1 - (M/n+1)
+            # x = -----------
+            #      n / (n+1)            
+            multiplier = 1.0 - (MUTATE_OPTIMISTIC_WEIGHTS_MULTIPLIER / num_features)
             for action in self.agent.all_actions():
                 self.w[action][:] = [w * multiplier for w in self.w[action]]
         
