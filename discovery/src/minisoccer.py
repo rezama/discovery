@@ -251,7 +251,7 @@ class MiniSoccerEnvironment(rl.Environment):
         super(MiniSoccerEnvironment, self).__init__(MiniSoccerState, GAMMA)
 
     def get_max_episode_reward(self):
-        distance_to_goal = self.MAX_X + 1 - MiniSoccerEnvironment.FIELD_WIDTH / 4
+#        distance_to_goal = self.MAX_X + 1 - MiniSoccerState.PLAYER_X_START
 #        return self.REWARD_WIN * (GAMMA ** distance_to_goal)
         return self.REWARD_WIN
 
@@ -388,6 +388,11 @@ class MiniSoccerState(rl.ModularState):
 #    ROLE_ATTACK = "ROLE_LTR"
 #    ROLE_DEFEND = "ROLE_RTL"
 
+    PLAYER_X_START = MiniSoccerEnvironment.FIELD_WIDTH / 4
+    PLAYER_Y_START = MiniSoccerEnvironment.MIN_GOAL_Y
+    OPPONENT_X_START = MiniSoccerEnvironment.FIELD_WIDTH * 3 / 4
+    OPPONENT_Y_START = MiniSoccerEnvironment.MAX_GOAL_Y
+
     def __init__(self, state_variables):
         environment_vars = MiniSoccerEnvironment.get_environment_vars()
         super(MiniSoccerState, self).__init__(state_variables + environment_vars)
@@ -399,28 +404,24 @@ class MiniSoccerState(rl.ModularState):
                        (MiniSoccerEnvironment.MAX_X + 1, MiniSoccerEnvironment.MAX_Y))
         
 #        if role == cls.ROLE_ATTACK:
-#            player_x = MiniSoccerEnvironment.FIELD_WIDTH / 4
-#            player_y = MiniSoccerEnvironment.MIN_GOAL_Y
-#            opponent_x = MiniSoccerEnvironment.FIELD_WIDTH * 3 / 4
-#            opponent_y = MiniSoccerEnvironment.MAX_GOAL_Y
+#            PLAYER_X_START = MiniSoccerEnvironment.FIELD_WIDTH / 4
+#            PLAYER_Y_START = MiniSoccerEnvironment.MIN_GOAL_Y
+#            OPPONENT_X_START = MiniSoccerEnvironment.FIELD_WIDTH * 3 / 4
+#            OPPONENT_Y_START = MiniSoccerEnvironment.MAX_GOAL_Y
 #            player_has_ball = True
 #        else:
-#            player_x = MiniSoccerEnvironment.FIELD_WIDTH * 3 / 4
-#            player_y = MiniSoccerEnvironment.MAX_GOAL_Y
-#            opponent_x = MiniSoccerEnvironment.FIELD_WIDTH / 4
-#            opponent_y = MiniSoccerEnvironment.MIN_GOAL_Y
+#            PLAYER_X_START = MiniSoccerEnvironment.FIELD_WIDTH * 3 / 4
+#            PLAYER_Y_START = MiniSoccerEnvironment.MAX_GOAL_Y
+#            OPPONENT_X_START = MiniSoccerEnvironment.FIELD_WIDTH / 4
+#            OPPONENT_Y_START = MiniSoccerEnvironment.MIN_GOAL_Y
 #            player_has_ball = False
         
-        player_x = MiniSoccerEnvironment.FIELD_WIDTH / 4
-        player_y = MiniSoccerEnvironment.MIN_GOAL_Y
-        opponent_x = MiniSoccerEnvironment.FIELD_WIDTH * 3 / 4
-        opponent_y = MiniSoccerEnvironment.MAX_GOAL_Y
 #        ball_with_player = random.choice((True, False))
         ball_with_player = True
 
-        player = rl.StateVarPoint2D("player", player_x, player_y,
+        player = rl.StateVarPoint2D("player", cls.PLAYER_X_START, cls.PLAYER_Y_START,
                 point_range, is_dynamic=True, is_continuous=True)
-        opponent = rl.StateVarPoint2D("opponent", opponent_x, opponent_y,
+        opponent = rl.StateVarPoint2D("opponent", cls.OPPONENT_X_START, cls.OPPONENT_Y_START,
                 point_range, is_dynamic=True, is_continuous=True)
         player_has_ball = rl.StateVarFlag("player_has_ball", ball_with_player, 
                                           is_dynamic=True) 
@@ -507,7 +508,7 @@ def learn_evolutionary():
     featurizer_point_x = rl.FeaturizerPointX(state_vars)
     featurizer_point_y = rl.FeaturizerPointY(state_vars)
     
-    featurizers_map = [(0.12, featurizer_retile),
+    featurizers_map = [(0.12, featurizer_retile), #@UnusedVariable
                        (0.15, featurizer_interaction),
                        (0.05, featurizer_flag),
                        (0.20, featurizer_angle),
@@ -532,7 +533,7 @@ def learn_evolutionary():
                        ]
 
     sum_prob = 0.0
-    for (prob, featurizer) in featurizers_map:
+    for (prob, featurizer) in featurizers_map: #@UnusedVariable
         sum_prob += prob
     print "Initialized %d featurizers, sum of selection probabilities: %f" % (len(featurizers_map), sum_prob)
 

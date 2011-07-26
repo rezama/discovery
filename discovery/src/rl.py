@@ -1309,7 +1309,7 @@ class SarsaLambdaFeaturized(Sarsa):
             #     1 - (M/n+1)
             # x = -----------
             #      n / (n+1)            
-            multiplier = 1.0 - (MUTATE_OPTIMISTIC_WEIGHTS_MULTIPLIER / num_features)
+            multiplier = 1.0 - (float(MUTATE_OPTIMISTIC_WEIGHTS_MULTIPLIER) / num_features)
             for action in self.agent.all_actions():
                 self.w[action][:] = [w * multiplier for w in self.w[action]]
         
@@ -1367,10 +1367,10 @@ class SarsaLambdaFeaturized(Sarsa):
                                         delta * self.e[action][i])
     
     def transition(self, state, action, reward, state_p, action_p):
-        s = str(state)
+        s = str(state) #@UnusedVariable
         a = action
-        sp = str(state_p)
-        ap = action_p
+        sp = str(state_p) #@UnusedVariable
+        ap = action_p #@UnusedVariable
 
         Fa = self.feature_set.encode_state(state)
         
@@ -1508,7 +1508,7 @@ def arbitrator_do_episode((agent, start_state, max_steps)):
     steps = 0
     while not agent.state.is_final():
         a = agent.select_action()
-        r = agent.transition(a)
+        r = agent.transition(a) #@UnusedVariable
         steps += 1
         if (max_steps != 0) and (steps >= max_steps):
             break
@@ -1656,7 +1656,7 @@ class ArbitratorEvolutionary(Arbitrator):
         for generation in range(self.num_generations):
             start_states = []
             start_seeds = []
-            for i in range(self.generation_episodes):
+            for i in range(self.generation_episodes): #@UnusedVariable
                 start_states.append(self.base_agent.environment.generate_start_state())
                 start_seeds.append(random.random())
             
