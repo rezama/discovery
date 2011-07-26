@@ -802,7 +802,11 @@ class FeaturizerFlag(Featurizer):
         
     def generate_feature(self, feature_list):
         flag_var = StateVarFlag.get_random_var(self.state_vars, [], is_dynamic=True)
-        return FeatureFlag(flag_var)
+        new_feature = FeatureFlag(flag_var)
+        for feature in feature_list:
+            if feature.get_name() == new_feature.get_name():
+                return None
+        return new_feature
         
 class FeaturizerAngle(Featurizer):
     
