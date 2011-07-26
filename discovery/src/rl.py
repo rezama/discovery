@@ -11,6 +11,7 @@ import copy
 import multiprocessing
 import os
 import subprocess
+import sys
 
 USE_NUMPY = False
 USE_MULTIPROCESSING = True
@@ -38,8 +39,9 @@ INIT_WEIGHTS_ZERO = "Zero"
 INIT_WEIGHTS_COPY = "Copy"
 
 INIT_FEATURE_WEIGHTS = INIT_WEIGHTS_OPTIMISTIC
-MUTATE_NEW_FEATURE_WEIGHTS = INIT_WEIGHTS_OPTIMISTIC
-MUTATE_OPTIMISTIC_WEIGHTS_MULTIPLIER = 1.0
+#MUTATE_NEW_FEATURE_WEIGHTS = INIT_WEIGHTS_ZERO
+MUTATE_NEW_FEATURE_WEIGHTS = INIT_WEIGHTS_ZERO
+MUTATE_OPTIMISTIC_WEIGHTS_MULTIPLIER = 0.5
 MUTATE_CROSS_OVER_WEIGHTS = INIT_WEIGHTS_COPY
 
 MUTATE_ADJUST_EXISTING_WEIGHTS = True
@@ -1632,6 +1634,14 @@ class ArbitratorEvolutionary(Arbitrator):
         self.population_size = population_size
         self.generation_episodes = generation_episodes
         self.champions = []
+        # check integrity of the featurizers map
+        sum_prob = 0.0
+        for (prob, featurizer) in featurizers_map: #@UnusedVariable
+            sum_prob += prob
+        print "Initialized %d featurizers" % len(featurizers_map)
+        if round(sum_prob, 4) != 1.0:
+            print "Aborting: sum of selection probabilities is %.2f" % sum_prob
+            sys.exit(-1)
 
     def test_agent(self, agent, start_states, max_steps):
         return arbitrator_test_agent((agent, start_states, max_steps,

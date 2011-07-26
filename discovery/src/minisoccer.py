@@ -29,7 +29,7 @@ NUM_EPISODES = 1000
 MAX_STEPS = 400
 
 # evolutionary parameters
-NUM_GENERATIONS = 10
+NUM_GENERATIONS = 15
 POPULATION_SIZE = 50
 GENERATION_EPISODES = 200
 
@@ -251,9 +251,9 @@ class MiniSoccerEnvironment(rl.Environment):
         super(MiniSoccerEnvironment, self).__init__(MiniSoccerState, GAMMA)
 
     def get_max_episode_reward(self):
-#        distance_to_goal = self.MAX_X + 1 - MiniSoccerState.PLAYER_X_START
-#        return self.REWARD_WIN * (GAMMA ** distance_to_goal)
-        return self.REWARD_WIN
+#        return self.REWARD_WIN
+        distance_to_goal = self.MAX_X + 1 - MiniSoccerState.PLAYER_X_START
+        return self.REWARD_WIN * (GAMMA ** distance_to_goal)
 
     @classmethod
     def get_environment_vars(cls):
@@ -510,32 +510,27 @@ def learn_evolutionary():
     
     featurizers_map = [(0.12, featurizer_retile), #@UnusedVariable
                        (0.15, featurizer_interaction),
-                       (0.05, featurizer_flag),
-                       (0.20, featurizer_angle),
-                       (0.08, featurizer_dist),
-                       (0.08, featurizer_dist_x),
-                       (0.08, featurizer_dist_y),
-                       (0.08, featurizer_point_xy),
-                       (0.08, featurizer_point_x),
-                       (0.08, featurizer_point_y)
-                       ]
-
-    featurizers_map = [(0.15, featurizer_retile),
-                       (0.10, featurizer_interaction),
                        (0.10, featurizer_flag),
                        (0.20, featurizer_angle),
-                       (0.15, featurizer_dist),
-                       (0.10, featurizer_dist_x),
-                       (0.10, featurizer_dist_y),
-                       (0.10, featurizer_point_xy),
-                       (0.0, featurizer_point_x),
-                       (0.0, featurizer_point_y)
+                       (0.08, featurizer_dist),
+                       (0.07, featurizer_dist_x),
+                       (0.07, featurizer_dist_y),
+                       (0.07, featurizer_point_xy),
+                       (0.07, featurizer_point_x),
+                       (0.07, featurizer_point_y)
                        ]
 
-    sum_prob = 0.0
-    for (prob, featurizer) in featurizers_map: #@UnusedVariable
-        sum_prob += prob
-    print "Initialized %d featurizers, sum of selection probabilities: %f" % (len(featurizers_map), sum_prob)
+#    featurizers_map = [(0.15, featurizer_retile),
+#                       (0.10, featurizer_interaction),
+#                       (0.10, featurizer_flag),
+#                       (0.20, featurizer_angle),
+#                       (0.15, featurizer_dist),
+#                       (0.10, featurizer_dist_x),
+#                       (0.10, featurizer_dist_y),
+#                       (0.10, featurizer_point_xy),
+#                       (0.0, featurizer_point_x),
+#                       (0.0, featurizer_point_y)
+#                       ]
 
     arbitrator = rl.ArbitratorEvolutionary(base_agent, featurizers_map, 
                     NUM_GENERATIONS, POPULATION_SIZE, GENERATION_EPISODES)
