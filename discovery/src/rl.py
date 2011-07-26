@@ -31,7 +31,7 @@ DEBUG_REPORT_ON_EPISODE = 100
 PLOT_INTERVALS = 100
 
 # default multiplier for initial Q values based on maximum possible reward
-INIT_Q_VALUE_MULT = 1.0
+INIT_Q_VALUE_MULTIPLIER = 1.0
 
 INIT_WEIGHTS_OPTIMISTIC = "Optimistic"
 INIT_WEIGHTS_ZERO = "Zero"
@@ -39,9 +39,10 @@ INIT_WEIGHTS_COPY = "Copy"
 
 INIT_FEATURE_WEIGHTS = INIT_WEIGHTS_OPTIMISTIC
 MUTATE_NEW_FEATURE_WEIGHTS = INIT_WEIGHTS_OPTIMISTIC
+MUTATE_OPTIMISTIC_WEIGHTS_MULTIPLIER = 1.0
 MUTATE_CROSS_OVER_WEIGHTS = INIT_WEIGHTS_COPY
 
-MUTATE_ADJUST_WEIGHTS = True
+MUTATE_ADJUST_EXISTING_WEIGHTS = True
 
 FORCE_DYNAMIC_PROB = 0.75
 
@@ -352,10 +353,10 @@ class FeatureSet(object):
             print "encoded state %s as: %s" % (state, encoding)
         return encoding
 
-    def len(self):
+    def get_encoding_length(self):
         return self.encoding_length
     
-    def get_feature_list_len(self):
+    def get_num_features(self):
         return len(self.feature_list)
     
     # creates a new list.  doesn't copy the actual features too.
@@ -937,7 +938,7 @@ class Mutator(object):
                     selected_featurizer = featurizer
         return selected_featurizer
     
-    def mutate(self, agent):
+    def mutateo(self, agent):
         feature_list = agent.feature_set.get_feature_list_copy()
         
         new_feature = None
@@ -953,8 +954,8 @@ class Mutator(object):
         
         if MUTATE_NEW_FEATURE_WEIGHTS == INIT_WEIGHTS_OPTIMISTIC or len(feature_list) == 1:
             new_segment_weights = ((agent.environment.get_max_episode_reward() * 
-                              INIT_Q_VALUE_MULT) / 
-                              new_feature_set.get_feature_list_len())
+                              INIT_Q_VALUE_MULTIPLIER) / 
+                              new_feature_set.get_num_features())
         else:
             new_segment_weights = 0
         
@@ -964,7 +965,7 @@ class Mutator(object):
         
         return new_agent
         
-    def mutatep(self, agent):
+    def mutate(self, agent):
         feature_list = agent.feature_set.feature_list
 
         new_feature = None
@@ -977,7 +978,7 @@ class Mutator(object):
 
         return new_agent
         
-    def cross_over(self, agent1, agent2):
+    def cross_overo(self, agent1, agent2):
         new_feature_list = agent1.feature_set.get_feature_list_copy()
         feature_list_from_agent2 = agent2.feature_set.get_feature_list_copy()
         last_feature_from_agent2 = feature_list_from_agent2[-1]
@@ -1002,7 +1003,7 @@ class Mutator(object):
         
         return new_agent
 
-    def cross_overp(self, agent1, agent2):
+    def cross_over(self, agent1, agent2):
         feature_list_from_agent2 = agent2.feature_set.feature_list
         last_feature_from_agent2 = feature_list_from_agent2[-1]
 
@@ -1108,7 +1109,7 @@ class SarsaLambda(Sarsa):
         self.Q = {}
         self.e = {}
         self.default_q = self.environment.get_max_episode_reward() * \
-                INIT_Q_VALUE_MULT
+                INIT_Q_VALUE_MULTIPLIER
         
         # set values for terminal state
 #        terminal_state_repr = str(self.environment.generate_terminal_state())
@@ -1268,53 +1269,55 @@ class SarsaLambdaFeaturized(Sarsa):
         self.e = {}
 
         self.feature_set = agent.feature_set
-
+        num_features = self.feature_set.get_num_features()
         if INIT_FEATURE_WEIGHTS == INIT_WEIGHTS_OPTIMISTIC and \
-                (self.feature_set.get_feature_list_len() > 0):
-            self.default_w = ((self.environment.get_max_episode_reward() * 
-                              INIT_Q_VALUE_MULT) / 
-                              self.feature_set.get_feature_list_len())
-    
+                (self.feature_set.get_num_features() > 0):
+            optimistic_reward = (self.environment.get_max_episode_reward() * 
+                                 INIT_Q_VALUE_MULTIPLIER)
+            self.default_w = float(optimistic_reward) / num_features
         else:
             self.default_w = 0
             
         for action in self.agent.all_actions():
             if USE_NUMPY:
-                self.w[action] = numpy.ones(self.feature_set.len()) * \
-                        self.default_w
+                self.w[action] = numpy.ones(
+                        self.feature_set.get_encoding_length()) * self.default_w
             else:
-                self.w[action] = [self.default_w] * self.feature_set.len()
+                self.w[action] = [self.default_w] * self.feature_set.get_encoding_length()
 
     def add_feature(self, feature):
-        num_features = self.agent.feature_set.get_feature_list_len()
+        num_features = self.feature_set.get_num_features()
         if MUTATE_NEW_FEATURE_WEIGHTS == INIT_WEIGHTS_OPTIMISTIC:
-            new_segment_weights = (self.agent.environment.get_max_episode_reward() * 
-                                   INIT_Q_VALUE_MULT / num_features)
+            optimistic_reward = (self.agent.environment.get_max_episode_reward() *
+                                 MUTATE_OPTIMISTIC_WEIGHTS_MULTIPLIER * 
+                                 INIT_Q_VALUE_MULTIPLIER)
+            new_segment_weights = float(optimistic_reward) / num_features
         else:
             new_segment_weights = 0
         
-        if MUTATE_ADJUST_WEIGHTS:
+        if MUTATE_ADJUST_EXISTING_WEIGHTS:
             multiplier = float(num_features - 1) / float(num_features) 
             for action in self.agent.all_actions():
                 self.w[action][:] = [w * multiplier for w in self.w[action]]
-
+        
+        # add new weights
         for action in self.agent.all_actions():
             self.w[action] += [new_segment_weights] * feature.get_encoding_length()
 
     def begin_episode(self, state):
         if USE_NUMPY:
             for action in self.agent.all_actions():
-                self.e[action] = numpy.zeros(self.feature_set.len())
+                self.e[action] = numpy.zeros(self.feature_set.get_encoding_length())
         else:
             for action in self.agent.all_actions():
-                self.e[action] = [0] * self.feature_set.len()
+                self.e[action] = [0] * self.feature_set.get_encoding_length()
                 
     def compute_Q(self, features_present, action):
         sum = 0
         if USE_NUMPY:
             sum = numpy.dot(self.w[action], features_present)
         else:
-            for i in range(self.feature_set.len()):
+            for i in range(self.feature_set.get_encoding_length()):
                 sum += self.w[action][i] * features_present[i]
         return sum
     
@@ -1339,13 +1342,13 @@ class SarsaLambdaFeaturized(Sarsa):
         return (action, value)
 
     def update_weights(self, delta):
-        alpha = self.alpha / self.feature_set.get_feature_list_len()
+        alpha = self.alpha / self.feature_set.get_num_features()
         for action in self.agent.all_actions():
             if USE_NUMPY:
                 self.w[action] += (self.e[action] * alpha * delta)
             else:
 #                self.w[action] += [alpha * delta * self.e[action][i]
-#                                         for i in len(self.w[action])] 
+#                                         for i in get_encoding_length(self.w[action])] 
                 for i in range(len(self.w[action])):
                     self.w[action][i] += (alpha * 
                                         delta * self.e[action][i])
@@ -1379,7 +1382,7 @@ class SarsaLambdaFeaturized(Sarsa):
             sigma_w_Fa = numpy.dot(Fa, self.w[a])
         else:
             sigma_w_Fa = self.compute_Q(Fa, a)
-#            for i in range(len(Fa)):
+#            for i in range(get_encoding_length(Fa)):
 #                if Fa[i] == 1:
 #                    sigma_w_Fa += self.w[a][i]
         
@@ -1397,10 +1400,10 @@ class SarsaLambdaFeaturized(Sarsa):
 #        self.agent.episode_trace = ""
 #        if USE_NUMPY:
 #            for action in self.agent.all_actions():
-#                self.e[action] = numpy.zeros(self.feature_set.len())
+#                self.e[action] = numpy.zeros(self.feature_set.get_encoding_length())
 #        else:
 #            for action in self.agent.all_actions():
-#                self.e[action] = [0] * self.feature_set.len()
+#                self.e[action] = [0] * self.feature_set.get_encoding_length()
 #        episode_reward = 0
 #
 #        self.agent.begin_episode(start_state)
@@ -1414,10 +1417,10 @@ class SarsaLambdaFeaturized(Sarsa):
 #            for action in self.agent.all_actions():
 ##                self.e[action] = [e * self.gamma * self.lamda 
 ##                                  for e in self.e[action]]
-#                for i in range(len(self.e[action])):
+#                for i in range(get_encoding_length(self.e[action])):
 #                    self.e[action][i] *= (self.gamma * self.lamda)
 #                    
-#            for i in range(len(Fa)):
+#            for i in range(get_encoding_length(Fa)):
 #                if Fa[i] == 1:
 #                    # replacing traces
 #                    self.e[a][i] = 1
@@ -1438,7 +1441,7 @@ class SarsaLambdaFeaturized(Sarsa):
 #                sigma_w_Fa = numpy.dot(Fa, self.w[a])
 #            else:
 #                sigma_w_Fa = self.compute_Q(Fa, a)
-##                for i in range(len(Fa)):
+##                for i in range(get_encoding_length(Fa)):
 ##                    if Fa[i] == 1:
 ##                        sigma_w_Fa += self.w[a][i]
 #
@@ -1545,7 +1548,7 @@ class Arbitrator(object):
         os.chdir("results")
         if DEBUG_PROGRESS:
             print "generating plot"
-        subprocess.call('gnuplot %s' % script_name, shell=True)
+        subprocess.call('gnuplot ../plot/%s' % script_name, shell=True)
         os.chdir(orig_wd)
         
 class ArbitratorStandard(Arbitrator):
