@@ -40,7 +40,7 @@ INIT_WEIGHTS_COPY = "Copy"
 
 INIT_FEATURE_WEIGHTS = INIT_WEIGHTS_OPTIMISTIC
 #MUTATE_NEW_FEATURE_WEIGHTS = INIT_WEIGHTS_ZERO
-MUTATE_NEW_FEATURE_WEIGHTS = INIT_WEIGHTS_ZERO
+MUTATE_NEW_FEATURE_WEIGHTS = INIT_WEIGHTS_OPTIMISTIC
 MUTATE_OPTIMISTIC_WEIGHTS_MULTIPLIER = 0.5
 MUTATE_CROSS_OVER_WEIGHTS = INIT_WEIGHTS_COPY
 
@@ -1292,6 +1292,7 @@ class SarsaLambdaFeaturized(Sarsa):
                 self.w[action] = [self.default_w] * self.feature_set.get_encoding_length()
 
     def add_feature(self, feature):
+        # feature_set has already received the new feature
         num_features = self.feature_set.get_num_features()
         if MUTATE_NEW_FEATURE_WEIGHTS == INIT_WEIGHTS_OPTIMISTIC:
             optimistic_reward = (self.agent.environment.get_max_episode_reward() *
@@ -1301,7 +1302,8 @@ class SarsaLambdaFeaturized(Sarsa):
         else:
             new_segment_weights = 0
         
-        if MUTATE_ADJUST_EXISTING_WEIGHTS:
+        if (MUTATE_NEW_FEATURE_WEIGHTS == INIT_WEIGHTS_OPTIMISTIC) and \
+                MUTATE_ADJUST_EXISTING_WEIGHTS:
 #            multiplier = float(num_features - 1) / float(num_features)
             # now we have to factor in MUTATE_OPTIMISTIC_WEIGHT_MULTIPLIER
             # 1 2 ... n          n+1
@@ -1310,6 +1312,7 @@ class SarsaLambdaFeaturized(Sarsa):
             # * n/(n+1) * x     * 1/(n+1) * M
             # 
             # n/(n+1) + 1/(n+1) = 1
+            #
             # n/(n+1) * x + 1/n+1 * M = 1
             # n/(n+1) * x = 1 - M/(n+1)
             #     1 - (M/n+1)
