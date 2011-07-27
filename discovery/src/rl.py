@@ -34,17 +34,15 @@ PLOT_INTERVALS = 100
 # default multiplier for initial Q values based on maximum possible reward
 INIT_Q_VALUE_MULTIPLIER = 1.0
 
-INIT_WEIGHTS_OPTIMISTIC = "Optimistic"
 INIT_WEIGHTS_ZERO = "Zero"
+INIT_WEIGHTS_OPTIMISTIC = "Optimistic"
 INIT_WEIGHTS_COPY = "Copy"
 
 INIT_FEATURE_WEIGHTS = INIT_WEIGHTS_OPTIMISTIC
 #MUTATE_NEW_FEATURE_WEIGHTS = INIT_WEIGHTS_ZERO
 MUTATE_NEW_FEATURE_WEIGHTS = INIT_WEIGHTS_OPTIMISTIC
-MUTATE_OPTIMISTIC_WEIGHTS_MULTIPLIER = 0.5
+MUTATE_OPTIMISTIC_WEIGHTS_MULTIPLIER = 1.0
 MUTATE_CROSS_OVER_WEIGHTS = INIT_WEIGHTS_COPY
-
-MUTATE_ADJUST_EXISTING_WEIGHTS = True
 
 FORCE_DYNAMIC_PROB = 0.75
 
@@ -897,6 +895,9 @@ class FeaturizerPointY(Featurizer):
         
 class FeaturizerInteraction(Featurizer):
     
+    MAX_NUM_FEATURES = 3
+    MAX_DEGREE = 4
+    
     def __init__(self, state_vars):
         super(FeaturizerInteraction, self).__init__(state_vars)
         
@@ -907,10 +908,19 @@ class FeaturizerInteraction(Featurizer):
             rand2_index = int(random.random() * len(feature_list))
             feature1 = feature_list[rand1_index]
             feature2 = feature_list[rand2_index]
+            # don't create interactions of the same feature
             if feature1.get_name() != feature2.get_name():
-                feature1_copy = copy.deepcopy(feature1)
-                feature2_copy = copy.deepcopy(feature2)
-                new_feature = FeatureInteraction([feature1_copy, feature2_copy])
+                # don't create interactions of size more than MAX_NUM_FEATURES
+                size1 = len(feature1.get_underlying_features())
+                size2 = len(feature2.get_underlying_features())
+                if size1 + size2 <= self.MAX_NUM_FEATURES:
+                    # don't create interactions with more tiles than 10 ^ MAX_DEGREE
+                    encoding_length1 = feature1.get_encoding_length()
+                    encoding_length2 = feature2.get_encoding_length()
+                    if (encoding_length1 * encoding_length2) < (TiledFeature.DEFAULT_NUM_TILES ** self.MAX_DEGREE): 
+                        feature1_copy = copy.deepcopy(feature1)
+                        feature2_copy = copy.deepcopy(feature2)
+                        new_feature = FeatureInteraction([feature1_copy, feature2_copy])
         return new_feature
 
 class FeaturizerRetile(Featurizer):
@@ -1302,8 +1312,8 @@ class SarsaLambdaFeaturized(Sarsa):
         else:
             new_segment_weights = 0
         
-        if (MUTATE_NEW_FEATURE_WEIGHTS == INIT_WEIGHTS_OPTIMISTIC) and \
-                MUTATE_ADJUST_EXISTING_WEIGHTS:
+        # adjust existing weights
+        if MUTATE_NEW_FEATURE_WEIGHTS == INIT_WEIGHTS_OPTIMISTIC:
 #            multiplier = float(num_features - 1) / float(num_features)
             # now we have to factor in MUTATE_OPTIMISTIC_WEIGHT_MULTIPLIER
             # 1 2 ... n          n+1
