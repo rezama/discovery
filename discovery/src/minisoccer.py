@@ -511,13 +511,13 @@ def learn_evolutionary():
     featurizers_map = [(0.12, featurizer_retile), #@UnusedVariable
                        (0.15, featurizer_interaction),
                        (0.10, featurizer_flag),
-                       (0.20, featurizer_angle),
-                       (0.08, featurizer_dist),
-                       (0.07, featurizer_dist_x),
-                       (0.07, featurizer_dist_y),
+                       (0.16, featurizer_angle),
+                       (0.12, featurizer_dist),
+                       (0.09, featurizer_dist_x),
+                       (0.09, featurizer_dist_y),
                        (0.07, featurizer_point_xy),
-                       (0.07, featurizer_point_x),
-                       (0.07, featurizer_point_y)
+                       (0.05, featurizer_point_x),
+                       (0.05, featurizer_point_y)
                        ]
 
 #    featurizers_map = [(0.15, featurizer_retile),
