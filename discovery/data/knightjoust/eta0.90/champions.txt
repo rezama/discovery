@@ -1,0 +1,45 @@
+Champion 0, average reward: 243.00
+dist(opponent-lowerleft)[0.2]
+
+Champion 1, average reward: 255.42
+dist(opponent-lowerleft)[0.2]
+
+Champion 2, average reward: 261.72
+dist(opponent-lowerleft)[0.2]
+
+Champion 3, average reward: 252.15
+dist(opponent-lowerleft)[0.2] | dist(player-opponent)[0.6]
+
+Champion 4, average reward: 251.91
+dist(opponent-lowerleft)[0.2]
+
+Champion 5, average reward: 261.63
+dist(opponent-lowerleft)[0.2]
+
+Champion 6, average reward: 269.24
+dist(opponent-lowerleft)[0.2] | dist(player-opponent)[0.6]
+
+Champion 7, average reward: 248.43
+dist(opponent-lowerleft)[0.2] | dist(player-opponent)[0.6]
+
+Champion 8, average reward: 244.70
+dist(opponent-lowerleft)[0.2] | dist(player-opponent)[0.6]
+
+Champion 9, average reward: 246.73
+dist(opponent-lowerleft)[0.2] | dist(player-opponent)[0.6]
+
+Champion 10, average reward: 256.37
+dist(opponent-lowerleft)[0.2] | dist(player-opponent)[0.6]
+
+Champion 11, average reward: 250.70
+dist(opponent-lowerleft)[0.2] | dist(player-opponent)[0.6]
+
+Champion 12, average reward: 254.18
+dist(opponent-lowerleft)[0.2] | dist(player-opponent)[0.6]
+
+Champion 13, average reward: 237.58
+dist(opponent-lowerleft)[0.2] | dist(player-opponent)[0.6] | dist(player-opponent)[0.6]
+
+Champion 14, average reward: 225.04
+dist(opponent-lowerleft)[0.2] | dist(player-opponent)[0.6] | dist(player-opponent)[0.6]
+

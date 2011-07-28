@@ -1,6 +1,7 @@
 set terminal postscript eps color
 
-set yrange  [-0.1:0.55]
+set yrange  [-0.1:0.50]
+set key left top
 
 set output "graph-champion-interval.eps"
 set xlabel "Episode"

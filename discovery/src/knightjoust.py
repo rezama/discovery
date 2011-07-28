@@ -14,9 +14,9 @@ NUM_TRIALS = 1
 NUM_EPISODES = 1000
 
 # evolutionary settings
-NUM_GENERATIONS = 20
+NUM_GENERATIONS = 15
 POPULATION_SIZE = 30
-GENERATION_EPISODES = 500
+GENERATION_EPISODES = 200
 
 class KnightJoustStateBasedAgent(rl.AgentStateBased):
     
@@ -419,8 +419,8 @@ def test_stuff():
 
 if __name__ == '__main__':
 
-    learn_w_raw_state()
+#    learn_w_raw_state()
 #    learn_w_features()
 #    learn_w_multitile_features()
-#    learn_evolutionary()
+    learn_evolutionary()
 #    test_stuff()

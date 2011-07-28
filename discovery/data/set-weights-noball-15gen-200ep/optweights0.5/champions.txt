@@ -1,0 +1,45 @@
+Champion 0, average reward: -0.18
+angle(player-opponent-upperright)[0.5]
+
+Champion 1, average reward: -0.02
+angle(player-opponent-upperright)[0.5] | angle(player-rightgoalbottom-opponent)[0.6] | flag(player_has_ball)
+
+Champion 2, average reward: 0.06
+angle(player-opponent-upperright)[0.5] | angle(player-rightgoalbottom-opponent)[0.6] | flag(player_has_ball) | pointX(opponent)[0.9]
+
+Champion 3, average reward: 0.09
+angle(player-opponent-upperright)[0.5] | angle(player-rightgoalbottom-opponent)[0.6] | flag(player_has_ball) | pointX(opponent)[0.9] | interaction(angle(player-rightgoalbottom-opponent)[0.6] * flag(player_has_ball))
+
+Champion 4, average reward: 0.11
+angle(player-opponent-upperright)[0.5] | angle(player-rightgoalbottom-opponent)[0.6] | flag(player_has_ball) | pointX(opponent)[0.9] | interaction(angle(player-rightgoalbottom-opponent)[0.6] * flag(player_has_ball)) | angle(opponent-rightgoalcenter-player)[0.7]
+
+Champion 5, average reward: 0.11
+angle(player-opponent-upperright)[0.5] | angle(player-rightgoalbottom-opponent)[0.6] | flag(player_has_ball) | pointX(opponent)[0.9] | interaction(angle(player-rightgoalbottom-opponent)[0.6] * flag(player_has_ball)) | angle(opponent-rightgoalcenter-player)[0.7] | angle(player-opponent-upperright)[0.2]
+
+Champion 6, average reward: 0.15
+angle(player-opponent-upperright)[0.5] | angle(player-rightgoalbottom-opponent)[0.6] | flag(player_has_ball) | pointX(opponent)[0.9] | interaction(angle(player-rightgoalbottom-opponent)[0.6] * flag(player_has_ball)) | angle(opponent-rightgoalcenter-player)[0.7] | angle(player-opponent-upperright)[0.2] | dist-X(player-opponent)[1] | pointXY(player)[0.8]
+
+Champion 7, average reward: 0.17
+angle(player-opponent-upperright)[0.5] | angle(player-rightgoalbottom-opponent)[0.6] | flag(player_has_ball) | pointX(opponent)[0.9] | interaction(angle(player-rightgoalbottom-opponent)[0.6] * flag(player_has_ball)) | angle(opponent-rightgoalcenter-player)[0.7] | angle(player-opponent-upperright)[0.2] | dist-X(player-opponent)[1] | pointXY(player)[0.8] | pointXY(opponent)[0.4]
+
+Champion 8, average reward: 0.20
+angle(player-opponent-upperright)[0.5] | angle(player-rightgoalbottom-opponent)[0.6] | flag(player_has_ball) | pointX(opponent)[0.9] | interaction(angle(player-rightgoalbottom-opponent)[0.6] * flag(player_has_ball)) | angle(opponent-rightgoalcenter-player)[0.7] | angle(player-opponent-upperright)[0.2] | dist-X(player-opponent)[1] | pointXY(player)[0.8] | dist(player-opponent)[0.5] | interaction(pointXY(player)[0.8] * angle(player-rightgoalbottom-opponent)[0.6]) | angle(player-leftgoalcenter-rightgoalcenter)[0.7]
+
+Champion 9, average reward: 0.24
+angle(player-opponent-upperright)[0.5] | angle(player-rightgoalbottom-opponent)[0.6] | flag(player_has_ball) | pointX(opponent)[0.9] | interaction(angle(player-rightgoalbottom-opponent)[0.6] * flag(player_has_ball)) | angle(opponent-rightgoalcenter-player)[0.7] | angle(player-opponent-upperright)[0.2] | dist-X(player-opponent)[1] | pointXY(player)[0.8] | pointXY(opponent)[0.4] | interaction(pointXY(player)[0.8] * angle(player-rightgoalbottom-opponent)[0.6]) | interaction(dist-X(player-opponent)[1] * pointX(opponent)[0.9])
+
+Champion 10, average reward: 0.26
+angle(player-opponent-upperright)[0.5] | angle(player-rightgoalbottom-opponent)[0.6] | flag(player_has_ball) | pointX(opponent)[0.9] | interaction(angle(player-rightgoalbottom-opponent)[0.6] * flag(player_has_ball)) | angle(opponent-rightgoalcenter-player)[0.7] | angle(player-opponent-upperright)[0.2] | dist-X(player-opponent)[1] | pointXY(player)[0.8] | pointXY(opponent)[0.4] | interaction(pointXY(player)[0.8] * angle(player-rightgoalbottom-opponent)[0.6]) | interaction(dist-X(player-opponent)[1] * pointX(opponent)[0.9]) | dist-X(opponent-player)[0] | dist(player-opponent)[0.8]
+
+Champion 11, average reward: 0.25
+angle(player-opponent-upperright)[0.5] | angle(player-rightgoalbottom-opponent)[0.6] | flag(player_has_ball) | pointX(opponent)[0.9] | interaction(angle(player-rightgoalbottom-opponent)[0.6] * flag(player_has_ball)) | angle(opponent-rightgoalcenter-player)[0.7] | angle(player-opponent-upperright)[0.2] | dist-X(player-opponent)[1] | pointXY(player)[0.8] | pointXY(opponent)[0.4] | interaction(pointXY(player)[0.8] * angle(player-rightgoalbottom-opponent)[0.6]) | interaction(dist-X(player-opponent)[1] * pointX(opponent)[0.9]) | dist-X(opponent-player)[0] | dist(player-opponent)[0.8] | pointX(player)[0.1]
+
+Champion 12, average reward: 0.27
+angle(player-opponent-upperright)[0.5] | angle(player-rightgoalbottom-opponent)[0.6] | flag(player_has_ball) | pointX(opponent)[0.9] | interaction(angle(player-rightgoalbottom-opponent)[0.6] * flag(player_has_ball)) | angle(opponent-rightgoalcenter-player)[0.7] | angle(player-opponent-upperright)[0.2] | dist-X(player-opponent)[1] | pointXY(player)[0.8] | pointXY(opponent)[0.4] | interaction(pointXY(player)[0.8] * angle(player-rightgoalbottom-opponent)[0.6]) | interaction(dist-X(player-opponent)[1] * pointX(opponent)[0.9]) | dist-X(opponent-player)[0] | dist(player-opponent)[0.8] | pointX(player)[0.1] | dist(player-opponent)[0.7]
+
+Champion 13, average reward: 0.25
+angle(player-opponent-upperright)[0.5] | angle(player-rightgoalbottom-opponent)[0.6] | flag(player_has_ball) | pointX(opponent)[0.9] | interaction(angle(player-rightgoalbottom-opponent)[0.6] * flag(player_has_ball)) | angle(opponent-rightgoalcenter-player)[0.7] | angle(player-opponent-upperright)[0.2] | dist-X(player-opponent)[1] | pointXY(player)[0.8] | pointXY(opponent)[0.4] | interaction(pointXY(player)[0.8] * angle(player-rightgoalbottom-opponent)[0.6]) | interaction(dist-X(player-opponent)[1] * pointX(opponent)[0.9]) | dist-X(opponent-player)[0] | dist(player-opponent)[0.8] | pointX(player)[0.1] | dist(player-opponent)[0.7] | dist(opponent-upperleft)[0.9]
+
+Champion 14, average reward: 0.29
+angle(player-opponent-upperright)[0.5] | angle(player-rightgoalbottom-opponent)[0.6] | flag(player_has_ball) | pointX(opponent)[0.9] | interaction(angle(player-rightgoalbottom-opponent)[0.6] * flag(player_has_ball)) | angle(opponent-rightgoalcenter-player)[0.7] | angle(player-opponent-upperright)[0.2] | dist-X(player-opponent)[1] | pointXY(player)[0.8] | pointXY(opponent)[0.4] | interaction(pointXY(player)[0.8] * angle(player-rightgoalbottom-opponent)[0.6]) | interaction(dist-X(player-opponent)[1] * pointX(opponent)[0.9]) | dist-X(opponent-player)[0] | dist(player-opponent)[0.8] | pointX(player)[0.1] | dist(player-opponent)[0.7] | dist(opponent-upperleft)[0.9] | interaction(pointX(player)[0.1] * pointXY(opponent)[0.4]) | dist(player-opponent)[0.5]
+

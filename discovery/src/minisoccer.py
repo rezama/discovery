@@ -418,6 +418,7 @@ class MiniSoccerState(rl.ModularState):
         
 #        ball_with_player = random.choice((True, False))
         ball_with_player = True
+#        ball_with_player = False
 
         player = rl.StateVarPoint2D("player", cls.PLAYER_X_START, cls.PLAYER_Y_START,
                 point_range, is_dynamic=True, is_continuous=True)

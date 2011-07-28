@@ -15,9 +15,9 @@ NUM_TRIALS = 1
 NUM_EPISODES = 2000
 
 # evolutionary parameters
-NUM_GENERATIONS = 20
+NUM_GENERATIONS = 15
 POPULATION_SIZE = 50
-GENERATION_EPISODES = 500
+GENERATION_EPISODES = 200
 
 # reporting
 PLOT_INTERVALS = 100
@@ -331,5 +331,5 @@ def learn_evolutionary():
     
 if __name__ == '__main__':
 
-    learn_w_multitile_features()
-#    learn_evolutionary()
+#    learn_w_multitile_features()
+    learn_evolutionary()

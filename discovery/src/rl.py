@@ -46,6 +46,8 @@ MUTATE_CROSS_OVER_WEIGHTS = INIT_WEIGHTS_COPY
 
 FORCE_DYNAMIC_PROB = 0.75
 
+ETA = 0.95
+
 class AgentStateBased(object):
 
     def __init__(self, actions, environment):
@@ -333,7 +335,7 @@ class FeatureSet(object):
             if is_first:
                 is_first = False
             else:
-                names += "-"
+                names += " | "
             names += feature.get_name()
         return names
         
@@ -356,6 +358,12 @@ class FeatureSet(object):
     def get_encoding_length(self):
         return self.encoding_length
     
+    def get_degree(self):
+        degree = 0
+        for feature in self.feature_list:
+            degree += feature.get_degree()
+        return degree
+
     def get_num_features(self):
         return len(self.feature_list)
     
@@ -385,6 +393,9 @@ class Feature(object):
     
     def reconfigure(self):
         pass
+    
+    def get_degree(self):
+        return 1
     
 class TiledFeature(Feature):
 
@@ -684,6 +695,9 @@ class FeaturePointXY(Feature):
 
     def get_encoding_length(self):
         return self.num_tiles
+    
+    def get_degree(self):
+        return 2
 
     def encode_state(self, state):
         if USE_NUMPY:
@@ -740,14 +754,14 @@ class FeaturePointY(TiledFeature):
 class FeatureInteraction(Feature):
     
     def __init__(self, base_feature_list):
-        self.all_features = []
+        self.base_features = []
         for base_feature in base_feature_list:
-            self.all_features += base_feature.get_underlying_features()
+            self.base_features += base_feature.get_underlying_features()
         
         num_tiles = 1
         name = "interaction("
         is_first = True
-        for feature in self.all_features:
+        for feature in self.base_features:
             num_tiles *= feature.get_num_tiles()
             if is_first:
                 is_first = False
@@ -763,13 +777,19 @@ class FeatureInteraction(Feature):
         return self.name
     
     def get_underlying_features(self):
-        return self.all_features
+        return self.base_features
     
     def get_num_tiles(self):
         return self.num_tiles
 
     def get_encoding_length(self):
         return self.num_tiles
+    
+    def get_degree(self):
+        degree = 0
+        for feature in self.base_features:
+            degree += feature.get_degree()
+        return degree
 
     def encode_state(self, state):
         if USE_NUMPY:
@@ -779,7 +799,7 @@ class FeatureInteraction(Feature):
         
         feature_index = 0
         multiplier = 1
-        for feature in self.all_features:
+        for feature in self.base_features:
             encoding = feature.encode_state(state)
             feature_index += multiplier * encoding.index(1)
             multiplier *= feature.get_encoding_length()    
@@ -1721,19 +1741,23 @@ class ArbitratorEvolutionary(Arbitrator):
                     agent.reward_log[episode]
             
                 average_reward = float(sum(agent.reward_log)) / self.generation_episodes
-                generation_performance.append((average_reward, agent))
+#                computational_cost_multiplier = ETA ** (float(
+#                        agent.feature_set.get_encoding_length()) / TiledFeature.DEFAULT_NUM_TILES) 
+                computational_cost_multiplier = ETA ** agent.feature_set.get_degree()
+                normalized_reward = average_reward * computational_cost_multiplier
+                generation_performance.append((normalized_reward, average_reward, agent))
             
             # select generation champion
             generation_sorted = sorted(generation_performance, reverse=True)  
             surviving_agents = []
-            champion1 = generation_sorted[0][1]
+            champion1 = generation_sorted[0][2]
             champion1_reward = generation_sorted[0][0]
             self.champions.append((champion1, champion1_reward))
             # select runner up such that it does not have the same features
             # as the champion
             index = 1
             while True:
-                champion2 = generation_sorted[index][1]
+                champion2 = generation_sorted[index][2]
                 if champion2.get_name() != champion1.get_name():
                     break
                 index += 1
@@ -1747,7 +1771,7 @@ class ArbitratorEvolutionary(Arbitrator):
             
             if DEBUG_PROGRESS:
                 print "generation champion: %s" % champion1.feature_set
-                print "with average reward: %.4f" % generation_sorted[0][0]
+                print "with average reward: %.4f" % generation_sorted[0][1]
             if DEBUG_ALG_VALUES:
                 print "values:"    
                 champion1.algorithm.print_w()
