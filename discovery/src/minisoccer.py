@@ -32,6 +32,7 @@ MAX_STEPS = 400
 NUM_GENERATIONS = 15
 POPULATION_SIZE = 50
 GENERATION_EPISODES = 200
+CHAMPION_TRIALS = 20
 
 # always on the left
 class MiniSoccerAgent(rl.AgentFeatureBased):
@@ -534,7 +535,8 @@ def learn_evolutionary():
 #                       ]
 
     arbitrator = rl.ArbitratorEvolutionary(base_agent, featurizers_map, 
-                    NUM_GENERATIONS, POPULATION_SIZE, GENERATION_EPISODES)
+                    NUM_GENERATIONS, POPULATION_SIZE, GENERATION_EPISODES,
+                    CHAMPION_TRIALS)
     arbitrator.execute(MAX_STEPS)
     
 if __name__ == '__main__':

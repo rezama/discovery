@@ -46,7 +46,7 @@ MUTATE_CROSS_OVER_WEIGHTS = INIT_WEIGHTS_COPY
 
 FORCE_DYNAMIC_PROB = 0.75
 
-ETA = 0.95
+ETA = 1.0
 
 class AgentStateBased(object):
 
@@ -138,6 +138,14 @@ class AgentStateBased(object):
                 print chunk
         
         return reward
+    
+    def save_learning_state(self):
+        if self.algorithm is not None:
+            self.algorithm.save_learning_state()
+
+    def restore_learning_state(self):
+        if self.algorithm is not None:
+            self.algorithm.restore_learning_state()
 
 class AgentFeatureBased(AgentStateBased):
 
@@ -1143,6 +1151,7 @@ class SarsaLambda(Sarsa):
                  lamda = Sarsa.DEFAULT_LAMBDA):
         super(SarsaLambda, self).__init__(agent, alpha, epsilon, lamda)
         self.Q = {}
+        self.Q_save = {}
         self.e = {}
         self.default_q = self.environment.get_max_episode_reward() * \
                 INIT_Q_VALUE_MULTIPLIER
@@ -1276,6 +1285,12 @@ class SarsaLambda(Sarsa):
 #
 #        return episode_reward
 
+    def save_learning_state(self):
+        self.Q_save = self.Q
+        
+    def restore_learning_state(self):
+        self.Q = self.Q_save
+
     def print_Q(self):
         Q_keys = self.Q.keys()
         Q_keys.sort()
@@ -1302,6 +1317,7 @@ class SarsaLambdaFeaturized(Sarsa):
                  lamda = Sarsa.DEFAULT_LAMBDA):
         super(SarsaLambdaFeaturized, self).__init__(agent, alpha, epsilon, lamda)
         self.w = {}
+        self.w_save = {}
         self.e = {}
 
         self.feature_set = agent.feature_set
@@ -1518,7 +1534,12 @@ class SarsaLambdaFeaturized(Sarsa):
 #
 #        return episode_reward
          
-
+    def save_learning_state(self):
+        self.w_save = self.w
+        
+    def restore_learning_state(self):
+        self.w = self.w_save
+        
     def print_w(self):
         w_keys = self.w.keys()
         w_keys.sort()
@@ -1556,25 +1577,33 @@ def arbitrator_do_episode((agent, start_state, max_steps)):
     return (episode_reward, steps)
     
 def arbitrator_test_agent((agent, start_states, max_steps, generation_episodes,
-                          do_episode_func)):
+                          num_trials, do_episode_func)):
     if DEBUG_PROGRESS and not USE_MULTIPROCESSING:
         print "testing agent: " + str(agent.feature_set)
     agent.reward_log = [0] * generation_episodes
+    agent.save_learning_state()
+    for trial in range(num_trials): #@UnusedVariable
+        agent.restore_learning_state()
+        for episode in range(generation_episodes):
+            start_state_index = (episode + trial) % generation_episodes 
+            # get start state
+            start_state = copy.deepcopy(start_states[start_state_index])
+            # seed random number generator
+    #                random.seed(start_seeds[episode])
+            random.seed(start_states[episode])
+            (episode_reward, steps) = do_episode_func((agent, start_state, max_steps))
+            agent.reward_log[episode] += episode_reward
+    
+            if DEBUG_EPISODE_REWARD:
+                print "episode %i: reward %.2f, steps:%d" % (episode,
+                                                episode_reward, steps)
+            if DEBUG_ALG_VALUES:
+                print "values:"
+                agent.algorithm.print_values()
+    
+    # average rewards over trials
     for episode in range(generation_episodes):
-        # get start state
-        start_state = copy.deepcopy(start_states[episode])
-        # seed random number generator
-#                random.seed(start_seeds[episode])
-        random.seed(start_states[episode])
-        (episode_reward, steps) = do_episode_func((agent, start_state, max_steps))
-        agent.reward_log[episode] += episode_reward
-
-        if DEBUG_EPISODE_REWARD:
-            print "episode %i: reward %.2f, steps:%d" % (episode,
-                                            episode_reward, steps)
-        if DEBUG_ALG_VALUES:
-            print "values:"
-            agent.algorithm.print_values()
+        agent.reward_log[episode] = float(agent.reward_log[episode]) / num_trials
             
     if DEBUG_PROGRESS:
         if USE_MULTIPROCESSING:
@@ -1659,13 +1688,14 @@ class ArbitratorStandard(Arbitrator):
 class ArbitratorEvolutionary(Arbitrator):
     
     def __init__(self, base_agent, featurizers_map, num_generations, 
-                 population_size, generation_episodes):
+                 population_size, generation_episodes, champion_trials):
         super(ArbitratorEvolutionary, self).__init__()
         self.base_agent = base_agent
         self.featurizers_map = featurizers_map
         self.num_generations = num_generations
         self.population_size = population_size
         self.generation_episodes = generation_episodes
+        self.champion_trials = champion_trials
         self.champions = []
         # check integrity of the featurizers map
         sum_prob = 0.0
@@ -1676,9 +1706,10 @@ class ArbitratorEvolutionary(Arbitrator):
             print "Aborting: sum of selection probabilities is %.2f" % sum_prob
             sys.exit(-1)
 
-    def test_agent(self, agent, start_states, max_steps):
+    def test_agent(self, agent, start_states, max_steps, num_trials=1):
         return arbitrator_test_agent((agent, start_states, max_steps,
-                                     self.generation_episodes, arbitrator_do_episode))
+                                     self.generation_episodes, num_trials,
+                                     arbitrator_do_episode))
         
     def execute(self, max_steps = 0):
         
@@ -1698,7 +1729,7 @@ class ArbitratorEvolutionary(Arbitrator):
             surviving_agents.append(new_agent)
             
         champion_reward_log = []
-        average_reward_log = [0] * (self.num_generations * self.generation_episodes)
+        population_reward_log = [0] * (self.num_generations * self.generation_episodes)
         
         for generation in range(self.num_generations):
             start_states = []
@@ -1727,9 +1758,9 @@ class ArbitratorEvolutionary(Arbitrator):
                 params = []
                 for agent in agents:
                     params.append((agent, start_states, max_steps,
-                                   self.generation_episodes, arbitrator_do_episode))
-                updated_agents = pool.map(arbitrator_test_agent, params)
-                agents = updated_agents
+                                   self.generation_episodes, 1, arbitrator_do_episode))
+                updated_champions = pool.map(arbitrator_test_agent, params)
+                agents = updated_champions
             else:
                 for agent in agents:
                     self.test_agent(agent, start_states, max_steps)
@@ -1737,7 +1768,7 @@ class ArbitratorEvolutionary(Arbitrator):
             # update average rewards
             for agent in agents:
                 for episode in range(self.generation_episodes):
-                    average_reward_log[generation * self.generation_episodes + episode] += \
+                    population_reward_log[generation * self.generation_episodes + episode] += \
                     agent.reward_log[episode]
             
                 average_reward = float(sum(agent.reward_log)) / self.generation_episodes
@@ -1751,7 +1782,7 @@ class ArbitratorEvolutionary(Arbitrator):
             generation_sorted = sorted(generation_performance, reverse=True)  
             surviving_agents = []
             champion1 = generation_sorted[0][2]
-            champion1_reward = generation_sorted[0][0]
+            champion1_reward = generation_sorted[0][1]
             self.champions.append((champion1, champion1_reward))
             # select runner up such that it does not have the same features
             # as the champion
@@ -1781,14 +1812,40 @@ class ArbitratorEvolutionary(Arbitrator):
                 print "last episode trace:"
                 print champion1.get_episode_trace()
     
-        winning_agent = surviving_agents[0]
+        final_champion = surviving_agents[0]
         if DEBUG_PROGRESS:
-            print "final champion: " + str(winning_agent.feature_set)
+            print "final champion: " + str(final_champion.feature_set)
         if DEBUG_ALG_VALUES:
             print "values:"
-            winning_agent.algorithm.print_w()
+            final_champion.algorithm.print_w()
+            
+            
+        if DEBUG_PROGRESS:
+            print "running champion trials"
+        champion_reward_log = []
+        # experiment with champions
+        if USE_MULTIPROCESSING:
+            pool = multiprocessing.Pool(processes=NUM_CORES)
+            params = []
+            for (champion, champion_reward) in reversed(self.champions): #@UnusedVariable
+                params.append((champion, start_states, max_steps,
+                               self.generation_episodes, self.champion_trials,
+                               arbitrator_do_episode))
+            updated_champions = pool.map(arbitrator_test_agent, params)
+            updated_champions.reverse()
+            i = 0
+            for champion in updated_champions:
+                champion_reward = float(sum(champion.reward_log)) / self.generation_episodes
+                self.champions[i] = (champion, champion_reward)
+                i += 1
+        else:
+            self.champions = []
+            for (champion, champion_reward) in self.champions: #@UnusedVariable
+                self.test_agent(champion, start_states, max_steps, self.champion_trials)
+                champion_reward = float(sum(champion.reward_log)) / self.generation_episodes
+                self.champions.append((champion, champion_reward))
         
-        self.report_results(self.champions, champion_reward_log, average_reward_log)
+        self.report_results(self.champions, champion_reward_log, population_reward_log)
         self.plot('plot-ev.gp')
 
     def report_results(self, champions, champion_reward_log, average_reward_log):

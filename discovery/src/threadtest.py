@@ -1,4 +1,5 @@
 from multiprocessing import Pool
+import time
 
 class A:
 
@@ -13,6 +14,8 @@ class A:
 def f((a, i)):
     a.value += 1
     a.child.value += 11
+    if a.value == 3:
+        time.sleep(1)
     
     return a
 
