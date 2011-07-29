@@ -1697,6 +1697,7 @@ class ArbitratorEvolutionary(Arbitrator):
         self.generation_episodes = generation_episodes
         self.champion_trials = champion_trials
         self.champions = []
+        self.champion_rewards = {}
         # check integrity of the featurizers map
         sum_prob = 0.0
         for (prob, featurizer) in featurizers_map: #@UnusedVariable
@@ -1781,36 +1782,42 @@ class ArbitratorEvolutionary(Arbitrator):
             # select generation champion
             generation_sorted = sorted(generation_performance, reverse=True)  
             surviving_agents = []
-            champion1 = generation_sorted[0][2]
-            champion1_reward = generation_sorted[0][1]
-            self.champions.append((champion1, champion1_reward))
+            champion = generation_sorted[0][2]
+            champion_reward = generation_sorted[0][1]
+            champion_cloned = champion.clone()
+            self.champions.append(champion_cloned)
+            self.champion_rewards[champion_cloned] = champion_reward
+            
+            # add all episode rewards to the champion reward log
+            champion_reward_log += champion.reward_log
+                        
             # select runner up such that it does not have the same features
             # as the champion
             index = 1
             while True:
-                champion2 = generation_sorted[index][2]
-                if champion2.get_name() != champion1.get_name():
+                runnerup = generation_sorted[index][2]
+                if runnerup.get_name() != champion.get_name():
                     break
                 index += 1
                 
-            surviving_agents.append(champion1)
-            surviving_agents.append(champion2)
-            cross_over = mutator.cross_over(champion1, champion2) 
+            surviving_agents.append(champion)
+            surviving_agents.append(runnerup)
+            cross_over = mutator.cross_over(champion, runnerup) 
             surviving_agents.append(cross_over)
             
-            champion_reward_log += champion1.reward_log
+
             
             if DEBUG_PROGRESS:
-                print "generation champion: %s" % champion1.feature_set
+                print "generation champion: %s" % champion.feature_set
                 print "with average reward: %.4f" % generation_sorted[0][1]
             if DEBUG_ALG_VALUES:
                 print "values:"    
-                champion1.algorithm.print_w()
+                champion.algorithm.print_w()
             if DEBUG_CHAMPION:
 #                print "champion's algorithm values:"
-#                champion1.algorithm.print_w()
+#                champion.algorithm.print_w()
                 print "last episode trace:"
-                print champion1.get_episode_trace()
+                print champion.get_episode_trace()
     
         final_champion = surviving_agents[0]
         if DEBUG_PROGRESS:
@@ -1819,39 +1826,43 @@ class ArbitratorEvolutionary(Arbitrator):
             print "values:"
             final_champion.algorithm.print_w()
             
-            
-        if DEBUG_PROGRESS:
-            print "running champion trials"
-        champion_reward_log = []
-        # experiment with champions
-        if USE_MULTIPROCESSING:
-            pool = multiprocessing.Pool(processes=NUM_CORES)
-            params = []
-            for (champion, champion_reward) in reversed(self.champions): #@UnusedVariable
-                params.append((champion, start_states, max_steps,
-                               self.generation_episodes, self.champion_trials,
-                               arbitrator_do_episode))
-            updated_champions = pool.map(arbitrator_test_agent, params)
-            updated_champions.reverse()
-            i = 0
-            for champion in updated_champions:
-                champion_reward = float(sum(champion.reward_log)) / self.generation_episodes
-                self.champions[i] = (champion, champion_reward)
-                i += 1
-        else:
-            self.champions = []
-            for (champion, champion_reward) in self.champions: #@UnusedVariable
-                self.test_agent(champion, start_states, max_steps, self.champion_trials)
-                champion_reward = float(sum(champion.reward_log)) / self.generation_episodes
-                self.champions.append((champion, champion_reward))
+        if self.champion_trials != 0:    
+            if DEBUG_PROGRESS:
+                print "running champion trials"
+            champion_reward_log = []
+            # experiment with champions
+            if USE_MULTIPROCESSING:
+                pool = multiprocessing.Pool(processes=NUM_CORES)
+                params = []
+                for champion in reversed(self.champions):
+                    params.append((champion, start_states, max_steps,
+                                   self.generation_episodes, self.champion_trials,
+                                   arbitrator_do_episode))
+                updated_champions = pool.map(arbitrator_test_agent, params)
+                updated_champions.reverse()
+                self.champions = updated_champions
+                self.champion_rewards = {}
+                for champion in self.champions:
+                    champion_reward = float(sum(champion.reward_log)) / self.generation_episodes
+                    self.champion_rewards[champion] = champion_reward
+                    champion_reward_log += champion.reward_log
+            else:
+                for champion in self.champions: #@UnusedVariable
+                    self.test_agent(champion, start_states, max_steps, self.champion_trials)
+                    champion_reward = float(sum(champion.reward_log)) / self.generation_episodes
+                    self.champion_rewards[champion] = champion_reward
+                    champion_reward_log += champion.reward_log
         
-        self.report_results(self.champions, champion_reward_log, population_reward_log)
+        self.report_results(self.champions, self.champion_rewards, 
+                            champion_reward_log, population_reward_log)
         self.plot('plot-ev.gp')
 
-    def report_results(self, champions, champion_reward_log, average_reward_log):
+    def report_results(self, champions, champion_rewards, champion_reward_log, 
+                       average_reward_log):
         report_file = open('results/champions.txt', 'w')
         generation = 0
-        for (champion, champion_reward) in champions:
+        for champion in champions:
+            champion_reward = champion_rewards[champion]
             report_file.write('Champion %d, average reward: %.2f\n' % 
                               (generation, champion_reward))
             report_file.write(champion.get_name())
