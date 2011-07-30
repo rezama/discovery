@@ -9,6 +9,9 @@ import random
 
 import rl
 
+# start state configuration
+RANDOMIZE_START_STATE = False
+
 # trials
 NUM_TRIALS = 1
 NUM_EPISODES = 1000
@@ -192,10 +195,13 @@ class KnightJoustState(rl.ModularState):
                        (KnightJoustEnvironment.GRID_SIZE - 1, 
                         KnightJoustEnvironment.GRID_SIZE - 1))
         
-        player_x = int(random.random() * KnightJoustEnvironment.GRID_SIZE)
+        player_x = int(KnightJoustEnvironment.GRID_SIZE / 2)
         player_y = 0
-        opponent_x = int(random.random() * KnightJoustEnvironment.GRID_SIZE)
+        opponent_x = int(KnightJoustEnvironment.GRID_SIZE / 2)
         opponent_y = KnightJoustEnvironment.GRID_SIZE - 1
+        if RANDOMIZE_START_STATE:
+            player_x = int(random.random() * KnightJoustEnvironment.GRID_SIZE)
+            opponent_x = int(random.random() * KnightJoustEnvironment.GRID_SIZE)
 
         player_state_var = rl.StateVarPoint2D("player", player_x, player_y, 
                 point_range, is_dynamic=True, is_continuous=True)

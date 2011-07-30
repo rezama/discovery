@@ -1907,7 +1907,7 @@ class ArbitratorEvolutionary(Arbitrator):
         report_file = open('results/results-champion.txt', 'w')
         for episode in range(self.num_generations * self.generation_episodes):
             report_file.write('%d %.2f\n' % 
-                              (episode, self.champion_reward_log[episode]))
+                              (episode, self.champions_reward_log[episode]))
         report_file.close()
     
         report_file = open('results/results-champion-interval.txt', 'w')
@@ -1915,7 +1915,7 @@ class ArbitratorEvolutionary(Arbitrator):
                                     self.generation_episodes / PLOT_INTERVALS) 
         print "episodes per plot interval: " + str(episodes_per_interval)
         for interval in range(PLOT_INTERVALS):
-            sub_sum = sum(self.champion_reward_log[interval * episodes_per_interval:
+            sub_sum = sum(self.champions_reward_log[interval * episodes_per_interval:
                                      (interval + 1) * episodes_per_interval])
             report_file.write('%d %.2f\n' % 
                               (interval * episodes_per_interval, 

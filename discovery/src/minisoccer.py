@@ -31,7 +31,7 @@ MAX_STEPS = 400
 NUM_GENERATIONS = 15
 POPULATION_SIZE = 50
 GENERATION_EPISODES = 200
-CHAMPION_TRIALS = 100
+CHAMPION_TRIALS = 20
 
 # always on the left
 class MiniSoccerAgent(rl.AgentFeatureBased):
