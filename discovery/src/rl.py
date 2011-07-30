@@ -139,6 +139,14 @@ class AgentStateBased(object):
         
         return reward
     
+    def pause_learning(self):
+        if self.algorithm is not None:
+            self.algorithm.pause_learning()
+
+    def resume_learning(self):
+        if self.algorithm is not None:
+            self.algorithm.resume_learning()
+    
     def save_learning_state(self):
         if self.algorithm is not None:
             self.algorithm.save_learning_state()
@@ -1112,6 +1120,8 @@ class Algorithm(object):
             self.gamma = agent.environment.gamma
         else:
             self.gamma = DEFAULT_GAMMA
+            
+        self.is_learning = True
     
     def begin_episode(self, state):
         pass
@@ -1121,6 +1131,12 @@ class Algorithm(object):
     
     def transition(self, state, action, reward, state_p, action_p):
         pass
+
+    def pause_learning(self):
+        self.is_learning = False
+        
+    def resume_learning(self):
+        self.is_learning = True    
 
 #class RandomAlgorithm(Algorithm):
 #    
@@ -1142,7 +1158,7 @@ class Sarsa(Algorithm):
         self.epsilon = epsilon
         self.lamda = lamda
         self.alpha = alpha
-               
+        
 class SarsaLambda(Sarsa):
 
     def __init__(self, agent,
@@ -1167,7 +1183,7 @@ class SarsaLambda(Sarsa):
     def select_action(self):
         state = str(self.agent.state)
         
-        if random.random() < self.epsilon:
+        if self.is_learning and (random.random() < self.epsilon):
             action = self.agent.actions.random_action()
             value = self.Q.get((state, action), self.default_q) 
         else:
@@ -1190,6 +1206,9 @@ class SarsaLambda(Sarsa):
                     self.alpha * delta * self.e[(si, ai)]
 
     def transition(self, state, action, reward, state_p, action_p):
+        if not self.is_learning:
+            return
+        
         s = str(state)
         a = action
         sp = str(state_p)
@@ -1392,7 +1411,7 @@ class SarsaLambdaFeaturized(Sarsa):
     def select_action(self):
         features = self.feature_set.encode_state(self.agent.state)
         
-        if random.random() < self.epsilon:
+        if self.is_learning and (random.random() < self.epsilon):
             action = self.agent.actions.random_action()
             value = self.compute_Q(features, action) 
         else:
@@ -1422,6 +1441,9 @@ class SarsaLambdaFeaturized(Sarsa):
                                         delta * self.e[action][i])
     
     def transition(self, state, action, reward, state_p, action_p):
+        if not self.is_learning:
+            return
+        
         s = str(state) #@UnusedVariable
         a = action
         sp = str(state_p) #@UnusedVariable
@@ -1602,9 +1624,9 @@ def arbitrator_test_agent((agent, start_states, max_steps, num_episodes,
     if DEBUG_PROGRESS and not USE_MULTIPROCESSING:
         print "testing agent: " + str(agent.feature_set)
     agent.reward_log = [0] * num_episodes
-    agent.save_learning_state()
+#    agent.save_learning_state()
     for trial in range(num_trials): #@UnusedVariable
-        agent.restore_learning_state()
+#        agent.restore_learning_state()
         for episode in range(num_episodes):
             start_state_index = (episode + trial) % num_episodes 
             # get start state
@@ -1786,6 +1808,9 @@ class ArbitratorEvolutionary(Arbitrator):
             champion = generation_sorted[0][2]
             champion_reward = generation_sorted[0][1]
             champion_cloned = champion.clone()
+            # disable learning on the champion
+            champion_cloned.pause_learning()
+            # add it to the list
             self.champions.append(champion_cloned)
             self.champion_rewards[champion_cloned] = champion_reward
             
