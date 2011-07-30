@@ -1721,8 +1721,8 @@ class ArbitratorEvolutionary(Arbitrator):
         self.generation_episodes = generation_episodes
         self.champion_trials = champion_trials
         self.champions = []
-        self.champion_training_rewards = [0] * num_generations
-        self.champion_trial_rewards = [0] * num_generations
+        self.champion_training_rewards = []
+        self.champion_trial_rewards = []
         self.champions_reward_log = []
         self.population_reward_log = []
         # check integrity of the featurizers map
@@ -1816,7 +1816,7 @@ class ArbitratorEvolutionary(Arbitrator):
             champion_cloned.pause_learning()
             # add it to the list
             self.champions.append(champion_cloned)
-            self.champion_training_rewards[generation] = champion_reward
+            self.champion_training_rewards.append(champion_reward)
             
             # add all episode rewards to the champion reward log
             self.champions_reward_log += champion.reward_log
@@ -1897,7 +1897,7 @@ class ArbitratorEvolutionary(Arbitrator):
         for champion in self.champions:
             training_reward = self.champion_training_rewards[generation]
             trial_reward = self.champion_trial_rewards[generation]
-            report_file.write('Champion %d, average training reward: %.2f\n, average trial reward: %.2f' % 
+            report_file.write('Champion %d, average training reward: %.2f, average trial reward: %.2f\n' % 
                               (generation, training_reward, trial_reward))
             report_file.write(champion.get_name())
             report_file.write('\n\n')
