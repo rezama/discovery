@@ -1,0 +1,30 @@
+Champion 0, average reward: 0.13
+flag(player_has_ball)
+
+Champion 1, average reward: 0.11
+flag(player_has_ball) | flag(player_has_ball)
+
+Champion 2, average reward: 0.09
+flag(player_has_ball) | flag(player_has_ball) | flag(player_has_ball)
+
+Champion 3, average reward: 0.13
+flag(player_has_ball) | flag(player_has_ball) | flag(player_has_ball) | flag(player_has_ball) | flag(player_has_ball)
+
+Champion 4, average reward: 0.09
+flag(player_has_ball) | flag(player_has_ball) | flag(player_has_ball) | flag(player_has_ball) | flag(player_has_ball) | flag(player_has_ball)
+
+Champion 5, average reward: 0.14
+flag(player_has_ball) | flag(player_has_ball) | flag(player_has_ball) | flag(player_has_ball) | flag(player_has_ball) | flag(player_has_ball)
+
+Champion 6, average reward: 0.09
+flag(player_has_ball) | flag(player_has_ball) | flag(player_has_ball) | flag(player_has_ball) | flag(player_has_ball) | flag(player_has_ball) | flag(player_has_ball)
+
+Champion 7, average reward: 0.06
+flag(player_has_ball) | flag(player_has_ball) | flag(player_has_ball) | flag(player_has_ball) | flag(player_has_ball) | flag(player_has_ball) | flag(player_has_ball) | dist-Y(opponent-player)[0]
+
+Champion 8, average reward: 0.12
+flag(player_has_ball) | flag(player_has_ball) | flag(player_has_ball) | flag(player_has_ball) | flag(player_has_ball) | flag(player_has_ball) | flag(player_has_ball) | dist-Y(opponent-player)[0] | dist-Y(opponent-player)[0] | dist-Y(player-lowerleft)[1]
+
+Champion 9, average reward: 0.19
+flag(player_has_ball) | flag(player_has_ball) | flag(player_has_ball) | flag(player_has_ball) | flag(player_has_ball) | flag(player_has_ball) | flag(player_has_ball) | dist-Y(opponent-player)[0] | dist-Y(opponent-player)[0] | dist-Y(opponent-player)[1] | pointXY(player)[0.2]
+

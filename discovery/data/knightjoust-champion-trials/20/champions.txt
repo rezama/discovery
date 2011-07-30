@@ -1,0 +1,45 @@
+Champion 0, average reward: 275.77
+dist(opponent-lowerright)[0.6]
+
+Champion 1, average reward: 317.37
+dist(opponent-lowerright)[0.6] | dist(player-opponent)[0.7]
+
+Champion 2, average reward: 324.44
+dist(opponent-lowerright)[0.6] | dist(player-opponent)[0.7] | angle(player-opponent-lowerleft)[0.0]
+
+Champion 3, average reward: 339.61
+dist(opponent-lowerright)[0.6] | dist(player-opponent)[0.7] | angle(player-opponent-lowerleft)[0.0] | angle(player-opponent-lowerleft)[0.3]
+
+Champion 4, average reward: 347.60
+dist(opponent-lowerright)[0.6] | dist(player-opponent)[0.7] | angle(player-opponent-lowerleft)[0.0] | angle(player-opponent-lowerleft)[0.3] | angle(player-opponent-lowerleft)[0.3] | angle(opponent-player-lowerleft)[0.7]
+
+Champion 5, average reward: 337.92
+dist(opponent-lowerright)[0.6] | dist(player-opponent)[0.7] | angle(player-opponent-lowerleft)[0.0] | angle(player-opponent-lowerleft)[0.3] | angle(player-opponent-lowerleft)[0.3] | dist(player-upperright)[0.2] | angle(player-opponent-upperleft)[0.7]
+
+Champion 6, average reward: 352.81
+dist(opponent-lowerright)[0.6] | dist(player-opponent)[0.7] | angle(player-opponent-lowerleft)[0.0] | angle(player-opponent-lowerleft)[0.3] | angle(player-opponent-lowerleft)[0.3] | dist(player-upperright)[0.2] | angle(player-opponent-lowerleft)[0.3] | dist(player-opponent)[0.2]
+
+Champion 7, average reward: 350.76
+dist(opponent-lowerright)[0.6] | dist(player-opponent)[0.7] | angle(player-opponent-lowerleft)[0.0] | angle(player-opponent-lowerleft)[0.3] | angle(player-opponent-lowerleft)[0.3] | dist(player-upperright)[0.2] | angle(player-opponent-lowerleft)[0.3] | dist(player-opponent)[0.2] | angle(player-lowerright-opponent)[0.7] | dist(player-lowerright)[0.4]
+
+Champion 8, average reward: 347.29
+dist(opponent-lowerright)[0.6] | dist(player-opponent)[0.7] | angle(player-opponent-lowerleft)[0.0] | angle(player-opponent-lowerleft)[0.3] | angle(player-opponent-lowerleft)[0.3] | dist(player-upperright)[0.2] | angle(player-opponent-lowerleft)[0.3] | dist(player-opponent)[0.2] | angle(player-lowerright-opponent)[0.7] | dist(player-lowerright)[0.4] | dist(opponent-lowerright)[0.9]
+
+Champion 9, average reward: 353.86
+dist(opponent-lowerright)[0.6] | dist(player-opponent)[0.7] | angle(player-opponent-lowerleft)[0.0] | angle(player-opponent-lowerleft)[0.3] | angle(player-opponent-lowerleft)[0.3] | dist(player-upperright)[0.2] | angle(player-opponent-lowerleft)[0.3] | dist(player-opponent)[0.2] | angle(player-lowerright-opponent)[0.7] | dist(player-lowerright)[0.4] | dist(opponent-lowerright)[0.9] | dist(opponent-player)[0.7]
+
+Champion 10, average reward: 351.63
+dist(opponent-lowerright)[0.6] | dist(player-opponent)[0.7] | angle(player-opponent-lowerleft)[0.0] | angle(player-opponent-lowerleft)[0.3] | angle(player-opponent-lowerleft)[0.3] | dist(player-upperright)[0.2] | angle(player-opponent-lowerleft)[0.3] | dist(player-opponent)[0.2] | angle(player-lowerright-opponent)[0.7] | dist(player-lowerright)[0.4] | dist(opponent-lowerright)[0.9] | dist(opponent-player)[0.7] | dist(player-lowerright)[0.4] | angle(opponent-player-upperright)[1.0]
+
+Champion 11, average reward: 359.49
+dist(opponent-lowerright)[0.6] | dist(player-opponent)[0.7] | angle(player-opponent-lowerleft)[0.0] | angle(player-opponent-lowerleft)[0.3] | angle(player-opponent-lowerleft)[0.3] | dist(player-upperright)[0.2] | angle(player-opponent-lowerleft)[0.3] | dist(player-opponent)[0.2] | angle(player-lowerright-opponent)[0.7] | dist(player-lowerright)[0.4] | dist(opponent-lowerright)[0.9] | dist(opponent-player)[0.7] | dist(player-lowerright)[0.4] | angle(opponent-player-upperright)[1.0] | dist(player-opponent)[0.9]
+
+Champion 12, average reward: 361.96
+dist(opponent-lowerright)[0.6] | dist(player-opponent)[0.7] | angle(player-opponent-lowerleft)[0.0] | angle(player-opponent-lowerleft)[0.3] | angle(player-opponent-lowerleft)[0.3] | dist(player-upperright)[0.2] | angle(player-opponent-lowerleft)[0.3] | dist(player-opponent)[0.2] | angle(player-lowerright-opponent)[0.7] | dist(player-lowerright)[0.4] | dist(opponent-lowerright)[0.9] | dist(opponent-player)[0.7] | dist(player-lowerright)[0.4] | angle(opponent-player-upperright)[1.0] | dist(player-opponent)[0.9] | angle(player-upperleft-opponent)[0.1] | dist(player-lowerleft)[0.8]
+
+Champion 13, average reward: 354.17
+dist(opponent-lowerright)[0.6] | dist(player-opponent)[0.7] | angle(player-opponent-lowerleft)[0.0] | angle(player-opponent-lowerleft)[0.3] | angle(player-opponent-lowerleft)[0.3] | dist(player-upperright)[0.2] | angle(player-opponent-lowerleft)[0.3] | dist(player-opponent)[0.2] | angle(player-lowerright-opponent)[0.7] | dist(player-lowerright)[0.4] | dist(opponent-lowerright)[0.9] | dist(opponent-player)[0.7] | dist(player-lowerright)[0.4] | angle(opponent-player-upperright)[1.0] | dist(player-opponent)[0.9] | dist(opponent-player)[0.4]
+
+Champion 14, average reward: 352.88
+dist(opponent-lowerright)[0.6] | dist(player-opponent)[0.7] | angle(player-opponent-lowerleft)[0.0] | angle(player-opponent-lowerleft)[0.3] | angle(player-opponent-lowerleft)[0.3] | dist(player-upperright)[0.2] | angle(player-opponent-lowerleft)[0.3] | dist(player-opponent)[0.2] | angle(player-lowerright-opponent)[0.7] | dist(player-lowerright)[0.4] | dist(opponent-lowerright)[0.9] | dist(opponent-player)[0.7] | dist(player-lowerright)[0.4] | angle(opponent-player-upperright)[1.0] | dist(player-opponent)[0.9] | dist(opponent-player)[0.4] | angle(opponent-upperleft-lowerleft)[1.0] | dist(opponent-upperright)[0.0]
+
