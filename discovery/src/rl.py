@@ -1721,8 +1721,8 @@ class ArbitratorEvolutionary(Arbitrator):
         self.generation_episodes = generation_episodes
         self.champion_trials = champion_trials
         self.champions = []
-        self.champion_training_rewards = []
-        self.champion_trial_rewards = []
+        self.champion_training_rewards = [0] * num_generations
+        self.champion_trial_rewards = [0] * num_generations
         self.champions_reward_log = []
         self.population_reward_log = []
         # check integrity of the featurizers map
@@ -1866,7 +1866,7 @@ class ArbitratorEvolutionary(Arbitrator):
                 start_seeds.append(random.random())
 
             # extra trials with champions
-            champions_reward_log = []
+            self.champions_reward_log = []
             if USE_MULTIPROCESSING:
                 pool = multiprocessing.Pool(processes=NUM_CORES)
                 params = []
@@ -1880,13 +1880,13 @@ class ArbitratorEvolutionary(Arbitrator):
                 for champion in self.champions:
                     champion_reward = float(sum(champion.reward_log)) / self.generation_episodes
                     self.champion_trial_rewards.append(champion_reward)
-                    champions_reward_log += champion.reward_log
+                    self.champions_reward_log += champion.reward_log
             else:
                 for champion in self.champions: #@UnusedVariable
                     self.test_agent(champion, start_states, max_steps, self.champion_trials)
                     champion_reward = float(sum(champion.reward_log)) / self.generation_episodes
                     self.champion_trial_rewards.append(champion_reward)
-                    champions_reward_log += champion.reward_log
+                    self.champions_reward_log += champion.reward_log
         
         self.report_results()
         self.plot('plot-ev.gp')
