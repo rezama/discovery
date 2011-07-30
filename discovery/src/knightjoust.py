@@ -300,7 +300,7 @@ def learn_w_raw_state():
     agent = KnightJoustStateBasedAgent()
     
     arbitrator = rl.ArbitratorStandard(agent, NUM_TRIALS, NUM_EPISODES)
-    arbitrator.execute()
+    arbitrator.run()
 
 def learn_w_features():
     sample_state = KnightJoustState.generate_start_state()
@@ -321,7 +321,7 @@ def learn_w_features():
     agent = KnightJoustFeatureBasedAgent(rl.FeatureSet(feature_list))
     
     arbitrator = rl.ArbitratorStandard(agent, NUM_TRIALS, NUM_EPISODES)
-    arbitrator.execute()    
+    arbitrator.run()    
 
 def learn_w_multitile_features():
     sample_state = KnightJoustState.generate_start_state()
@@ -352,7 +352,7 @@ def learn_w_multitile_features():
     agent = KnightJoustFeatureBasedAgent(rl.FeatureSet(feature_list))
 
     arbitrator = rl.ArbitratorStandard(agent, NUM_TRIALS, NUM_EPISODES)
-    arbitrator.execute()    
+    arbitrator.run()    
 
 def learn_evolutionary():
     base_agent = KnightJoustFeatureBasedAgent(rl.FeatureSet([]))
@@ -371,7 +371,7 @@ def learn_evolutionary():
     arbitrator = rl.ArbitratorEvolutionary(base_agent, featurizers_map, 
                     NUM_GENERATIONS, POPULATION_SIZE, GENERATION_EPISODES,
                     CHAMPION_TRIALS)
-    arbitrator.execute()    
+    arbitrator.run()    
 
 def test_stuff():
 #    feature_dist_po = KnightJoustFeatureDist()

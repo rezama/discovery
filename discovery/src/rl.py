@@ -1562,6 +1562,26 @@ class SarsaLambdaFeaturized(Sarsa):
         self.print_w()
         self.print_e()
 
+class Arbitrator(object):
+
+    def __init__(self):
+        pass
+    
+    def run(self, max_steps = 0):
+        return NotImplemented
+    
+    def do_episode(self, agent, start_state, max_steps):
+        return arbitrator_do_episode((agent, start_state, max_steps))
+
+    def plot(self, script_name):
+        orig_wd = os.getcwd()
+        os.chdir("results")
+        if DEBUG_PROGRESS:
+            print "generating plot"
+        subprocess.call('gnuplot ../plot/%s' % script_name, shell=True)
+        os.chdir(orig_wd)
+
+# multiprocessing method
 def arbitrator_do_episode((agent, start_state, max_steps)):
     agent.begin_episode(start_state)
 
@@ -1576,16 +1596,17 @@ def arbitrator_do_episode((agent, start_state, max_steps)):
     episode_reward = agent.episode_reward
     return (episode_reward, steps)
     
-def arbitrator_test_agent((agent, start_states, max_steps, generation_episodes,
+# multiprocessing method
+def arbitrator_test_agent((agent, start_states, max_steps, num_episodes,
                           num_trials, do_episode_func)):
     if DEBUG_PROGRESS and not USE_MULTIPROCESSING:
         print "testing agent: " + str(agent.feature_set)
-    agent.reward_log = [0] * generation_episodes
+    agent.reward_log = [0] * num_episodes
     agent.save_learning_state()
     for trial in range(num_trials): #@UnusedVariable
         agent.restore_learning_state()
-        for episode in range(generation_episodes):
-            start_state_index = (episode + trial) % generation_episodes 
+        for episode in range(num_episodes):
+            start_state_index = (episode + trial) % num_episodes 
             # get start state
             start_state = copy.deepcopy(start_states[start_state_index])
             # seed random number generator
@@ -1602,35 +1623,16 @@ def arbitrator_test_agent((agent, start_states, max_steps, generation_episodes,
                 agent.algorithm.print_values()
     
     # average rewards over trials
-    for episode in range(generation_episodes):
+    for episode in range(num_episodes):
         agent.reward_log[episode] = float(agent.reward_log[episode]) / num_trials
             
     if DEBUG_PROGRESS:
         if USE_MULTIPROCESSING:
             print "tested agent: " + str(agent.feature_set)
-        average_reward = float(sum(agent.reward_log)) / generation_episodes
+        average_reward = float(sum(agent.reward_log)) / num_episodes
         print "average reward: %.2f" % average_reward            
 
     return agent
-        
-class Arbitrator(object):
-
-    def __init__(self):
-        pass
-    
-    def execute(self, max_steps = 0):
-        return NotImplemented
-    
-    def do_episode(self, agent, start_state, max_steps):
-        return arbitrator_do_episode((agent, start_state, max_steps))
-
-    def plot(self, script_name):
-        orig_wd = os.getcwd()
-        os.chdir("results")
-        if DEBUG_PROGRESS:
-            print "generating plot"
-        subprocess.call('gnuplot ../plot/%s' % script_name, shell=True)
-        os.chdir(orig_wd)
         
 class ArbitratorStandard(Arbitrator):
     
@@ -1638,13 +1640,13 @@ class ArbitratorStandard(Arbitrator):
         super(ArbitratorStandard, self).__init__()
         self.agent = agent
         self.num_trials = num_trials
-        self.num_episodes = num_episodes
+        self.generation_episodes = num_episodes
 
-    def execute(self, max_steps = 0):
-        reward_log = [0] * self.num_episodes
+    def run(self, max_steps = 0):
+        reward_log = [0] * self.generation_episodes
         for trial in range(self.num_trials):
             trial_reward = 0
-            for episode in range(self.num_episodes):
+            for episode in range(self.generation_episodes):
                 if DEBUG_PROGRESS and (episode % DEBUG_REPORT_ON_EPISODE == 0):
                     print "trial %i episode %i" % (trial, episode)
 #                    print agent.w
@@ -1662,20 +1664,20 @@ class ArbitratorStandard(Arbitrator):
                     self.agent.algorithm.print_values()
         
         if DEBUG_PROGRESS:
-            print "average reward: %.2f" % (float(trial_reward) / self.num_episodes) 
+            print "average reward: %.2f" % (float(trial_reward) / self.generation_episodes) 
         
         self.report_results(reward_log)
         self.plot('plot-standard.gp')
         
     def report_results(self, reward_log):
         report_file = open('results/results-standard.txt', 'w')
-        for episode in range(self.num_episodes):
+        for episode in range(self.generation_episodes):
             report_file.write('%d %.2f\n' % 
                               (episode, float(reward_log[episode]) / self.num_trials)) 
         report_file.close()
     
         report_file = open('results/results-standard-interval.txt', 'w')
-        episodes_per_interval = int (self.num_episodes / PLOT_INTERVALS) 
+        episodes_per_interval = int (self.generation_episodes / PLOT_INTERVALS) 
         for interval in range(PLOT_INTERVALS):
             sub_sum = sum(reward_log[interval * episodes_per_interval:
                                      (interval + 1) * episodes_per_interval])
@@ -1683,7 +1685,6 @@ class ArbitratorStandard(Arbitrator):
                               (interval * episodes_per_interval, 
                                float(sub_sum) / (self.num_trials * episodes_per_interval))) 
         report_file.close()
-
 
 class ArbitratorEvolutionary(Arbitrator):
     
@@ -1712,7 +1713,7 @@ class ArbitratorEvolutionary(Arbitrator):
                                      self.generation_episodes, num_trials,
                                      arbitrator_do_episode))
         
-    def execute(self, max_steps = 0):
+    def run(self, max_steps = 0):
         
         sample_state = self.base_agent.environment.generate_start_state()
         state_vars = sample_state.state_variables
@@ -1805,8 +1806,6 @@ class ArbitratorEvolutionary(Arbitrator):
             cross_over = mutator.cross_over(champion, runnerup) 
             surviving_agents.append(cross_over)
             
-
-            
             if DEBUG_PROGRESS:
                 print "generation champion: %s" % champion.feature_set
                 print "with average reward: %.4f" % generation_sorted[0][1]
@@ -1829,8 +1828,16 @@ class ArbitratorEvolutionary(Arbitrator):
         if self.champion_trials != 0:    
             if DEBUG_PROGRESS:
                 print "running champion trials"
-            champion_reward_log = []
+            
+            # generate start states
+            start_states = []
+            start_seeds = []
+            for i in range(self.generation_episodes): #@UnusedVariable
+                start_states.append(self.base_agent.environment.generate_start_state())
+                start_seeds.append(random.random())
+
             # experiment with champions
+            champion_reward_log = []
             if USE_MULTIPROCESSING:
                 pool = multiprocessing.Pool(processes=NUM_CORES)
                 params = []

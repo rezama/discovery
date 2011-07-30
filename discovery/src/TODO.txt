@@ -1,0 +1,2 @@
+Interaction feature should not select different tilings of the same feature
+Write a better crossover

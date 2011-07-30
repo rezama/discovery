@@ -14,7 +14,6 @@ ALPHA = 0.1
 GAMMA = 0.95
 EPSILON = 0.05
 LAMBDA = 0.9
-USE_VARIABLE_ALPHA = False
 
 # hand coded agent's params
 STAY_PROB = 0.2
@@ -29,9 +28,9 @@ NUM_EPISODES = 1000
 MAX_STEPS = 400
 
 # evolutionary parameters
-NUM_GENERATIONS = 15
+NUM_GENERATIONS = 10
 POPULATION_SIZE = 50
-GENERATION_EPISODES = 200
+GENERATION_EPISODES = 500
 CHAMPION_TRIALS = 20
 
 # always on the left
@@ -471,7 +470,7 @@ def try_hand_coded():
     agent = MiniSoccerAgentHandCoded(role=ROLE_PLAYER, opponent_agent=opponent)
     
     arbitrator = rl.ArbitratorStandard(agent, NUM_TRIALS, NUM_EPISODES)
-    arbitrator.execute()
+    arbitrator.run()
 
 def learn_w_multitile_features():
     sample_state = MiniSoccerState.generate_start_state()
@@ -491,7 +490,7 @@ def learn_w_multitile_features():
     agent = MiniSoccerAgent(rl.FeatureSet(feature_list))
             
     arbitrator = rl.ArbitratorStandard(agent, NUM_TRIALS, NUM_EPISODES)
-    arbitrator.execute(MAX_STEPS)
+    arbitrator.run(MAX_STEPS)
 
 def learn_evolutionary():
     base_agent = MiniSoccerAgent(rl.FeatureSet([]))
@@ -537,7 +536,7 @@ def learn_evolutionary():
     arbitrator = rl.ArbitratorEvolutionary(base_agent, featurizers_map, 
                     NUM_GENERATIONS, POPULATION_SIZE, GENERATION_EPISODES,
                     CHAMPION_TRIALS)
-    arbitrator.execute(MAX_STEPS)
+    arbitrator.run(MAX_STEPS)
     
 if __name__ == '__main__':
 #    learn_w_multitile_features()

@@ -310,7 +310,7 @@ def learn_w_multitile_features():
     agent = KeepAwayAgent(rl.FeatureSet(feature_list))
             
     arbitrator = rl.ArbitratorStandard(agent, NUM_TRIALS, NUM_EPISODES)
-    arbitrator.execute()
+    arbitrator.run()
 
 def learn_evolutionary():
     base_agent = KeepAwayAgent(rl.FeatureSet([]))
@@ -329,7 +329,7 @@ def learn_evolutionary():
     arbitrator = rl.ArbitratorEvolutionary(base_agent, featurizers_map, 
                     NUM_GENERATIONS, POPULATION_SIZE, GENERATION_EPISODES,
                     CHAMPION_TRIALS)
-    arbitrator.execute()
+    arbitrator.run()
     
 if __name__ == '__main__':
 
