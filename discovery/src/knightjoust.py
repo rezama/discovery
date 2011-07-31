@@ -10,7 +10,7 @@ import random
 import rl
 
 # start state configuration
-RANDOMIZE_START_STATE = False
+RANDOMIZE_START_STATE = True
 
 # trials
 NUM_TRIALS = 1
