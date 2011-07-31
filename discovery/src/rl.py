@@ -6,7 +6,7 @@ Created on Apr 28, 2011
 '''
 import random
 import math
-import numpy
+#import numpy
 import copy
 import multiprocessing
 import os
@@ -356,16 +356,20 @@ class FeatureSet(object):
         return names
         
     def encode_state(self, state):
-        if USE_NUMPY:
-            encoding = numpy.array([])
-        else:
-            encoding = []
+#        if USE_NUMPY:
+#            encoding = numpy.array([])
+#        else:
+#            encoding = []
+#        for feature in self.feature_list:
+#            next_segment = feature.encode_state(state)
+#            if USE_NUMPY:
+#                encoding = numpy.concatenate((encoding, next_segment))
+#            else:
+#                encoding += next_segment
+        encoding = []
         for feature in self.feature_list:
             next_segment = feature.encode_state(state)
-            if USE_NUMPY:
-                encoding = numpy.concatenate((encoding, next_segment))
-            else:
-                encoding += next_segment
+            encoding += next_segment
         if DEBUG_VERBOSE:
             print str(self)
             print "encoded state %s as: %s" % (state, encoding)
@@ -463,10 +467,11 @@ class FeatureFlag(TiledFeature):
         return "flag(%s)" % (self.flag_name)
     
     def encode_state(self, state):
-        if USE_NUMPY:
-            feature_encoding = numpy.zeros(self.num_tiles)
-        else:
-            feature_encoding = [0] * self.num_tiles
+#        if USE_NUMPY:
+#            feature_encoding = numpy.zeros(self.num_tiles)
+#        else:
+#            feature_encoding = [0] * self.num_tiles
+        feature_encoding = [0] * self.num_tiles
             
 #        if state.is_terminal():
 #            return feature_encoding
@@ -498,10 +503,11 @@ class FeatureAngle(TiledFeature):
                                           self.point3_name, self.offset)
             
     def encode_state(self, state):
-        if USE_NUMPY:
-            feature_encoding = numpy.zeros(self.num_tiles)
-        else:
-            feature_encoding = [0] * self.num_tiles
+#        if USE_NUMPY:
+#            feature_encoding = numpy.zeros(self.num_tiles)
+#        else:
+#            feature_encoding = [0] * self.num_tiles
+        feature_encoding = [0] * self.num_tiles
             
 #        if state.is_terminal():
 #            return feature_encoding
@@ -534,10 +540,11 @@ class FeatureDist(TiledFeature):
                                       self.offset)
     
     def encode_state(self, state):
-        if USE_NUMPY:
-            feature_encoding = numpy.zeros(self.num_tiles)
-        else:
-            feature_encoding = [0] * self.num_tiles
+#        if USE_NUMPY:
+#            feature_encoding = numpy.zeros(self.num_tiles)
+#        else:
+#            feature_encoding = [0] * self.num_tiles
+        feature_encoding = [0] * self.num_tiles
             
 #        if state.is_terminal():
 #            return feature_encoding
@@ -567,10 +574,11 @@ class FeatureDistX(TiledFeature):
                                         self.offset)
     
     def encode_state(self, state):
-        if USE_NUMPY:
-            feature_encoding = numpy.zeros(self.num_tiles)
-        else:
-            feature_encoding = [0] * self.num_tiles
+#        if USE_NUMPY:
+#            feature_encoding = numpy.zeros(self.num_tiles)
+#        else:
+#            feature_encoding = [0] * self.num_tiles
+        feature_encoding = [0] * self.num_tiles
             
 #        if state.is_terminal():
 #            return feature_encoding
@@ -599,10 +607,11 @@ class FeatureDistY(TiledFeature):
                                         self.offset)
 
     def encode_state(self, state):
-        if USE_NUMPY:
-            feature_encoding = numpy.zeros(self.num_tiles)
-        else:
-            feature_encoding = [0] * self.num_tiles
+#        if USE_NUMPY:
+#            feature_encoding = numpy.zeros(self.num_tiles)
+#        else:
+#            feature_encoding = [0] * self.num_tiles
+        feature_encoding = [0] * self.num_tiles
             
 #        if state.is_terminal():
 #            return feature_encoding
@@ -667,10 +676,11 @@ class FeaturePointX(TiledFeature):
         return "pointX(%s)[%.1f]" % (self.point_name, self.offset)
     
     def encode_state(self, state):
-        if USE_NUMPY:
-            feature_encoding = numpy.zeros(self.num_tiles)
-        else:
-            feature_encoding = [0] * self.num_tiles
+#        if USE_NUMPY:
+#            feature_encoding = numpy.zeros(self.num_tiles)
+#        else:
+#            feature_encoding = [0] * self.num_tiles
+        feature_encoding = [0] * self.num_tiles
         
         point = state.index[self.point_name]
             
@@ -716,10 +726,11 @@ class FeaturePointXY(Feature):
         return 2
 
     def encode_state(self, state):
-        if USE_NUMPY:
-            feature_encoding = numpy.zeros(self.num_tiles)
-        else:
-            feature_encoding = [0] * self.num_tiles
+#        if USE_NUMPY:
+#            feature_encoding = numpy.zeros(self.num_tiles)
+#        else:
+#            feature_encoding = [0] * self.num_tiles
+        feature_encoding = [0] * self.num_tiles
             
 #        if state.is_terminal():
 #            return feature_encoding
@@ -752,10 +763,11 @@ class FeaturePointY(TiledFeature):
         return "pointY(%s)[%.1f]" % (self.point_name, self.offset)
     
     def encode_state(self, state):
-        if USE_NUMPY:
-            feature_encoding = numpy.zeros(self.num_tiles)
-        else:
-            feature_encoding = [0] * self.num_tiles
+#        if USE_NUMPY:
+#            feature_encoding = numpy.zeros(self.num_tiles)
+#        else:
+#            feature_encoding = [0] * self.num_tiles
+        feature_encoding = [0] * self.num_tiles
         
         point = state.index[self.point_name]
             
@@ -808,10 +820,11 @@ class FeatureInteraction(Feature):
         return degree
 
     def encode_state(self, state):
-        if USE_NUMPY:
-            feature_encoding = numpy.zeros(self.num_tiles)
-        else:
-            feature_encoding = [0] * self.num_tiles
+#        if USE_NUMPY:
+#            feature_encoding = numpy.zeros(self.num_tiles)
+#        else:
+#            feature_encoding = [0] * self.num_tiles
+        feature_encoding = [0] * self.num_tiles
         
         feature_index = 0
         multiplier = 1
@@ -1350,11 +1363,12 @@ class SarsaLambdaFeaturized(Sarsa):
             self.default_w = 0
             
         for action in self.agent.all_actions():
-            if USE_NUMPY:
-                self.w[action] = numpy.ones(
-                        self.feature_set.get_encoding_length()) * self.default_w
-            else:
-                self.w[action] = [self.default_w] * self.feature_set.get_encoding_length()
+#            if USE_NUMPY:
+#                self.w[action] = numpy.ones(
+#                        self.feature_set.get_encoding_length()) * self.default_w
+#            else:
+#                self.w[action] = [self.default_w] * self.feature_set.get_encoding_length()
+            self.w[action] = [self.default_w] * self.feature_set.get_encoding_length()
 
     def add_feature(self, feature):
         # feature_set has already received the new feature
@@ -1392,20 +1406,24 @@ class SarsaLambdaFeaturized(Sarsa):
             self.w[action] += [new_segment_weights] * feature.get_encoding_length()
 
     def begin_episode(self, state):
-        if USE_NUMPY:
-            for action in self.agent.all_actions():
-                self.e[action] = numpy.zeros(self.feature_set.get_encoding_length())
-        else:
-            for action in self.agent.all_actions():
-                self.e[action] = [0] * self.feature_set.get_encoding_length()
+#        if USE_NUMPY:
+#            for action in self.agent.all_actions():
+#                self.e[action] = numpy.zeros(self.feature_set.get_encoding_length())
+#        else:
+#            for action in self.agent.all_actions():
+#                self.e[action] = [0] * self.feature_set.get_encoding_length()
+        for action in self.agent.all_actions():
+            self.e[action] = [0] * self.feature_set.get_encoding_length()
                 
     def compute_Q(self, features_present, action):
         sum = 0
-        if USE_NUMPY:
-            sum = numpy.dot(self.w[action], features_present)
-        else:
-            for i in range(self.feature_set.get_encoding_length()):
-                sum += self.w[action][i] * features_present[i]
+#        if USE_NUMPY:
+#            sum = numpy.dot(self.w[action], features_present)
+#        else:
+#            for i in range(self.feature_set.get_encoding_length()):
+#                sum += self.w[action][i] * features_present[i]
+        for i in range(self.feature_set.get_encoding_length()):
+            sum += self.w[action][i] * features_present[i]
         return sum
     
     def select_action(self):
@@ -1466,11 +1484,14 @@ class SarsaLambdaFeaturized(Sarsa):
                     if action != a:
                         self.e[action][i] = 0
 
-        sigma_w_Fa = 0
-        if USE_NUMPY:
-            sigma_w_Fa = numpy.dot(Fa, self.w[a])
-        else:
-            sigma_w_Fa = self.compute_Q(Fa, a)
+#        sigma_w_Fa = 0
+#        if USE_NUMPY:
+#            sigma_w_Fa = numpy.dot(Fa, self.w[a])
+#        else:
+#            sigma_w_Fa = self.compute_Q(Fa, a)
+        sigma_w_Fa = self.compute_Q(Fa, a)
+
+
 #            for i in range(get_encoding_length(Fa)):
 #                if Fa[i] == 1:
 #                    sigma_w_Fa += self.w[a][i]

@@ -252,7 +252,7 @@ class MiniSoccerEnvironment(rl.Environment):
 
     def get_max_episode_reward(self):
 #        return self.REWARD_WIN
-        distance_to_goal = self.MAX_X + 1 - MiniSoccerState.PLAYER_X_START
+        distance_to_goal = self.MAX_X - MiniSoccerState.PLAYER_X_START
         return self.REWARD_WIN * (GAMMA ** distance_to_goal)
 
     @classmethod
