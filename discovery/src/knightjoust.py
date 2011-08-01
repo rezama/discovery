@@ -397,7 +397,7 @@ def test_stuff():
             point_range, is_continuous=True, is_dynamic=True)
     opponent_var = rl.StateVarPoint2D("opponent", opponent_x, opponent_y, 
             point_range, is_continuous=True, is_dynamic=True)
-    corner_var = rl.StateVarPoint2D("corner", 
+    corner_var = rl.StateVarPoint2D("corner", #@UnusedVariable
             KnightJoustEnvironment.GRID_SIZE - 1, 
             KnightJoustEnvironment.GRID_SIZE - 1, point_range, 
             is_continuous=True, is_dynamic=False)
@@ -411,7 +411,7 @@ def test_stuff():
     
     feature_list = [feature]
     feature_set = rl.FeatureSet(feature_list)
-    for i in range(10):
+    for i in range(10): #@UnusedVariable
         
         state.index['player'].x = int(random.random() * 25)
         state.index['player'].y = int(random.random() * 25)

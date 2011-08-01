@@ -29,6 +29,7 @@ DEBUG_CHAMPION = True
 DEBUG_REPORT_ON_EPISODE = 100
 
 # reporting
+REPORT_RESULTS = True
 PLOT_INTERVALS = 100
 
 # default multiplier for initial Q values based on maximum possible reward
@@ -378,11 +379,11 @@ class FeatureSet(object):
     def get_encoding_length(self):
         return self.encoding_length
     
-    def get_degree(self):
-        degree = 0
+    def get_cost_factor(self):
+        cost = 0
         for feature in self.feature_list:
-            degree += feature.get_degree()
-        return degree
+            cost += feature.get_cost_factor()
+        return cost
 
     def get_num_features(self):
         return len(self.feature_list)
@@ -397,6 +398,9 @@ class Feature(object):
         pass
         
     def __str__(self):
+        return self.get_name()
+    
+    def __repr__(self):
         return self.get_name()
     
     def get_name(self):
@@ -414,7 +418,7 @@ class Feature(object):
     def reconfigure(self):
         pass
     
-    def get_degree(self):
+    def get_cost_factor(self):
         return 1
     
 class TiledFeature(Feature):
@@ -722,7 +726,7 @@ class FeaturePointXY(Feature):
     def get_encoding_length(self):
         return self.num_tiles
     
-    def get_degree(self):
+    def get_cost_factor(self):
         return 2
 
     def encode_state(self, state):
@@ -813,11 +817,11 @@ class FeatureInteraction(Feature):
     def get_encoding_length(self):
         return self.num_tiles
     
-    def get_degree(self):
-        degree = 0
+    def get_cost_factor(self):
+        cost = 0
         for feature in self.base_features:
-            degree += feature.get_degree()
-        return degree
+            cost += feature.get_cost_factor()
+        return cost
 
     def encode_state(self, state):
 #        if USE_NUMPY:
@@ -1709,8 +1713,9 @@ class ArbitratorStandard(Arbitrator):
         if DEBUG_PROGRESS:
             print "average reward: %.2f" % (float(trial_reward) / self.generation_episodes) 
         
-        self.report_results()
-        self.plot('plot-standard.gp')
+        if REPORT_RESULTS:
+            self.report_results()
+            self.plot('plot-standard.gp')
         
     def report_results(self):
         report_file = open('results/results-standard.txt', 'w')
@@ -1823,7 +1828,7 @@ class ArbitratorEvolutionary(Arbitrator):
                 average_reward = float(sum(agent.reward_log)) / self.generation_episodes
 #                computational_cost_multiplier = ETA ** (float(
 #                        agent.feature_set.get_encoding_length()) / TiledFeature.DEFAULT_NUM_TILES) 
-                computational_cost_multiplier = ETA ** agent.feature_set.get_degree()
+                computational_cost_multiplier = ETA ** agent.feature_set.get_cost_factor()
                 normalized_reward = average_reward * computational_cost_multiplier
                 generation_performance.append((normalized_reward, average_reward, agent))
             
@@ -1908,8 +1913,9 @@ class ArbitratorEvolutionary(Arbitrator):
                     self.champion_trial_rewards.append(champion_reward)
                     self.champions_training_reward_log += champion.reward_log
         
-        self.report_results()
-        self.plot('plot-ev.gp')
+        if REPORT_RESULTS:
+            self.report_results()
+            self.plot('plot-ev.gp')
 
     def report_results(self):
         report_file = open('results/champions.txt', 'w')

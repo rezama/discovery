@@ -6,6 +6,7 @@ Created on May 8, 2011
 '''
 import rl
 import random
+import time
 
 # Debug
 DEBUG = False
@@ -492,6 +493,66 @@ def learn_w_multitile_features():
     arbitrator = rl.ArbitratorStandard(agent, NUM_TRIALS, NUM_EPISODES)
     arbitrator.run(MAX_STEPS)
 
+def cost_benchmark():
+    sample_state = MiniSoccerState.generate_start_state()
+
+    player = sample_state.index['player']
+    opponent = sample_state.index['opponent']
+#    player_on_left = sample_state.index['player_on_left']
+    player_has_ball = sample_state.index['player_has_ball']
+    right_goal_center = sample_state.index['rightgoalcenter']
+    left_goal_center = sample_state.index['leftgoalcenter']
+    upper_left = sample_state.index['upperleft']
+    
+    print "training the base agent..."
+    base_features = [rl.FeatureFlag(player_has_ball),
+                     rl.FeatureAngle(player, upper_left, left_goal_center),
+                     rl.FeatureDistY(player, right_goal_center),
+                     rl.FeaturePointXY(player)
+                     ]
+    base_agent = MiniSoccerAgent(rl.FeatureSet(base_features))
+    a = time.clock()
+    arbitrator = rl.ArbitratorStandard(base_agent, NUM_TRIALS, NUM_EPISODES)
+    arbitrator.run(MAX_STEPS)
+    b = time.clock()
+    base_time = b - a
+    print "Running time: %.1f" % base_time
+    print "Do it again..."
+    a = time.clock()
+    arbitrator = rl.ArbitratorStandard(base_agent, NUM_TRIALS, NUM_EPISODES)
+    arbitrator.run(MAX_STEPS)
+    b = time.clock()
+    base_time = b - a
+    print "Running time: %.1f" % base_time
+    
+    feature_lists = [
+                     [rl.FeatureFlag(player_has_ball)], 
+                     [rl.FeatureAngle(opponent, left_goal_center, upper_left)],
+                     [rl.FeatureAngle(opponent, left_goal_center, upper_left, 20)],
+                     [rl.FeatureDist(opponent, player)],
+                     [rl.FeatureDist(opponent, player, 20)],
+                     [rl.FeatureDistX(opponent, player)],
+                     [rl.FeatureDistX(opponent, player, 20)],
+                     [rl.FeaturePointXY(opponent)],
+                     [rl.FeaturePointXY(opponent, 400)],
+                     [rl.FeatureInteraction([rl.FeatureDist(opponent, player), rl.FeatureAngle(opponent, left_goal_center, upper_left)])],
+                     [rl.FeatureInteraction([rl.FeatureDist(opponent, player, 20), rl.FeatureAngle(opponent, left_goal_center, upper_left)])],
+                     [rl.FeatureInteraction([rl.FeatureDist(opponent, player), rl.FeaturePointXY(opponent)])],
+                     [rl.FeatureInteraction([rl.FeatureDist(opponent, player, 20), rl.FeaturePointXY(opponent)])],
+                    ]
+    
+    for feature_list in feature_lists:
+        agent = base_agent.clone()
+        for feature in feature_list:
+            agent.add_feature(feature) 
+        arbitrator = rl.ArbitratorStandard(agent, NUM_TRIALS, NUM_EPISODES)
+        print "testing %s..." % feature_list
+        a = time.clock()
+        arbitrator.run(MAX_STEPS)
+        b = time.clock()
+        print "Overhead time: %.1f" % (b - a - base_time)
+        print
+
 def learn_evolutionary():
     base_agent = MiniSoccerAgent(rl.FeatureSet([]))
 
@@ -540,5 +601,6 @@ def learn_evolutionary():
     
 if __name__ == '__main__':
 #    learn_w_multitile_features()
-    learn_evolutionary()
+#    learn_evolutionary()
 #    try_hand_coded()
+    cost_benchmark()
