@@ -12,6 +12,7 @@ import multiprocessing
 import os
 import subprocess
 import sys
+import time
 
 USE_NUMPY = False
 USE_MULTIPROCESSING = True
@@ -67,6 +68,9 @@ class AgentStateBased(object):
         self.episode_reward = 0
         self.episode_trace = ""
         self.reward_log = []
+        self.average_reward = 0
+        self.average_reward_normalized = 0
+        self.training_time = 0
         
     def set_algorithm(self, algorithm):
         self.algorithm = algorithm
@@ -1648,6 +1652,7 @@ def arbitrator_test_agent((agent, start_states, start_seeds, max_steps,
     if DEBUG_PROGRESS and not USE_MULTIPROCESSING:
         print "testing agent: " + str(agent.feature_set)
     agent.reward_log = [0] * num_episodes
+    begin_time = time.clock()
 #    agent.save_learning_state()
     for trial in range(num_trials): #@UnusedVariable
 #        agent.restore_learning_state()
@@ -1667,16 +1672,20 @@ def arbitrator_test_agent((agent, start_states, start_seeds, max_steps,
             if DEBUG_ALG_VALUES:
                 print "values:"
                 agent.algorithm.print_values()
+    end_time = time.clock()
+    agent.training_time = end_time - begin_time
     
     # average rewards over trials
     for episode in range(num_episodes):
         agent.reward_log[episode] = float(agent.reward_log[episode]) / num_trials
             
+    agent.average_reward = float(sum(agent.reward_log)) / num_episodes
+
     if DEBUG_PROGRESS:
         if USE_MULTIPROCESSING:
             print "tested agent: " + str(agent.feature_set)
-        average_reward = float(sum(agent.reward_log)) / num_episodes
-        print "average reward: %.2f" % average_reward
+        print "average reward: %.2f, training_time: %.1f" % (
+                agent.average_reward, agent.training_time)
 
     return agent
         
@@ -1747,6 +1756,8 @@ class ArbitratorEvolutionary(Arbitrator):
         self.champion_trials = champion_trials
         self.champions = []
         self.champion_training_rewards = []
+        self.champion_training_rewards_normalized = []
+        self.champion_training_times = []
         self.champion_trial_rewards = []
         self.champions_training_reward_log = []
         self.champions_trial_reward_log = []
@@ -1804,7 +1815,6 @@ class ArbitratorEvolutionary(Arbitrator):
                 new_agent = mutator.mutate(agent_to_mutate)
                 agents.append(new_agent)
             
-            generation_performance = []
             
             # experiment with agents
             if USE_MULTIPROCESSING:
@@ -1819,30 +1829,43 @@ class ArbitratorEvolutionary(Arbitrator):
                 for agent in agents:
                     self.test_agent(agent, start_states, max_steps)
             
-            # update average rewards
+            # update population averages
             for agent in agents:
                 for episode in range(self.generation_episodes):
                     index = generation * self.generation_episodes + episode
                     self.population_reward_log[index] += agent.reward_log[episode]
             
-                average_reward = float(sum(agent.reward_log)) / self.generation_episodes
+            # find lowest training time
+            base_time = None
+            for agent in agents:
+                if base_time is None:
+                    base_time = agent.training_time
+                else:
+                    if agent.training_time < base_time:
+                        base_time = agent.training_time
+
+            # sort agents based on performance
+            generation_perf = []
+            for agent in agents:
 #                computational_cost_multiplier = ETA ** (float(
-#                        agent.feature_set.get_encoding_length()) / TiledFeature.DEFAULT_NUM_TILES) 
-                computational_cost_multiplier = ETA ** agent.feature_set.get_cost_factor()
-                normalized_reward = average_reward * computational_cost_multiplier
-                generation_performance.append((normalized_reward, average_reward, agent))
-            
+#                        agent.feature_set.get_encoding_length()) / TiledFeature.DEFAULT_NUM_TILES)
+                time_ratio = agent.training_time / base_time 
+                computational_cost_multiplier = ETA ** time_ratio
+                agent.average_reward_normalized = agent.average_reward * computational_cost_multiplier
+                generation_perf.append((agent.average_reward_normalized, agent))
+                
             # select generation champion
-            generation_sorted = sorted(generation_performance, reverse=True)  
+            generation_sorted = sorted(generation_perf, reverse=True)  
             surviving_agents = []
-            champion = generation_sorted[0][2]
-            champion_reward = generation_sorted[0][1]
+            champion = generation_sorted[0][1]
             champion_cloned = champion.clone()
             # disable learning on the champion
             champion_cloned.pause_learning()
             # add it to the list
             self.champions.append(champion_cloned)
-            self.champion_training_rewards.append(champion_reward)
+            self.champion_training_rewards.append(champion.average_reward)
+            self.champion_training_rewards_normalized.append(champion.average_reward_normalized)
+            self.champion_training_times.append(champion.training_time)
             
             # add all episode rewards to the champion reward log
             self.champions_training_reward_log += champion.reward_log
@@ -1851,7 +1874,7 @@ class ArbitratorEvolutionary(Arbitrator):
             # as the champion
             index = 1
             while True:
-                runnerup = generation_sorted[index][2]
+                runnerup = generation_sorted[index][1]
                 if runnerup.get_name() != champion.get_name():
                     break
                 index += 1
@@ -1863,7 +1886,7 @@ class ArbitratorEvolutionary(Arbitrator):
             
             if DEBUG_PROGRESS:
                 print "generation champion: %s" % champion.feature_set
-                print "with average reward: %.4f" % generation_sorted[0][1]
+                print "with average reward: %.4f" % champion.average_reward
             if DEBUG_ALG_VALUES:
                 print "values:"    
                 champion.algorithm.print_w()
@@ -1922,9 +1945,11 @@ class ArbitratorEvolutionary(Arbitrator):
         generation = 0
         for champion in self.champions:
             training_reward = self.champion_training_rewards[generation]
+            training_reward_normalized = self.champion_training_rewards_normalized[generation]
             trial_reward = self.champion_trial_rewards[generation]
-            report_file.write('Champion %d, average training reward: %.2f, average trial reward: %.2f\n' % 
-                              (generation, training_reward, trial_reward))
+            training_time = self.champion_training_times[generation]
+            report_file.write('Champion %d, average training reward: %.2f, normalized: %.2f, average trial reward: %.2f\n, training time: %.1f' % 
+                              (generation, training_reward, training_reward_normalized, trial_reward, training_time))
             report_file.write(champion.get_name())
             report_file.write('\n\n')
             generation += 1

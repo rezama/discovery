@@ -600,7 +600,7 @@ def learn_evolutionary():
     arbitrator.run(MAX_STEPS)
     
 if __name__ == '__main__':
-#    learn_w_multitile_features()
-#    learn_evolutionary()
 #    try_hand_coded()
-    cost_benchmark()
+#    learn_w_multitile_features()
+    learn_evolutionary()
+#    cost_benchmark()
