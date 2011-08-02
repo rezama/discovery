@@ -26,9 +26,12 @@ PLOT_INTERVALS = 100
 class KeepAwayAgent(rl.AgentFeatureBased):
     
     def __init__(self, feature_set):
-        super(KeepAwayAgent, self).__init__(KeepAwayActions(), 
-                KeepAwayEnvironment(), feature_set)
-        self.set_algorithm(rl.SarsaLambdaFeaturized(self))
+        actions = KeepAwayActions()
+        environment = KeepAwayEnvironment()
+        algorithm = rl.SarsaLambdaFeaturized(actions, environment, feature_set)
+        super(KeepAwayAgent, self).__init__(actions, environment, feature_set,
+                                            algorithm)
+#        self.set_algorithm()
     
 class KeepAwayEnvironment(rl.Environment):
     

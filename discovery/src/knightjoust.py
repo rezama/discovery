@@ -25,16 +25,21 @@ CHAMPION_TRIALS = 20
 class KnightJoustStateBasedAgent(rl.AgentStateBased):
     
     def __init__(self):
-        super(KnightJoustStateBasedAgent, self).__init__(
-                KnightJoustActions(), KnightJoustEnvironment())
-        self.set_algorithm(rl.SarsaLambda(self))
+        actions = KnightJoustActions()
+        environment = KnightJoustEnvironment()
+        algorithm = rl.SarsaLambda(environment, actions)
+        super(KnightJoustStateBasedAgent, self).__init__(actions, environment, algorithm)
+#        self.set_algorithm()
 
 class KnightJoustFeatureBasedAgent(rl.AgentFeatureBased):
     
     def __init__(self, feature_set):
-        super(KnightJoustFeatureBasedAgent, self).__init__(
-                KnightJoustActions(), KnightJoustEnvironment(), feature_set)
-        self.set_algorithm(rl.SarsaLambdaFeaturized(self))
+        actions = KnightJoustActions()
+        environment = KnightJoustEnvironment()
+        algorithm = rl.SarsaLambdaFeaturized(actions, environment, feature_set)
+        super(KnightJoustFeatureBasedAgent, self).__init__(actions, environment,
+                                                        feature_set, algorithm)
+#        self.set_algorithm()
     
 class KnightJoustEnvironment(rl.Environment):
     
@@ -381,6 +386,7 @@ def learn_evolutionary():
 
 def experiments():
     for w in [0.0, 0.05, 0.10, 0.15, 0.20, 0.25, 0.30, 0.40, 0.50, 0.75, 0.80, 0.85, 0.90, 0.95, 1.00]:
+#    for w in [0.0, 0.05, 0.10, 0.15, 0.20, 0.25]:
         print "Mutate weights multiplier is %.2f" % w
         rl.MUTATE_NEW_WEIGHTS_MULT = w
         learn_evolutionary()
@@ -436,6 +442,6 @@ if __name__ == '__main__':
 #    learn_w_raw_state()
 #    learn_w_features()
 #    learn_w_multitile_features()
-#    learn_evolutionary()
-    experiments()
+    learn_evolutionary()
+#    experiments()
 #    test_stuff()

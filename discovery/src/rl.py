@@ -53,16 +53,13 @@ DEFAULT_ETA = 0.95
 
 class AgentStateBased(object):
 
-    def __init__(self, actions, environment):
+    def __init__(self, actions, environment, algorithm=None):
         self.state = None
         self.last_state = None
-        self.cached_action_valid = False
-        self.cached_action = None
-        self.cached_action_value = None
         
         self.actions = actions
         self.environment = environment
-        self.algorithm = None
+        self.algorithm = algorithm
 
         self.episode_steps = 0
         self.gamma_multiplier = 1.0
@@ -73,8 +70,8 @@ class AgentStateBased(object):
         self.average_reward_normalized = 0
         self.training_time = 0
         
-    def set_algorithm(self, algorithm):
-        self.algorithm = algorithm
+#    def set_algorithm(self, algorithm):
+#        self.algorithm = algorithm
     
     def begin_episode(self, state):
         self.episode_steps = 0
@@ -108,13 +105,7 @@ class AgentStateBased(object):
         return self.actions.all_actions()
 
     def select_action(self):
-        if self.cached_action_valid:
-            return self.cached_action
-        else:
-            (a, v) = self.algorithm.select_action()
-            self.cached_action = a
-            self.cached_action_value = v
-            self.cached_action_valid = True
+        (a, v) = self.algorithm.select_action(self.state)
         return a
     
     def transition(self, action):
@@ -163,8 +154,8 @@ class AgentStateBased(object):
 
 class AgentFeatureBased(AgentStateBased):
 
-    def __init__(self, actions, environment, feature_set):
-        super(AgentFeatureBased, self).__init__(actions, environment)
+    def __init__(self, actions, environment, feature_set, algorithm=None):
+        super(AgentFeatureBased, self).__init__(actions, environment, algorithm)
         self.feature_set = feature_set
 
     def get_name(self):
@@ -1135,20 +1126,34 @@ class GeometryUtil(object):
 
 class Algorithm(object):
 
-    def __init__(self, agent):
-        self.agent = agent
-        self.environment = agent.environment
+    def __init__(self, actions, environment):
+        self.actions = actions
+        self.environment = environment
         if self.environment is not None:
-            self.gamma = agent.environment.gamma
+            self.gamma = environment.gamma
         else:
             self.gamma = DEFAULT_GAMMA
-            
+        
+        self.cached_action_valid = False
+        self.cached_action = None
+        self.cached_action_value = None
+        
         self.is_learning = True
     
     def begin_episode(self, state):
         pass
     
-    def select_action(self):
+    def select_action(self, state):
+        if self.cached_action_valid:
+            return self.cached_action
+        else:
+            (a, v) = self.select_action_do(self.state)
+            self.cached_action = a
+            self.cached_action_value = v
+            self.cached_action_valid = True
+        return a
+    
+    def select_action_do(self, state):
         return NotImplemented
     
     def transition(self, state, action, reward, state_p, action_p):
@@ -1175,19 +1180,19 @@ class Sarsa(Algorithm):
     REPLACING_TRACES = 2
     TRACES = REPLACING_TRACES
 
-    def __init__(self, agent, alpha, epsilon, lamda):
-        super(Sarsa, self).__init__(agent)
+    def __init__(self, environment, actions, alpha, epsilon, lamda):
+        super(Sarsa, self).__init__(environment, actions)
         self.epsilon = epsilon
         self.lamda = lamda
         self.alpha = alpha
         
 class SarsaLambda(Sarsa):
 
-    def __init__(self, agent,
+    def __init__(self, actions, environment,
                  alpha = Sarsa.DEFAULT_ALPHA, 
                  epsilon = Sarsa.DEFAULT_EPSILON,
                  lamda = Sarsa.DEFAULT_LAMBDA):
-        super(SarsaLambda, self).__init__(agent, alpha, epsilon, lamda)
+        super(SarsaLambda, self).__init__(actions, environment, alpha, epsilon, lamda)
         self.Q = {}
         self.Q_save = {}
         self.e = {}
@@ -1202,17 +1207,17 @@ class SarsaLambda(Sarsa):
     def begin_episode(self, state):
         self.e = {}
     
-    def select_action(self):
-        state = str(self.agent.state)
+    def select_action_do(self, state):
+        state_s = str(state)
         
         if self.is_learning and (random.random() < self.epsilon):
-            action = self.agent.actions.random_action()
-            value = self.Q.get((state, action), self.default_q) 
+            action = self.actions.random_action()
+            value = self.Q.get((state_s, action), self.default_q) 
         else:
             action_values = []
-            for action in self.agent.all_actions():
+            for action in self.action.all_actions():
                 # insert a random number to break the ties
-                action_values.append(((self.Q.get((state, action), self.default_q), 
+                action_values.append(((self.Q.get((state_s, action), self.default_q), 
                                        random.random()), action))
                 
             action_values_sorted = sorted(action_values, reverse=True)
@@ -1352,16 +1357,17 @@ class SarsaLambda(Sarsa):
 
 class SarsaLambdaFeaturized(Sarsa):
 
-    def __init__(self, agent,
+    def __init__(self, actions, environment, feature_set,
                  alpha = Sarsa.DEFAULT_ALPHA, 
                  epsilon = Sarsa.DEFAULT_EPSILON,
                  lamda = Sarsa.DEFAULT_LAMBDA):
-        super(SarsaLambdaFeaturized, self).__init__(agent, alpha, epsilon, lamda)
+        super(SarsaLambdaFeaturized, self).__init__(environment, actions, alpha,
+                                                    epsilon, lamda)
         self.w = {}
         self.w_save = {}
         self.e = {}
 
-        self.feature_set = agent.feature_set
+        self.feature_set = feature_set
         num_features = self.feature_set.get_num_features()
         if BASE_FEATURE_WEIGHTS == WEIGHTS_OPTIMISTIC and \
                 (self.feature_set.get_num_features() > 0):
@@ -1371,7 +1377,7 @@ class SarsaLambdaFeaturized(Sarsa):
         else:
             self.default_w = 0
             
-        for action in self.agent.all_actions():
+        for action in self.actions.all_actions():
 #            if USE_NUMPY:
 #                self.w[action] = numpy.ones(
 #                        self.feature_set.get_encoding_length()) * self.default_w
@@ -1385,7 +1391,7 @@ class SarsaLambdaFeaturized(Sarsa):
 #        if MUTATE_NEW_FEATURE_WEIGHTS == WEIGHTS_OPTIMISTIC:
 #        else:
 #            new_segment_weights = 0
-        optimistic_reward = (self.agent.environment.get_max_episode_reward() *
+        optimistic_reward = (self.environment.get_max_episode_reward() *
                              MUTATE_NEW_WEIGHTS_MULT * 
                              INIT_Q_VALUE_MULTIPLIER)
         new_segment_weights = float(optimistic_reward) / num_features
@@ -1407,11 +1413,11 @@ class SarsaLambdaFeaturized(Sarsa):
             # x = -----------
             #      n / (n+1)            
             multiplier = 1.0 - (float(MUTATE_NEW_WEIGHTS_MULT) / num_features)
-            for action in self.agent.all_actions():
+            for action in self.actions.all_actions():
                 self.w[action][:] = [w * multiplier for w in self.w[action]]
         
         # add new weights
-        for action in self.agent.all_actions():
+        for action in self.actions.all_actions():
             self.w[action] += [new_segment_weights] * feature.get_encoding_length()
 
     def begin_episode(self, state):
@@ -1421,7 +1427,7 @@ class SarsaLambdaFeaturized(Sarsa):
 #        else:
 #            for action in self.agent.all_actions():
 #                self.e[action] = [0] * self.feature_set.get_encoding_length()
-        for action in self.agent.all_actions():
+        for action in self.actions.all_actions():
             self.e[action] = [0] * self.feature_set.get_encoding_length()
                 
     def compute_Q(self, features_present, action):
@@ -1435,15 +1441,15 @@ class SarsaLambdaFeaturized(Sarsa):
             sum += self.w[action][i] * features_present[i]
         return sum
     
-    def select_action(self):
-        features = self.feature_set.encode_state(self.agent.state)
+    def select_action_do(self, state):
+        features = self.feature_set.encode_state(state)
         
         if self.is_learning and (random.random() < self.epsilon):
-            action = self.agent.actions.random_action()
+            action = self.actions.random_action()
             value = self.compute_Q(features, action) 
         else:
             action_values = []
-            for action in self.agent.all_actions():
+            for action in self.actions.all_actions():
                 # insert a random number to break the ties
                 action_values.append(((self.compute_Q(features, action), 
                                        random.random()), action))
@@ -1457,7 +1463,7 @@ class SarsaLambdaFeaturized(Sarsa):
 
     def update_weights(self, delta):
         alpha = self.alpha / self.feature_set.get_num_features()
-        for action in self.agent.all_actions():
+        for action in self.actions.all_actions():
             if USE_NUMPY:
                 self.w[action] += (self.e[action] * alpha * delta)
             else:
@@ -1478,7 +1484,7 @@ class SarsaLambdaFeaturized(Sarsa):
         Fa = self.feature_set.encode_state(state)
         
         # update e
-        for action in self.agent.all_actions():
+        for action in self.actions.all_actions():
         #                self.e[action] = [e * self.gamma * self.lamda 
         #                                  for e in self.e[action]]
             for i in range(len(self.e[action])):
@@ -1489,7 +1495,7 @@ class SarsaLambdaFeaturized(Sarsa):
                 # replacing traces
                 self.e[a][i] = 1
                 # set the trace for the other actions to 0
-                for action in self.agent.all_actions():
+                for action in self.actions.all_actions():
                     if action != a:
                         self.e[action][i] = 0
 
@@ -1699,6 +1705,7 @@ def arbitrator_test_agent((agent, start_states, start_seeds, max_steps,
         print "average reward: %.2f, training_time: %.1f" % (
                 agent.average_reward, agent.training_time)
 
+#    gc.collect()
     return agent
         
 class ArbitratorStandard(Arbitrator):
@@ -1912,6 +1919,8 @@ class ArbitratorEvolutionary(Arbitrator):
 #                champion.algorithm.print_w()
                 print "last episode trace:"
                 print champion.get_episode_trace()
+                
+#            gc.collect()
     
         final_champion = surviving_agents[0]
         if DEBUG_PROGRESS:

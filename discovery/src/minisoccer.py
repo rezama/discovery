@@ -39,10 +39,12 @@ class MiniSoccerAgent(rl.AgentFeatureBased):
     
     def __init__(self, feature_set):
         self.opponent_agent = MiniSoccerAgentHandCoded(role=ROLE_OPPONENT)
+        actions = MiniSoccerActions()
         environment = MiniSoccerEnvironment(self.opponent_agent)
-        super(MiniSoccerAgent, self).__init__(
-                MiniSoccerActions(), environment, feature_set)
-        self.set_algorithm(rl.SarsaLambdaFeaturized(self, ALPHA, EPSILON, LAMBDA))
+        algorithm = rl.SarsaLambdaFeaturized(self, ALPHA, EPSILON, LAMBDA)
+        super(MiniSoccerAgent, self).__init__(actions, environment, feature_set,
+                                              algorithm)
+#        self.set_algorithm()
 
     def begin_episode(self, state):
         super(MiniSoccerAgent, self).begin_episode(state)
@@ -135,9 +137,8 @@ class MiniSoccerAgentRandom(rl.AgentStateBased):
         if role == ROLE_PLAYER:
             self.opponent_agent = opponent_agent
             environment = MiniSoccerEnvironment(self.opponent_agent)
-        super(MiniSoccerAgentRandom, self).__init__(
-                                            MiniSoccerActions(), environment)
-        self.set_algorithm(None)
+        super(MiniSoccerAgentRandom, self).__init__(MiniSoccerActions(), environment)
+#        self.set_algorithm(None)
 
     def begin_episode(self, state):
         super(MiniSoccerAgentRandom, self).begin_episode(state)
@@ -161,7 +162,7 @@ class MiniSoccerAgentHandCoded(rl.AgentStateBased):
             environment = MiniSoccerEnvironment(self.opponent_agent)
         super(MiniSoccerAgentHandCoded, self).__init__(MiniSoccerActions(), 
                                                        environment)
-        self.set_algorithm(None)
+#        self.set_algorithm(None)
 
     def begin_episode(self, state):
         super(MiniSoccerAgentHandCoded, self).begin_episode(state)
