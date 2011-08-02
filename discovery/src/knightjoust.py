@@ -376,9 +376,15 @@ def learn_evolutionary():
 
     arbitrator = rl.ArbitratorEvolutionary(base_agent, featurizers_map, 
                     NUM_GENERATIONS, POPULATION_SIZE, GENERATION_EPISODES,
-                    CHAMPION_TRIALS)
+                    CHAMPION_TRIALS, rl.DEFAULT_ETA)
     arbitrator.run()    
 
+def experiments():
+    for w in [0.0, 0.05, 0.10, 0.15, 0.20, 0.25, 0.30, 0.40, 0.50, 0.75, 0.80, 0.85, 0.90, 0.95, 1.00]:
+        print "Mutate weights multiplier is %.2f" % w
+        rl.MUTATE_NEW_WEIGHTS_MULT = w
+        learn_evolutionary()
+        
 def test_stuff():
 #    feature_dist_po = KnightJoustFeatureDist()
 #    feature_angle_west = KnightJoustFeatureAngleWest()
@@ -430,5 +436,6 @@ if __name__ == '__main__':
 #    learn_w_raw_state()
 #    learn_w_features()
 #    learn_w_multitile_features()
-    learn_evolutionary()
+#    learn_evolutionary()
+    experiments()
 #    test_stuff()

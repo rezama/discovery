@@ -36,19 +36,20 @@ PLOT_INTERVALS = 100
 # default multiplier for initial Q values based on maximum possible reward
 INIT_Q_VALUE_MULTIPLIER = 1.0
 
-INIT_WEIGHTS_ZERO = "Zero"
-INIT_WEIGHTS_OPTIMISTIC = "Optimistic"
-INIT_WEIGHTS_COPY = "Copy"
+WEIGHTS_ZERO = "Zero"
+WEIGHTS_OPTIMISTIC = "Optimistic"
+WEIGHTS_COPY = "Copy"
 
-INIT_FEATURE_WEIGHTS = INIT_WEIGHTS_OPTIMISTIC
-MUTATE_NEW_FEATURE_WEIGHTS = INIT_WEIGHTS_ZERO
-#MUTATE_NEW_FEATURE_WEIGHTS = INIT_WEIGHTS_OPTIMISTIC
-MUTATE_OPTIMISTIC_WEIGHTS_MULTIPLIER = 1.0
-MUTATE_CROSS_OVER_WEIGHTS = INIT_WEIGHTS_COPY
+BASE_FEATURE_WEIGHTS = WEIGHTS_OPTIMISTIC
+MUTATE_NEW_WEIGHTS_MULT = 1.0
+MUTATE_CROSS_OVER_WEIGHTS = WEIGHTS_COPY
 
+# the probability by which the algorithm tries to pick a dynamic state variable
+# when it has both options
 FORCE_DYNAMIC_PROB = 0.75
 
-ETA = 1.0
+# the computational cost parameter 
+DEFAULT_ETA = 0.95
 
 class AgentStateBased(object):
 
@@ -1025,7 +1026,7 @@ class Mutator(object):
 #        agent_class = agent.__class__
 #        new_agent = agent_class(new_feature_set)
 #        
-#        if MUTATE_NEW_FEATURE_WEIGHTS == INIT_WEIGHTS_OPTIMISTIC or len(feature_list) == 1:
+#        if MUTATE_NEW_FEATURE_WEIGHTS == WEIGHTS_OPTIMISTIC or len(feature_list) == 1:
 #            new_segment_weights = ((agent.environment.get_max_episode_reward() * 
 #                              INIT_Q_VALUE_MULTIPLIER) / 
 #                              new_feature_set.get_num_features())
@@ -1065,7 +1066,7 @@ class Mutator(object):
 #        for action in agent1.actions.all_actions():
 #            len_last_feature_from_agent2 = \
 #                last_feature_from_agent2.get_encoding_length()
-#            if MUTATE_CROSS_OVER_WEIGHTS == INIT_WEIGHTS_COPY:
+#            if MUTATE_CROSS_OVER_WEIGHTS == WEIGHTS_COPY:
 #                feature_w_from_agent_2 = \
 #                    agent2.algorithm.w[action][-len_last_feature_from_agent2:]
 #                new_agent.algorithm.w[action] = \
@@ -1362,7 +1363,7 @@ class SarsaLambdaFeaturized(Sarsa):
 
         self.feature_set = agent.feature_set
         num_features = self.feature_set.get_num_features()
-        if INIT_FEATURE_WEIGHTS == INIT_WEIGHTS_OPTIMISTIC and \
+        if BASE_FEATURE_WEIGHTS == WEIGHTS_OPTIMISTIC and \
                 (self.feature_set.get_num_features() > 0):
             optimistic_reward = (self.environment.get_max_episode_reward() * 
                                  INIT_Q_VALUE_MULTIPLIER)
@@ -1381,16 +1382,16 @@ class SarsaLambdaFeaturized(Sarsa):
     def add_feature(self, feature):
         # feature_set has already received the new feature
         num_features = self.feature_set.get_num_features()
-        if MUTATE_NEW_FEATURE_WEIGHTS == INIT_WEIGHTS_OPTIMISTIC:
-            optimistic_reward = (self.agent.environment.get_max_episode_reward() *
-                                 MUTATE_OPTIMISTIC_WEIGHTS_MULTIPLIER * 
-                                 INIT_Q_VALUE_MULTIPLIER)
-            new_segment_weights = float(optimistic_reward) / num_features
-        else:
-            new_segment_weights = 0
+#        if MUTATE_NEW_FEATURE_WEIGHTS == WEIGHTS_OPTIMISTIC:
+#        else:
+#            new_segment_weights = 0
+        optimistic_reward = (self.agent.environment.get_max_episode_reward() *
+                             MUTATE_NEW_WEIGHTS_MULT * 
+                             INIT_Q_VALUE_MULTIPLIER)
+        new_segment_weights = float(optimistic_reward) / num_features
         
         # adjust existing weights
-        if MUTATE_NEW_FEATURE_WEIGHTS == INIT_WEIGHTS_OPTIMISTIC:
+        if MUTATE_NEW_WEIGHTS_MULT > 0.0:
 #            multiplier = float(num_features - 1) / float(num_features)
             # now we have to factor in MUTATE_OPTIMISTIC_WEIGHT_MULTIPLIER
             # 1 2 ... n          n+1
@@ -1405,7 +1406,7 @@ class SarsaLambdaFeaturized(Sarsa):
             #     1 - (M/n+1)
             # x = -----------
             #      n / (n+1)            
-            multiplier = 1.0 - (float(MUTATE_OPTIMISTIC_WEIGHTS_MULTIPLIER) / num_features)
+            multiplier = 1.0 - (float(MUTATE_NEW_WEIGHTS_MULT) / num_features)
             for action in self.agent.all_actions():
                 self.w[action][:] = [w * multiplier for w in self.w[action]]
         
@@ -1612,6 +1613,17 @@ class SarsaLambdaFeaturized(Sarsa):
         self.print_w()
         self.print_e()
 
+#class ExperimentParameters(object):
+#    def __init__(self, num_generations=15, population_size=50,
+#                 num_episodes=200,  champion_trials=20,
+#                 optimistic_weights_multiplier=0.0, eta = 1.0):
+#        self.num_generations = num_generations
+#        self.population_size = population_size
+#        self.num_episodes = num_episodes
+#        self.champion_trials = champion_trials
+#        self.optimistic_weights_multiplier = optimistic_weights_multiplier
+#        self.eta = eta
+
 class Arbitrator(object):
 
     def __init__(self):
@@ -1623,12 +1635,12 @@ class Arbitrator(object):
     def do_episode(self, agent, start_state, max_steps):
         return arbitrator_do_episode((agent, start_state, max_steps))
 
-    def plot(self, script_name):
+    def plot(self, folder_name, script_name):
         orig_wd = os.getcwd()
-        os.chdir("results")
+        os.chdir(folder_name)
         if DEBUG_PROGRESS:
             print "generating plot"
-        subprocess.call('gnuplot ../plot/%s' % script_name, shell=True)
+        subprocess.call('gnuplot ../../plot/%s' % script_name, shell=True)
         os.chdir(orig_wd)
 
 # multiprocessing method
@@ -1695,14 +1707,14 @@ class ArbitratorStandard(Arbitrator):
         super(ArbitratorStandard, self).__init__()
         self.agent = agent
         self.num_trials = num_trials
-        self.generation_episodes = num_episodes
+        self.num_episodes = num_episodes
         self.reward_log = []
 
     def run(self, max_steps = 0):
-        self.reward_log = [0] * self.generation_episodes
+        self.reward_log = [0] * self.num_episodes
         for trial in range(self.num_trials):
             trial_reward = 0
-            for episode in range(self.generation_episodes):
+            for episode in range(self.num_episodes):
                 if DEBUG_PROGRESS and (episode % DEBUG_REPORT_ON_EPISODE == 0):
                     print "trial %i episode %i" % (trial, episode)
 #                    print agent.w
@@ -1720,21 +1732,22 @@ class ArbitratorStandard(Arbitrator):
                     self.agent.algorithm.print_values()
         
         if DEBUG_PROGRESS:
-            print "average reward: %.2f" % (float(trial_reward) / self.generation_episodes) 
+            print "average reward: %.2f" % (float(trial_reward) / self.num_episodes) 
         
         if REPORT_RESULTS:
             self.report_results()
-            self.plot('plot-standard.gp')
         
     def report_results(self):
-        report_file = open('results/results-standard.txt', 'w')
-        for episode in range(self.generation_episodes):
+        folder_name = 'results/%dt%de/' % (self.num_trials, self.num_episodes)
+        os.mkdir(folder_name)
+        report_file = open(folder_name + 'results-standard.txt', 'w')
+        for episode in range(self.num_episodes):
             report_file.write('%d %.2f\n' % 
                               (episode, float(self.reward_log[episode]) / self.num_trials)) 
         report_file.close()
     
-        report_file = open('results/results-standard-interval.txt', 'w')
-        episodes_per_interval = int (self.generation_episodes / PLOT_INTERVALS) 
+        report_file = open(folder_name + 'results-standard-interval.txt', 'w')
+        episodes_per_interval = int (self.num_episodes / PLOT_INTERVALS) 
         for interval in range(PLOT_INTERVALS):
             sub_sum = sum(self.reward_log[interval * episodes_per_interval:
                                      (interval + 1) * episodes_per_interval])
@@ -1742,11 +1755,13 @@ class ArbitratorStandard(Arbitrator):
                               (interval * episodes_per_interval, 
                                float(sub_sum) / (self.num_trials * episodes_per_interval))) 
         report_file.close()
+        
+        self.plot('plot-standard.gp')
 
 class ArbitratorEvolutionary(Arbitrator):
     
     def __init__(self, base_agent, featurizers_map, num_generations, 
-                 population_size, generation_episodes, champion_trials):
+                 population_size, generation_episodes, champion_trials, eta):
         super(ArbitratorEvolutionary, self).__init__()
         self.base_agent = base_agent
         self.featurizers_map = featurizers_map
@@ -1754,6 +1769,8 @@ class ArbitratorEvolutionary(Arbitrator):
         self.population_size = population_size
         self.generation_episodes = generation_episodes
         self.champion_trials = champion_trials
+        self.eta = eta
+        
         self.champions = []
         self.champion_training_rewards = []
         self.champion_training_rewards_normalized = []
@@ -1850,7 +1867,7 @@ class ArbitratorEvolutionary(Arbitrator):
 #                computational_cost_multiplier = ETA ** (float(
 #                        agent.feature_set.get_encoding_length()) / TiledFeature.DEFAULT_NUM_TILES)
                 time_ratio = agent.training_time / base_time 
-                computational_cost_multiplier = ETA ** time_ratio
+                computational_cost_multiplier = self.eta ** time_ratio
                 agent.average_reward_normalized = agent.average_reward * computational_cost_multiplier
                 generation_perf.append((agent.average_reward_normalized, agent))
                 
@@ -1938,10 +1955,13 @@ class ArbitratorEvolutionary(Arbitrator):
         
         if REPORT_RESULTS:
             self.report_results()
-            self.plot('plot-ev.gp')
 
     def report_results(self):
-        report_file = open('results/champions.txt', 'w')
+        folder_name = 'results/g%de%dt%deta%dw%d/' % (self.num_generations,
+                        self.generation_episodes, self.champion_trials,
+                        self.eta * 100, MUTATE_NEW_WEIGHTS_MULT * 100)
+        os.mkdir(folder_name)
+        report_file = open(folder_name + 'champions.txt', 'w')
         generation = 0
         for champion in self.champions:
             training_reward = self.champion_training_rewards[generation]
@@ -1955,13 +1975,13 @@ class ArbitratorEvolutionary(Arbitrator):
             generation += 1
         report_file.close()
         
-        report_file = open('results/results-champion-training.txt', 'w')
+        report_file = open(folder_name + 'results-champion-training.txt', 'w')
         for episode in range(self.num_generations * self.generation_episodes):
             report_file.write('%d %.2f\n' % 
                               (episode, self.champions_training_reward_log[episode]))
         report_file.close()
     
-        report_file = open('results/results-champion-training-interval.txt', 'w')
+        report_file = open(folder_name + 'results-champion-training-interval.txt', 'w')
         episodes_per_interval = int(self.num_generations * 
                                     self.generation_episodes / PLOT_INTERVALS) 
         for interval in range(PLOT_INTERVALS):
@@ -1972,13 +1992,13 @@ class ArbitratorEvolutionary(Arbitrator):
                                float(sub_sum) / episodes_per_interval)) 
         report_file.close()
         
-        report_file = open('results/results-champion-trial.txt', 'w')
+        report_file = open(folder_name + 'results-champion-trial.txt', 'w')
         for episode in range(self.num_generations * self.generation_episodes):
             report_file.write('%d %.2f\n' % 
                               (episode, self.champions_trial_reward_log[episode]))
         report_file.close()
     
-        report_file = open('results/results-champion-trial-interval.txt', 'w')
+        report_file = open(folder_name + 'results-champion-trial-interval.txt', 'w')
         episodes_per_interval = int(self.num_generations * 
                                     self.generation_episodes / PLOT_INTERVALS) 
         for interval in range(PLOT_INTERVALS):
@@ -1989,14 +2009,14 @@ class ArbitratorEvolutionary(Arbitrator):
                                float(sub_sum) / episodes_per_interval)) 
         report_file.close()
         
-        report_file = open('results/results-population.txt', 'w')
+        report_file = open(folder_name + 'results-population.txt', 'w')
         for episode in range(self.num_generations * self.generation_episodes):
             report_file.write('%d %.2f\n' % 
                               (episode, float(self.population_reward_log[episode]) /
                               self.population_size))
         report_file.close()
     
-        report_file = open('results/results-population-interval.txt', 'w')
+        report_file = open(folder_name + 'results-population-interval.txt', 'w')
         episodes_per_interval = int(self.num_generations * 
                                     self.generation_episodes / PLOT_INTERVALS) 
         for interval in range(PLOT_INTERVALS):
@@ -2008,4 +2028,6 @@ class ArbitratorEvolutionary(Arbitrator):
                                (episodes_per_interval * self.population_size))) 
         report_file.close()
         print "episodes per plot interval: " + str(episodes_per_interval)
+
+        self.plot(folder_name, 'plot-ev.gp')
 

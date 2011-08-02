@@ -596,7 +596,7 @@ def learn_evolutionary():
 
     arbitrator = rl.ArbitratorEvolutionary(base_agent, featurizers_map, 
                     NUM_GENERATIONS, POPULATION_SIZE, GENERATION_EPISODES,
-                    CHAMPION_TRIALS)
+                    CHAMPION_TRIALS, rl.DEFAULT_ETA)
     arbitrator.run(MAX_STEPS)
     
 if __name__ == '__main__':
