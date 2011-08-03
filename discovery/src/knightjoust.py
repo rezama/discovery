@@ -8,6 +8,7 @@ Created on Apr 28, 2011
 import random
 
 import rl
+import sys
 
 # start state configuration
 RANDOMIZE_START_STATE = True
@@ -384,12 +385,13 @@ def learn_evolutionary():
                     CHAMPION_TRIALS, rl.DEFAULT_ETA)
     arbitrator.run()    
 
-def experiments():
-    for w in [0.0, 0.05, 0.10, 0.15, 0.20, 0.25, 0.30, 0.40, 0.50, 0.75, 0.80, 0.85, 0.90, 0.95, 1.00]:
+def external_config():
+#    for w in [0.0, 0.05, 0.10, 0.15, 0.20, 0.25, 0.30, 0.40, 0.50, 0.75, 0.80, 0.85, 0.90, 0.95, 1.00]:
 #    for w in [0.0, 0.05, 0.10, 0.15, 0.20, 0.25]:
-        print "Mutate weights multiplier is %.2f" % w
-        rl.MUTATE_NEW_WEIGHTS_MULT = w
-        learn_evolutionary()
+    w = float(sys.argv[1])
+    print "Mutate weights multiplier is %.2f" % w
+    rl.MUTATE_NEW_WEIGHTS_MULT = w
+    learn_evolutionary()
         
 def test_stuff():
 #    feature_dist_po = KnightJoustFeatureDist()
@@ -442,6 +444,6 @@ if __name__ == '__main__':
 #    learn_w_raw_state()
 #    learn_w_features()
 #    learn_w_multitile_features()
-    learn_evolutionary()
-#    experiments()
+#    learn_evolutionary()
+    external_config()
 #    test_stuff()
