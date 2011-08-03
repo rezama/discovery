@@ -105,16 +105,17 @@ class AgentStateBased(object):
         return self.actions.all_actions()
 
     def select_action(self):
-        (a, v) = self.algorithm.select_action(self.state)
+        (a, v) = self.algorithm.select_action(self.state) #@UnusedVariable
         return a
     
     def transition(self, action):
 
         #last_state = copy.deepcopy(self.state)
         reward = self.environment.respond(self.state, self.last_state, action)
-        self.cached_action = None
-        self.cached_action_value = None
-        self.cached_action_valid = False
+        if self.algorithm is not None:
+            self.algorithm.cached_action = None
+            self.algorithm.cached_action_value = None
+            self.algorithm.cached_action_valid = False
         
         self.episode_steps += 1
         self.episode_reward += reward * self.gamma_multiplier
@@ -1145,18 +1146,21 @@ class Algorithm(object):
     
     def select_action(self, state):
         if self.cached_action_valid:
-            return self.cached_action
+            return (self.cached_action, self.cached_action_value)
         else:
-            (a, v) = self.select_action_do(self.state)
+            (a, v) = self.select_action_do(state)
             self.cached_action = a
             self.cached_action_value = v
             self.cached_action_valid = True
-        return a
+        return (a, v)
     
     def select_action_do(self, state):
         return NotImplemented
     
     def transition(self, state, action, reward, state_p, action_p):
+#        self.cached_action = None
+#        self.cached_action_value = None
+#        self.cached_action_valid = False
         pass
 
     def pause_learning(self):
@@ -1180,8 +1184,8 @@ class Sarsa(Algorithm):
     REPLACING_TRACES = 2
     TRACES = REPLACING_TRACES
 
-    def __init__(self, environment, actions, alpha, epsilon, lamda):
-        super(Sarsa, self).__init__(environment, actions)
+    def __init__(self, actions, environment, alpha, epsilon, lamda):
+        super(Sarsa, self).__init__(actions, environment)
         self.epsilon = epsilon
         self.lamda = lamda
         self.alpha = alpha
@@ -1215,7 +1219,7 @@ class SarsaLambda(Sarsa):
             value = self.Q.get((state_s, action), self.default_q) 
         else:
             action_values = []
-            for action in self.action.all_actions():
+            for action in self.actions.all_actions():
                 # insert a random number to break the ties
                 action_values.append(((self.Q.get((state_s, action), self.default_q), 
                                        random.random()), action))
@@ -1233,6 +1237,9 @@ class SarsaLambda(Sarsa):
                     self.alpha * delta * self.e[(si, ai)]
 
     def transition(self, state, action, reward, state_p, action_p):
+        super(SarsaLambda, self).transition(state, action, reward,
+                                            state_p, action_p)
+        
         if not self.is_learning:
             return
         
@@ -1361,7 +1368,7 @@ class SarsaLambdaFeaturized(Sarsa):
                  alpha = Sarsa.DEFAULT_ALPHA, 
                  epsilon = Sarsa.DEFAULT_EPSILON,
                  lamda = Sarsa.DEFAULT_LAMBDA):
-        super(SarsaLambdaFeaturized, self).__init__(environment, actions, alpha,
+        super(SarsaLambdaFeaturized, self).__init__(actions, environment, alpha,
                                                     epsilon, lamda)
         self.w = {}
         self.w_save = {}
@@ -1473,6 +1480,9 @@ class SarsaLambdaFeaturized(Sarsa):
                     self.w[action][i] += (alpha * delta * self.e[action][i])
     
     def transition(self, state, action, reward, state_p, action_p):
+        super(SarsaLambdaFeaturized, self).transition(state, action, reward, 
+                                                      state_p, action_p)
+
         if not self.is_learning:
             return
         
@@ -1515,8 +1525,12 @@ class SarsaLambdaFeaturized(Sarsa):
             delta = reward - sigma_w_Fa
         else:
             # select next action
+#            Q_a = self.cached_action_value
+            if self.cached_action_valid:
+                Q_a = self.cached_action_value
+            else:
+                (ap, Q_a) = self.select_action(state_p)
 #            (ap, Q_a) = self.select_action()
-            Q_a = self.agent.cached_action_value
             delta = reward + self.gamma * Q_a - sigma_w_Fa
 
         self.update_weights(delta)
@@ -1851,7 +1865,7 @@ class ArbitratorEvolutionary(Arbitrator):
                 agents = updated_champions
             else:
                 for agent in agents:
-                    self.test_agent(agent, start_states, max_steps)
+                    self.test_agent(agent, start_states, start_seeds, max_steps)
             
             # update population averages
             for agent in agents:
