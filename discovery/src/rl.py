@@ -1655,12 +1655,13 @@ class Arbitrator(object):
     def do_episode(self, agent, start_state, max_steps):
         return arbitrator_do_episode((agent, start_state, max_steps))
 
-    def plot(self, folder_name, script_name):
+    def plot(self, folder_name, script_name, parameters):
         orig_wd = os.getcwd()
         os.chdir(folder_name)
         if DEBUG_PROGRESS:
             print "generating plot"
-        subprocess.call('gnuplot ../../plot/%s' % script_name, shell=True)
+#        subprocess.call('gnuplot ../../plot/%s.gp' % script_name, shell=True)
+        subprocess.call('../../plot/%s.sh %s' % (script_name, parameters), shell=True)
         os.chdir(orig_wd)
 
 # multiprocessing method
@@ -1778,7 +1779,8 @@ class ArbitratorStandard(Arbitrator):
                                float(sub_sum) / (self.num_trials * episodes_per_interval))) 
         report_file.close()
         
-        self.plot('plot-standard.gp')
+        self.plot(folder_name, 'plot-standard', 
+                  '%d %d' % (self.num_trials, self.num_episodes))
 
 class ArbitratorEvolutionary(Arbitrator):
     
@@ -1981,7 +1983,7 @@ class ArbitratorEvolutionary(Arbitrator):
             self.report_results()
 
     def report_results(self):
-        folder_name = 'results/g%de%dt%deta%dw%d/' % (self.num_generations,
+        folder_name = 'results/g%de%dt%de%dw%d/' % (self.num_generations,
                         self.generation_episodes, self.champion_trials,
                         self.eta * 100, MUTATE_NEW_WEIGHTS_MULT * 100)
         if not os.path.exists(folder_name):
@@ -2054,5 +2056,5 @@ class ArbitratorEvolutionary(Arbitrator):
         report_file.close()
         print "episodes per plot interval: " + str(episodes_per_interval)
 
-        self.plot(folder_name, 'plot-ev.gp')
-
+        self.plot(folder_name, 'plot-ev',
+                  '%d %d' % (self.num_generations, self.generation_episodes))

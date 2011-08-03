@@ -1,2 +1,7 @@
 Interaction feature should not select different tilings of the same feature
 Write a better crossover
+Write a delete mutation
+Make the number of generations dynamic
+/ Make the plot scripts dynamic with variables
+Consider only a portion of the training rewards to compare the agents
+
