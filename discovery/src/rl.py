@@ -1760,7 +1760,8 @@ class ArbitratorStandard(Arbitrator):
         
     def report_results(self):
         folder_name = 'results/%dt%de/' % (self.num_trials, self.num_episodes)
-        os.mkdir(folder_name)
+        if not os.path.exists(folder_name):
+            os.makedirs(folder_name)
         report_file = open(folder_name + 'results-standard.txt', 'w')
         for episode in range(self.num_episodes):
             report_file.write('%d %.2f\n' % 
@@ -1983,7 +1984,8 @@ class ArbitratorEvolutionary(Arbitrator):
         folder_name = 'results/g%de%dt%deta%dw%d/' % (self.num_generations,
                         self.generation_episodes, self.champion_trials,
                         self.eta * 100, MUTATE_NEW_WEIGHTS_MULT * 100)
-        os.mkdir(folder_name)
+        if not os.path.exists(folder_name):
+            os.makedirs(folder_name)
         report_file = open(folder_name + 'champions.txt', 'w')
         generation = 0
         for champion in self.champions:
