@@ -1,11 +1,11 @@
-#! /bin/sh
+#! /bin/bash
 
 generations=$1
 episodes=$2
 
 gnuplot <<\EOF
 set terminal postscript eps color
-set xtics $episodes
+set xtics "$episodes"
 set grid
 
 set output "graph-champion-trial.eps"
@@ -28,4 +28,4 @@ set xlabel "Episode"
 set ylabel "Average Population Reward over $generations Generations"
 plot "./results-population-interval.txt" using 1:2 title "Population Reward" with lines
 
-EOF 
+EOF

@@ -21,7 +21,7 @@ NUM_EPISODES = 1000
 NUM_GENERATIONS = 15
 POPULATION_SIZE = 30
 GENERATION_EPISODES = 200
-CHAMPION_TRIALS = 20
+CHAMPION_TRIALS = 200
 
 class KnightJoustStateBasedAgent(rl.AgentStateBased):
     
@@ -308,6 +308,52 @@ class KnightJoustState(rl.ModularState):
 #        feature_encoding[feature_index] = 1
 #        return feature_encoding
 
+def test_stuff():
+#    feature_dist_po = KnightJoustFeatureDist()
+#    feature_angle_west = KnightJoustFeatureAngleWest()
+#    feature_angle_east = KnightJoustFeatureAngleEast()
+#    feature_list = [feature_dist_po, feature_angle_west, feature_angle_east]
+    player_x = int(random.random() * 25)
+    player_y = int(random.random() * 25)
+    opponent_x = int(random.random() * 25)
+    opponent_y = int(random.random() * 25)
+
+    point_range = ((0, 0), 
+                   (KnightJoustEnvironment.GRID_SIZE - 1, 
+                    KnightJoustEnvironment.GRID_SIZE - 1))
+
+    player_var = rl.StateVarPoint2D("player", player_x, player_y,
+            point_range, is_continuous=True, is_dynamic=True)
+    opponent_var = rl.StateVarPoint2D("opponent", opponent_x, opponent_y, 
+            point_range, is_continuous=True, is_dynamic=True)
+    corner_var = rl.StateVarPoint2D("corner", #@UnusedVariable
+            KnightJoustEnvironment.GRID_SIZE - 1, 
+            KnightJoustEnvironment.GRID_SIZE - 1, point_range, 
+            is_continuous=True, is_dynamic=False)
+    state = KnightJoustState([player_var, opponent_var])
+    
+#    feature = rl.FeatureTiledPoint2D("player", player_var, 4)
+#    feature = rl.FeaturePoint1DTiled("player", player_var, use_row=False)
+#    feature = rl.FeatureAngle("angle", player_var, opponent_var, 
+#                corner_var)
+    feature = rl.FeatureDist("dist", player_var, opponent_var)
+    
+    feature_list = [feature]
+    feature_set = rl.FeatureSet(feature_list)
+    for i in range(10): #@UnusedVariable
+        
+        state.index['player'].x = int(random.random() * 25)
+        state.index['player'].y = int(random.random() * 25)
+        state.index['opponent'].x = int(random.random() * 25)
+        state.index['opponent'].y = int(random.random() * 25)
+#        state.index['player'].x = 20
+#        state.index['player'].y = 11
+#        state.index['opponent'].x = 9
+#        state.index['opponent'].y = 0
+
+        print state, 
+        print feature_set.encode_state(state)
+
 def learn_w_raw_state():
     agent = KnightJoustStateBasedAgent()
     
@@ -383,67 +429,24 @@ def learn_evolutionary():
     arbitrator = rl.ArbitratorEvolutionary(base_agent, featurizers_map, 
                     NUM_GENERATIONS, POPULATION_SIZE, GENERATION_EPISODES,
                     CHAMPION_TRIALS, rl.DEFAULT_ETA)
-    arbitrator.run()    
-
-def external_config():
-#    for w in [0.0, 0.05, 0.10, 0.15, 0.20, 0.25, 0.30, 0.40, 0.50, 0.75, 0.80, 0.85, 0.90, 0.95, 1.00]:
-#    for w in [0.0, 0.05, 0.10, 0.15, 0.20, 0.25]:
+    arbitrator.run()
+        
+def external_config_eta():
+    eta = float(sys.argv[1])
+    rl.DEFAULT_ETA = eta
+    print "Eta is %.2f" % rl.DEFAULT_ETA
+    
+def external_config_w():
     w = float(sys.argv[1])
-    print "Mutate weights multiplier is %.2f" % w
     rl.MUTATE_NEW_WEIGHTS_MULT = w
-    learn_evolutionary()
-        
-def test_stuff():
-#    feature_dist_po = KnightJoustFeatureDist()
-#    feature_angle_west = KnightJoustFeatureAngleWest()
-#    feature_angle_east = KnightJoustFeatureAngleEast()
-#    feature_list = [feature_dist_po, feature_angle_west, feature_angle_east]
-    player_x = int(random.random() * 25)
-    player_y = int(random.random() * 25)
-    opponent_x = int(random.random() * 25)
-    opponent_y = int(random.random() * 25)
-
-    point_range = ((0, 0), 
-                   (KnightJoustEnvironment.GRID_SIZE - 1, 
-                    KnightJoustEnvironment.GRID_SIZE - 1))
-
-    player_var = rl.StateVarPoint2D("player", player_x, player_y,
-            point_range, is_continuous=True, is_dynamic=True)
-    opponent_var = rl.StateVarPoint2D("opponent", opponent_x, opponent_y, 
-            point_range, is_continuous=True, is_dynamic=True)
-    corner_var = rl.StateVarPoint2D("corner", #@UnusedVariable
-            KnightJoustEnvironment.GRID_SIZE - 1, 
-            KnightJoustEnvironment.GRID_SIZE - 1, point_range, 
-            is_continuous=True, is_dynamic=False)
-    state = KnightJoustState([player_var, opponent_var])
-    
-#    feature = rl.FeatureTiledPoint2D("player", player_var, 4)
-#    feature = rl.FeaturePoint1DTiled("player", player_var, use_row=False)
-#    feature = rl.FeatureAngle("angle", player_var, opponent_var, 
-#                corner_var)
-    feature = rl.FeatureDist("dist", player_var, opponent_var)
-    
-    feature_list = [feature]
-    feature_set = rl.FeatureSet(feature_list)
-    for i in range(10): #@UnusedVariable
-        
-        state.index['player'].x = int(random.random() * 25)
-        state.index['player'].y = int(random.random() * 25)
-        state.index['opponent'].x = int(random.random() * 25)
-        state.index['opponent'].y = int(random.random() * 25)
-#        state.index['player'].x = 20
-#        state.index['player'].y = 11
-#        state.index['opponent'].x = 9
-#        state.index['opponent'].y = 0
-
-        print state, 
-        print feature_set.encode_state(state)
-
+    print "Mutate weights multiplier is %.2f" % rl.MUTATE_NEW_WEIGHTS_MULT
+            
 if __name__ == '__main__':
 
+#    test_stuff()
 #    learn_w_raw_state()
 #    learn_w_features()
 #    learn_w_multitile_features()
-#    learn_evolutionary()
-    external_config()
-#    test_stuff()
+    external_config_eta()
+    print rl.DEFAULT_ETA
+    learn_evolutionary()

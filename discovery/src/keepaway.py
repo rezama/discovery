@@ -9,6 +9,7 @@ import math
 import copy
 
 import rl
+import sys
 
 # standard parameters
 NUM_TRIALS = 1
@@ -334,7 +335,14 @@ def learn_evolutionary():
                     CHAMPION_TRIALS, rl.DEFAULT_ETA)
     arbitrator.run()
     
+def external_config():
+    w = float(sys.argv[1])
+    print "Mutate weights multiplier is %.2f" % w
+    rl.MUTATE_NEW_WEIGHTS_MULT = w
+    learn_evolutionary()
+    
 if __name__ == '__main__':
 
 #    learn_w_multitile_features()
-    learn_evolutionary()
+#    learn_evolutionary()
+    external_config()

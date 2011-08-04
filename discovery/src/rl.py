@@ -33,6 +33,9 @@ DEBUG_REPORT_ON_EPISODE = 100
 REPORT_RESULTS = True
 PLOT_INTERVALS = 100
 
+# the computational cost parameter 
+DEFAULT_ETA = 0.95
+
 # default multiplier for initial Q values based on maximum possible reward
 INIT_Q_VALUE_MULTIPLIER = 1.0
 
@@ -41,15 +44,12 @@ WEIGHTS_OPTIMISTIC = "Optimistic"
 WEIGHTS_COPY = "Copy"
 
 BASE_FEATURE_WEIGHTS = WEIGHTS_OPTIMISTIC
-MUTATE_NEW_WEIGHTS_MULT = 1.0
+MUTATE_NEW_WEIGHTS_MULT = 0.2
 MUTATE_CROSS_OVER_WEIGHTS = WEIGHTS_COPY
 
 # the probability by which the algorithm tries to pick a dynamic state variable
 # when it has both options
 FORCE_DYNAMIC_PROB = 0.75
-
-# the computational cost parameter 
-DEFAULT_ETA = 0.95
 
 class AgentStateBased(object):
 
@@ -1660,8 +1660,8 @@ class Arbitrator(object):
         os.chdir(folder_name)
         if DEBUG_PROGRESS:
             print "generating plot"
-#        subprocess.call('gnuplot ../../plot/%s.gp' % script_name, shell=True)
-        subprocess.call('../../plot/%s.sh %s' % (script_name, parameters), shell=True)
+        subprocess.call('gnuplot ../../plot/%s.gp' % script_name, shell=True)
+#        subprocess.call('../../plot/%s.sh %s' % (script_name, parameters), shell=True)
         os.chdir(orig_wd)
 
 # multiprocessing method
@@ -1695,7 +1695,7 @@ def arbitrator_test_agent((agent, start_states, start_seeds, max_steps,
             start_state = copy.deepcopy(start_states[start_state_index])
             # seed random number generator
             #random.seed(start_seeds[episode])
-            random.seed(start_seeds[episode])
+            random.seed(start_seeds[start_state_index])
             (episode_reward, steps) = do_episode_func((agent, start_state, max_steps))
             agent.reward_log[episode] += episode_reward
     
@@ -1891,7 +1891,7 @@ class ArbitratorEvolutionary(Arbitrator):
 #                computational_cost_multiplier = ETA ** (float(
 #                        agent.feature_set.get_encoding_length()) / TiledFeature.DEFAULT_NUM_TILES)
                 time_ratio = agent.training_time / base_time 
-                computational_cost_multiplier = self.eta ** time_ratio
+                computational_cost_multiplier = self.eta ** (time_ratio - 1)
                 agent.average_reward_normalized = agent.average_reward * computational_cost_multiplier
                 generation_perf.append((agent.average_reward_normalized, agent))
                 
@@ -1995,7 +1995,7 @@ class ArbitratorEvolutionary(Arbitrator):
             training_reward_normalized = self.champion_training_rewards_normalized[generation]
             trial_reward = self.champion_trial_rewards[generation]
             training_time = self.champion_training_times[generation]
-            report_file.write('Champion %d, average training reward: %.2f, normalized: %.2f, average trial reward: %.2f\n, training time: %.1f' % 
+            report_file.write('Champion %d, average training reward: %.2f, normalized: %.2f, average trial reward: %.2f, training time: %.1f\n' % 
                               (generation, training_reward, training_reward_normalized, trial_reward, training_time))
             report_file.write(champion.get_name())
             report_file.write('\n\n')
@@ -2058,3 +2058,5 @@ class ArbitratorEvolutionary(Arbitrator):
 
         self.plot(folder_name, 'plot-ev',
                   '%d %d' % (self.num_generations, self.generation_episodes))
+
+

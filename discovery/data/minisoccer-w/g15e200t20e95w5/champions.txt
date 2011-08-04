@@ -1,0 +1,45 @@
+Champion 0, average training reward: 0.14, normalized: 0.14, average trial reward: 0.31
+, training time: 0.7flag(player_has_ball)
+
+Champion 1, average training reward: 0.13, normalized: 0.13, average trial reward: 0.17
+, training time: 0.7angle(opponent-leftgoaltop-leftgoalcenter)[0.8] | flag(player_has_ball)
+
+Champion 2, average training reward: 0.19, normalized: 0.17, average trial reward: 0.17
+, training time: 0.7flag(player_has_ball) | flag(player_has_ball)
+
+Champion 3, average training reward: 0.22, normalized: 0.20, average trial reward: 0.42
+, training time: 1.0angle(opponent-leftgoaltop-leftgoalcenter)[0.8] | flag(player_has_ball) | flag(player_has_ball) | dist-Y(player-rightgoalbottom)[0] | angle(opponent-leftgoalcenter-player)[0.1]
+
+Champion 4, average training reward: 0.33, normalized: 0.30, average trial reward: 0.40
+, training time: 1.1angle(opponent-leftgoaltop-leftgoalcenter)[0.8] | flag(player_has_ball) | flag(player_has_ball) | dist-Y(player-rightgoalbottom)[0] | angle(opponent-leftgoalcenter-player)[0.1] | interaction(angle(opponent-leftgoalcenter-player)[0.1] * flag(player_has_ball))
+
+Champion 5, average training reward: 0.31, normalized: 0.29, average trial reward: 0.38
+, training time: 1.2angle(opponent-leftgoaltop-leftgoalcenter)[0.8] | flag(player_has_ball) | flag(player_has_ball) | dist-Y(player-rightgoalbottom)[0] | angle(opponent-leftgoalcenter-player)[0.1] | interaction(angle(opponent-leftgoalcenter-player)[0.1] * flag(player_has_ball)) | angle(opponent-player-leftgoalbottom)[0.5]
+
+Champion 6, average training reward: 0.37, normalized: 0.34, average trial reward: 0.46
+, training time: 1.1angle(opponent-leftgoaltop-leftgoalcenter)[0.8] | flag(player_has_ball) | flag(player_has_ball) | dist-Y(player-rightgoalbottom)[0] | angle(opponent-leftgoalcenter-player)[0.1] | interaction(angle(opponent-leftgoalcenter-player)[0.1] * flag(player_has_ball)) | angle(opponent-player-leftgoalbottom)[0.5] | angle(opponent-leftgoaltop-leftgoalcenter)[0.8]
+
+Champion 7, average training reward: 0.40, normalized: 0.38, average trial reward: 0.47
+, training time: 0.7angle(opponent-leftgoaltop-leftgoalcenter)[0.8] | flag(player_has_ball) | flag(player_has_ball) | dist-Y(player-rightgoalbottom)[0] | angle(opponent-leftgoalcenter-player)[0.1] | interaction(angle(opponent-leftgoalcenter-player)[0.1] * flag(player_has_ball)) | angle(opponent-player-leftgoalbottom)[0.5] | flag(player_has_ball) | angle(opponent-player-upperright)[0.9]
+
+Champion 8, average training reward: 0.41, normalized: 0.38, average trial reward: 0.46
+, training time: 1.1angle(opponent-leftgoaltop-leftgoalcenter)[0.8] | flag(player_has_ball) | flag(player_has_ball) | dist-Y(player-rightgoalbottom)[0] | angle(opponent-leftgoalcenter-player)[0.1] | interaction(angle(opponent-leftgoalcenter-player)[0.1] * flag(player_has_ball)) | angle(opponent-player-leftgoalbottom)[0.5] | flag(player_has_ball) | angle(opponent-player-upperright)[0.9] | dist-X(player-opponent)[0]
+
+Champion 9, average training reward: 0.42, normalized: 0.39, average trial reward: 0.47
+, training time: 0.8angle(opponent-leftgoaltop-leftgoalcenter)[0.8] | flag(player_has_ball) | flag(player_has_ball) | dist-Y(player-rightgoalbottom)[0] | angle(opponent-leftgoalcenter-player)[0.1] | interaction(angle(opponent-leftgoalcenter-player)[0.1] * flag(player_has_ball)) | angle(opponent-player-leftgoalbottom)[0.5] | flag(player_has_ball) | angle(opponent-player-upperright)[0.9] | dist-X(player-opponent)[0] | dist-Y(player-upperright)[1] | angle(opponent-rightgoalbottom-leftgoalbottom)[0.6]
+
+Champion 10, average training reward: 0.36, normalized: 0.34, average trial reward: 0.41
+, training time: 0.8angle(opponent-leftgoaltop-leftgoalcenter)[0.8] | flag(player_has_ball) | flag(player_has_ball) | dist-Y(player-rightgoalbottom)[0] | angle(opponent-leftgoalcenter-player)[0.1] | interaction(angle(opponent-leftgoalcenter-player)[0.1] * flag(player_has_ball)) | angle(opponent-player-leftgoalbottom)[0.5] | flag(player_has_ball) | angle(opponent-player-upperright)[0.9] | dist-X(player-opponent)[0] | dist-Y(player-upperright)[1] | angle(opponent-rightgoalbottom-leftgoalbottom)[0.6] | dist-Y(player-lowerright)[1] | dist-X(player-upperleft)[0]
+
+Champion 11, average training reward: 0.41, normalized: 0.39, average trial reward: 0.46
+, training time: 0.9angle(opponent-leftgoaltop-leftgoalcenter)[0.8] | flag(player_has_ball) | flag(player_has_ball) | dist-Y(player-rightgoalbottom)[0] | angle(opponent-leftgoalcenter-player)[0.1] | interaction(angle(opponent-leftgoalcenter-player)[0.1] * flag(player_has_ball)) | angle(opponent-player-leftgoalbottom)[0.5] | flag(player_has_ball) | angle(opponent-player-upperright)[0.9] | dist-Y(player-upperright)[1] | dist-Y(player-lowerright)[1] | pointX(player)[0.8] | dist(player-rightgoalcenter)[0.9]
+
+Champion 12, average training reward: 0.40, normalized: 0.38, average trial reward: 0.46
+, training time: 1.0angle(opponent-leftgoaltop-leftgoalcenter)[0.8] | flag(player_has_ball) | flag(player_has_ball) | dist-Y(player-rightgoalbottom)[0] | angle(opponent-leftgoalcenter-player)[0.1] | interaction(angle(opponent-leftgoalcenter-player)[0.1] * flag(player_has_ball)) | angle(opponent-player-leftgoalbottom)[0.5] | flag(player_has_ball) | angle(opponent-player-upperright)[0.9] | dist-Y(player-upperright)[1] | dist-Y(player-lowerright)[1] | pointX(player)[0.8] | dist(player-rightgoalcenter)[0.9] | angle(opponent-leftgoaltop-upperright)[0.5] | dist-Y(player-rightgoalbottom)[0]
+
+Champion 13, average training reward: 0.41, normalized: 0.38, average trial reward: 0.46
+, training time: 1.4angle(opponent-leftgoaltop-leftgoalcenter)[0.8] | flag(player_has_ball) | flag(player_has_ball) | dist-Y(player-rightgoalbottom)[0] | angle(opponent-leftgoalcenter-player)[0.1] | interaction(angle(opponent-leftgoalcenter-player)[0.1] * flag(player_has_ball)) | angle(opponent-player-leftgoalbottom)[0.5] | flag(player_has_ball) | angle(opponent-player-upperright)[0.9] | dist-Y(player-upperright)[1] | dist-Y(player-lowerright)[1] | pointX(player)[0.8] | dist(player-rightgoalcenter)[0.9] | angle(opponent-leftgoaltop-upperright)[0.5] | dist-Y(player-rightgoalbottom)[0] | dist-Y(player-leftgoaltop)[0] | dist-X(opponent-lowerright)[0]
+
+Champion 14, average training reward: 0.38, normalized: 0.36, average trial reward: 0.47
+, training time: 1.0angle(opponent-leftgoaltop-leftgoalcenter)[0.8] | flag(player_has_ball) | flag(player_has_ball) | dist-Y(player-rightgoalbottom)[0] | angle(opponent-leftgoalcenter-player)[0.1] | interaction(angle(opponent-leftgoalcenter-player)[0.1] * flag(player_has_ball)) | angle(opponent-player-leftgoalbottom)[0.5] | flag(player_has_ball) | angle(opponent-player-upperright)[0.9] | dist-Y(player-upperright)[1] | dist-Y(player-lowerright)[1] | pointX(player)[0.8] | dist(player-rightgoalcenter)[0.9] | angle(opponent-leftgoaltop-upperright)[0.5] | dist-Y(player-rightgoalbottom)[0] | dist-Y(player-leftgoaltop)[0] | dist-X(opponent-lowerright)[0] | interaction(flag(player_has_ball) * angle(opponent-player-upperright)[0.9])
+

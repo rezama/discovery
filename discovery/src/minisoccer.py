@@ -7,6 +7,7 @@ Created on May 8, 2011
 import rl
 import random
 import time
+import sys
 
 # Debug
 DEBUG = False
@@ -41,7 +42,8 @@ class MiniSoccerAgent(rl.AgentFeatureBased):
         self.opponent_agent = MiniSoccerAgentHandCoded(role=ROLE_OPPONENT)
         actions = MiniSoccerActions()
         environment = MiniSoccerEnvironment(self.opponent_agent)
-        algorithm = rl.SarsaLambdaFeaturized(self, ALPHA, EPSILON, LAMBDA)
+        algorithm = rl.SarsaLambdaFeaturized(actions, environment, feature_set,
+                                             ALPHA, EPSILON, LAMBDA)
         super(MiniSoccerAgent, self).__init__(actions, environment, feature_set,
                                               algorithm)
 #        self.set_algorithm()
@@ -474,26 +476,6 @@ def try_hand_coded():
     arbitrator = rl.ArbitratorStandard(agent, NUM_TRIALS, NUM_EPISODES)
     arbitrator.run()
 
-def learn_w_multitile_features():
-    sample_state = MiniSoccerState.generate_start_state()
-
-    player = sample_state.index['player']
-    opponent = sample_state.index['opponent']
-#    player_on_left = sample_state.index['player_on_left']
-    player_has_ball = sample_state.index['player_has_ball']
-    right_goal_center = sample_state.index['rightgoalcenter']
-    
-    features = [rl.FeatureFlag(player_has_ball),
-                rl.FeatureAngle(player, opponent, right_goal_center),
-                rl.FeatureDist(player, opponent)]
-    
-    feature_list = features
-    
-    agent = MiniSoccerAgent(rl.FeatureSet(feature_list))
-            
-    arbitrator = rl.ArbitratorStandard(agent, NUM_TRIALS, NUM_EPISODES)
-    arbitrator.run(MAX_STEPS)
-
 def cost_benchmark():
     sample_state = MiniSoccerState.generate_start_state()
 
@@ -554,6 +536,26 @@ def cost_benchmark():
         print "Overhead time: %.1f" % (b - a - base_time)
         print
 
+def learn_w_multitile_features():
+    sample_state = MiniSoccerState.generate_start_state()
+
+    player = sample_state.index['player']
+    opponent = sample_state.index['opponent']
+#    player_on_left = sample_state.index['player_on_left']
+    player_has_ball = sample_state.index['player_has_ball']
+    right_goal_center = sample_state.index['rightgoalcenter']
+    
+    features = [rl.FeatureFlag(player_has_ball),
+                rl.FeatureAngle(player, opponent, right_goal_center),
+                rl.FeatureDist(player, opponent)]
+    
+    feature_list = features
+    
+    agent = MiniSoccerAgent(rl.FeatureSet(feature_list))
+            
+    arbitrator = rl.ArbitratorStandard(agent, NUM_TRIALS, NUM_EPISODES)
+    arbitrator.run(MAX_STEPS)
+
 def learn_evolutionary():
     base_agent = MiniSoccerAgent(rl.FeatureSet([]))
 
@@ -599,9 +601,21 @@ def learn_evolutionary():
                     NUM_GENERATIONS, POPULATION_SIZE, GENERATION_EPISODES,
                     CHAMPION_TRIALS, rl.DEFAULT_ETA)
     arbitrator.run(MAX_STEPS)
+
+def external_config_eta():
+    eta = float(sys.argv[1])
+    rl.DEFAULT_ETA = eta
+    print "Eta is %.2f" % rl.DEFAULT_ETA
     
+def external_config_w():
+    w = float(sys.argv[1])
+    rl.MUTATE_NEW_WEIGHTS_MULT = w
+    print "Mutate weights multiplier is %.2f" % rl.MUTATE_NEW_WEIGHTS_MULT
+            
 if __name__ == '__main__':
 #    try_hand_coded()
-#    learn_w_multitile_features()
-    learn_evolutionary()
 #    cost_benchmark()
+#    learn_w_multitile_features()
+    external_config_eta()
+    print rl.DEFAULT_ETA
+    learn_evolutionary()
