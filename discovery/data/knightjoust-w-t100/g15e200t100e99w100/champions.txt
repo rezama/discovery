@@ -1,0 +1,45 @@
+Champion 0, average training reward: 225.80, normalized: 221.86, average trial reward: 325.60, training time: 0.6
+dist(opponent-player)[0.7]
+
+Champion 1, average training reward: 310.70, normalized: 303.29, average trial reward: 354.90, training time: 1.2
+dist(opponent-player)[0.7]
+
+Champion 2, average training reward: 323.90, normalized: 316.69, average trial reward: 228.40, training time: 1.1
+dist(opponent-player)[0.7]
+
+Champion 3, average training reward: 339.70, normalized: 325.71, average trial reward: 370.40, training time: 1.3
+dist(opponent-player)[0.7] | angle(opponent-lowerright-upperright)[0.5]
+
+Champion 4, average training reward: 333.60, normalized: 326.05, average trial reward: 345.60, training time: 1.0
+dist(opponent-player)[0.7]
+
+Champion 5, average training reward: 323.20, normalized: 311.54, average trial reward: 371.20, training time: 1.3
+dist(opponent-player)[0.7] | angle(opponent-lowerright-upperright)[0.5]
+
+Champion 6, average training reward: 341.50, normalized: 326.06, average trial reward: 321.20, training time: 1.5
+dist(opponent-player)[0.7] | angle(opponent-lowerright-upperright)[0.5] | angle(player-opponent-upperright)[0.2]
+
+Champion 7, average training reward: 340.20, normalized: 329.69, average trial reward: 391.90, training time: 1.6
+dist(opponent-player)[0.7] | angle(opponent-lowerright-upperright)[0.5] | angle(player-opponent-upperright)[0.2] | angle(player-lowerleft-opponent)[0.1]
+
+Champion 8, average training reward: 343.20, normalized: 334.62, average trial reward: 390.50, training time: 1.4
+dist(opponent-player)[0.7] | angle(opponent-lowerright-upperright)[0.5] | angle(player-opponent-upperright)[0.2] | angle(player-lowerleft-opponent)[0.1]
+
+Champion 9, average training reward: 352.10, normalized: 340.86, average trial reward: 338.70, training time: 1.6
+dist(opponent-player)[0.7] | angle(opponent-lowerright-upperright)[0.5] | angle(player-opponent-upperright)[0.2] | angle(player-lowerleft-opponent)[0.1]
+
+Champion 10, average training reward: 346.80, normalized: 344.30, average trial reward: 386.40, training time: 0.6
+dist(opponent-player)[0.7] | angle(opponent-lowerright-upperright)[0.5] | angle(player-opponent-upperright)[0.2] | angle(player-lowerleft-opponent)[0.1] | dist(opponent-upperright)[0.2] | dist(player-lowerright)[0.3]
+
+Champion 11, average training reward: 346.20, normalized: 342.06, average trial reward: 367.80, training time: 0.8
+dist(opponent-player)[0.7] | angle(opponent-lowerright-upperright)[0.5] | angle(player-opponent-upperright)[0.2] | angle(player-lowerleft-opponent)[0.1] | dist(opponent-upperright)[0.2] | dist(player-lowerright)[0.3] | angle(player-opponent-lowerleft)[0.5]
+
+Champion 12, average training reward: 357.80, normalized: 349.17, average trial reward: 392.90, training time: 1.7
+dist(opponent-player)[0.7] | angle(opponent-lowerright-upperright)[0.5] | angle(player-opponent-upperright)[0.2] | angle(player-lowerleft-opponent)[0.1] | dist(opponent-player)[0.4]
+
+Champion 13, average training reward: 352.30, normalized: 341.38, average trial reward: 389.60, training time: 1.6
+dist(opponent-player)[0.7] | angle(opponent-lowerright-upperright)[0.5] | angle(player-opponent-upperright)[0.2] | angle(player-lowerleft-opponent)[0.1] | dist(opponent-player)[0.4]
+
+Champion 14, average training reward: 353.90, normalized: 342.85, average trial reward: 382.20, training time: 1.6
+dist(opponent-player)[0.7] | angle(opponent-lowerright-upperright)[0.5] | angle(player-opponent-upperright)[0.2] | angle(player-lowerleft-opponent)[0.1] | dist(opponent-player)[0.4]
+

@@ -21,7 +21,8 @@ plot "./results-champion-training.txt" using 1:2 title "Champion Reward"
 set output "graph-champion-interval.eps"
 set xlabel "Episode"
 set ylabel "Champion's Reward over $generations Generations"
-plot "./results-champion-training-interval.txt" using 1:2 title "Champion Training Reward" with lines, "./results-champion-trial-interval.txt" using 1:2  title "Champion Trial Reward" with lines
+plot "./results-champion-training-interval.txt" using 1:2 title "Champion Training Reward" with lines, \
+     "./results-champion-trial-interval.txt" using 1:2  title "Champion Trial Reward" with lines
 
 set output "graph-population-interval.eps"
 set xlabel "Episode"

@@ -30,10 +30,10 @@ NUM_EPISODES = 1000
 MAX_STEPS = 400
 
 # evolutionary parameters
-NUM_GENERATIONS = 15
+NUM_GENERATIONS = 10
 POPULATION_SIZE = 50
-GENERATION_EPISODES = 200
-CHAMPION_TRIALS = 20
+GENERATION_EPISODES = 500
+CHAMPION_TRIALS = 200
 
 # always on the left
 class MiniSoccerAgent(rl.AgentFeatureBased):
@@ -616,6 +616,8 @@ if __name__ == '__main__':
 #    try_hand_coded()
 #    cost_benchmark()
 #    learn_w_multitile_features()
+#    external_config_w()
+#    print rl.MUTATE_NEW_WEIGHTS_MULT
     external_config_eta()
     print rl.DEFAULT_ETA
     learn_evolutionary()

@@ -1,0 +1,45 @@
+Champion 0, average training reward: 221.60, normalized: 219.22, average trial reward: 247.90, training time: 0.4
+dist(opponent-player)[0.4]
+
+Champion 1, average training reward: 266.70, normalized: 259.56, average trial reward: 300.90, training time: 0.9
+dist(opponent-player)[0.4]
+
+Champion 2, average training reward: 292.10, normalized: 283.29, average trial reward: 284.50, training time: 1.0
+dist(opponent-player)[0.4]
+
+Champion 3, average training reward: 269.40, normalized: 260.67, average trial reward: 294.60, training time: 1.1
+dist(opponent-player)[0.4]
+
+Champion 4, average training reward: 280.50, normalized: 272.17, average trial reward: 321.00, training time: 1.1
+dist(player-opponent)[0.8]
+
+Champion 5, average training reward: 279.30, normalized: 269.81, average trial reward: 294.70, training time: 1.0
+dist(player-opponent)[0.8]
+
+Champion 6, average training reward: 286.20, normalized: 280.46, average trial reward: 294.70, training time: 0.9
+dist(opponent-player)[0.4]
+
+Champion 7, average training reward: 293.70, normalized: 284.79, average trial reward: 294.70, training time: 1.0
+dist(opponent-player)[0.4]
+
+Champion 8, average training reward: 286.60, normalized: 277.54, average trial reward: 242.70, training time: 1.2
+dist(player-opponent)[0.8]
+
+Champion 9, average training reward: 282.40, normalized: 276.28, average trial reward: 305.90, training time: 0.9
+dist(player-opponent)[0.8]
+
+Champion 10, average training reward: 293.50, normalized: 283.77, average trial reward: 321.00, training time: 1.1
+dist(player-opponent)[0.8]
+
+Champion 11, average training reward: 297.20, normalized: 285.63, average trial reward: 326.00, training time: 1.2
+dist(opponent-player)[0.4] | angle(opponent-lowerright-lowerleft)[0.2]
+
+Champion 12, average training reward: 290.60, normalized: 289.82, average trial reward: 306.00, training time: 0.4
+dist(opponent-player)[0.4] | angle(opponent-lowerright-lowerleft)[0.2] | angle(opponent-lowerright-lowerleft)[0.8] | dist(player-upperleft)[0.1]
+
+Champion 13, average training reward: 327.80, normalized: 315.00, average trial reward: 360.80, training time: 1.6
+dist(opponent-player)[0.4] | angle(opponent-lowerright-lowerleft)[0.2] | angle(opponent-lowerright-lowerleft)[0.8] | angle(opponent-player-lowerright)[0.5]
+
+Champion 14, average training reward: 327.40, normalized: 317.00, average trial reward: 332.20, training time: 1.4
+dist(opponent-player)[0.4] | angle(opponent-lowerright-lowerleft)[0.2] | angle(opponent-lowerright-lowerleft)[0.8] | angle(opponent-player-lowerright)[0.5] | angle(player-opponent-lowerleft)[0.8]
+

@@ -34,7 +34,10 @@ REPORT_RESULTS = True
 PLOT_INTERVALS = 100
 
 # the computational cost parameter 
-DEFAULT_ETA = 0.95
+DEFAULT_ETA = 0.99
+
+# what portion of the training rewards to include in calculating average rewards
+TRAINING_SLACK = 0.0
 
 # default multiplier for initial Q values based on maximum possible reward
 INIT_Q_VALUE_MULTIPLIER = 1.0
@@ -44,7 +47,7 @@ WEIGHTS_OPTIMISTIC = "Optimistic"
 WEIGHTS_COPY = "Copy"
 
 BASE_FEATURE_WEIGHTS = WEIGHTS_OPTIMISTIC
-MUTATE_NEW_WEIGHTS_MULT = 0.2
+MUTATE_NEW_WEIGHTS_MULT = 0.0
 MUTATE_CROSS_OVER_WEIGHTS = WEIGHTS_COPY
 
 # the probability by which the algorithm tries to pick a dynamic state variable
@@ -1711,13 +1714,15 @@ def arbitrator_test_agent((agent, start_states, start_seeds, max_steps,
     # average rewards over trials
     for episode in range(num_episodes):
         agent.reward_log[episode] = float(agent.reward_log[episode]) / num_trials
-            
-    agent.average_reward = float(sum(agent.reward_log)) / num_episodes
+    
+#    agent.average_reward = float(sum(agent.reward_log)) / num_episodes
+    trailing_rewards = agent.reward_log[int(TRAINING_SLACK * num_episodes):]
+    agent.average_reward = float(sum(trailing_rewards)) / len(trailing_rewards)
 
     if DEBUG_PROGRESS:
         if USE_MULTIPROCESSING:
             print "tested agent: " + str(agent.feature_set)
-        print "average reward: %.2f, training_time: %.1f" % (
+        print "average reward: %.2f, training time: %.1f" % (
                 agent.average_reward, agent.training_time)
 
 #    gc.collect()

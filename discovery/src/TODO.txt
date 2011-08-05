@@ -4,4 +4,4 @@ Write a delete mutation
 Make the number of generations dynamic
 / Make the plot scripts dynamic with variables
 Consider only a portion of the training rewards to compare the agents
-
+Add other featurizers for knightjoust and keepaway
