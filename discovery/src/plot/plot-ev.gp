@@ -1,5 +1,5 @@
 set terminal postscript eps color
-set xtics 200
+set xtics 500
 set grid
 
 set output "graph-champion-trial.eps"

@@ -50,6 +50,9 @@ BASE_FEATURE_WEIGHTS = WEIGHTS_OPTIMISTIC
 MUTATE_NEW_WEIGHTS_MULT = 0.0
 MUTATE_CROSS_OVER_WEIGHTS = WEIGHTS_COPY
 
+SURVIVAL_RATE = .15
+TAU = 2.5
+
 # the probability by which the algorithm tries to pick a dynamic state variable
 # when it has both options
 FORCE_DYNAMIC_PROB = 0.75
@@ -1532,7 +1535,7 @@ class SarsaLambdaFeaturized(Sarsa):
             if self.cached_action_valid:
                 Q_a = self.cached_action_value
             else:
-                (ap, Q_a) = self.select_action(state_p)
+                (ap, Q_a) = self.select_action(state_p) #@UnusedVariable
 #            (ap, Q_a) = self.select_action()
             delta = reward + self.gamma * Q_a - sigma_w_Fa
 
@@ -1821,7 +1824,7 @@ class ArbitratorEvolutionary(Arbitrator):
         return arbitrator_test_agent((agent, start_states, start_seeds, max_steps,
                                      self.generation_episodes, num_trials,
                                      arbitrator_do_episode))
-        
+    
     def run(self, max_steps = 0):
         
         sample_state = self.base_agent.environment.generate_start_state()
@@ -1843,24 +1846,45 @@ class ArbitratorEvolutionary(Arbitrator):
         self.population_reward_log = [0] * (self.num_generations * self.generation_episodes)
         
         for generation in range(self.num_generations):
+            if DEBUG_PROGRESS:
+                print "generation %i" % (generation)
+    
+            # mutate agents
+            highest_reward = surviving_agents[0].average_reward
+            for agent in surviving_agents:
+                normalized_reward = agent.average_reward / float(highest_reward)
+                agent.temperature = math.exp(normalized_reward * TAU)
+            
+            sum_temperature = 0
+            for agent in surviving_agents:
+                sum_temperature += agent.temperature
+
+            cumulative_prob = 0.0
+            for agent in surviving_agents:
+                prob = agent.temperature / float(sum_temperature)
+                cumulative_prob += prob
+                agent.selection_probability_top = cumulative_prob 
+            
+            agents = list(surviving_agents)
+            while len(agents) < self.population_size:
+#                index = int(random.random() * len(surviving_agents))
+#                agent_to_mutate = surviving_agents[index]
+                agent_to_mutate = None
+                choice = random.random()
+                for agent in surviving_agents:
+                    if agent.selection_probability_top > choice:
+                        agent_to_mutate = agent
+                        break
+                
+                new_agent = mutator.mutate(agent_to_mutate)
+                agents.append(new_agent)
+            
+            # set up start states            
             start_states = []
             start_seeds = []
             for i in range(self.generation_episodes): #@UnusedVariable
                 start_states.append(self.base_agent.environment.generate_start_state())
                 start_seeds.append(random.random())
-            
-            if DEBUG_PROGRESS:
-                print "generation %i" % (generation)
-    
-            # mutate agents
-            agents = list(surviving_agents)
-            while len(agents) < self.population_size:
-                index = int(random.random() * len(surviving_agents))
-                agent_to_mutate = surviving_agents[index]
-                
-                new_agent = mutator.mutate(agent_to_mutate)
-                agents.append(new_agent)
-            
             
             # experiment with agents
             if USE_MULTIPROCESSING:
@@ -1903,6 +1927,7 @@ class ArbitratorEvolutionary(Arbitrator):
             # select generation champion
             generation_sorted = sorted(generation_perf, reverse=True)  
             surviving_agents = []
+            
             champion = generation_sorted[0][1]
             champion_cloned = champion.clone()
             # disable learning on the champion
@@ -1916,20 +1941,6 @@ class ArbitratorEvolutionary(Arbitrator):
             # add all episode rewards to the champion reward log
             self.champions_training_reward_log += champion.reward_log
                         
-            # select runner up such that it does not have the same features
-            # as the champion
-            index = 1
-            while True:
-                runnerup = generation_sorted[index][1]
-                if runnerup.get_name() != champion.get_name():
-                    break
-                index += 1
-                
-            surviving_agents.append(champion)
-            surviving_agents.append(runnerup)
-            cross_over = mutator.cross_over(champion, runnerup) 
-            surviving_agents.append(cross_over)
-            
             if DEBUG_PROGRESS:
                 print "generation champion: %s" % champion.feature_set
                 print "with average reward: %.4f" % champion.average_reward
@@ -1942,8 +1953,36 @@ class ArbitratorEvolutionary(Arbitrator):
                 print "last episode trace:"
                 print champion.get_episode_trace()
                 
+#            # select runner up such that it does not have the same features
+#            # as the champion
+#            index = 1
+#            while index < len(generation_sorted):
+#                runnerup = generation_sorted[index][1]
+#                if runnerup.get_name() != champion.get_name():
+#                    break
+#                index += 1
+#                
+#            surviving_agents.append(champion)
+#            surviving_agents.append(runnerup)
+#            cross_over = mutator.cross_over(champion, runnerup) 
+#            surviving_agents.append(cross_over)
+
+            # select all surviving agents such that they are different from
+            # the already selected survivors
+            num_survivors = int(self.population_size * SURVIVAL_RATE)
+            index = 0
+            while (len(surviving_agents) < num_survivors) and (index < len(generation_sorted)):
+                agent = generation_sorted[index][1]
+                for existing_agent in surviving_agents:
+                    if agent.get_name() == existing_agent.get_name():
+                        continue
+                surviving_agents.append(agent)
+                index += 1
+        
 #            gc.collect()
     
+    
+        # all generations finished
         final_champion = surviving_agents[0]
         if DEBUG_PROGRESS:
             print "final champion: " + str(final_champion.feature_set)
