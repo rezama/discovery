@@ -159,6 +159,10 @@ class AgentStateBased(object):
         if self.algorithm is not None:
             self.algorithm.restore_learning_state()
 
+    def reset_learning(self):
+        if self.algorithm is not None:
+            self.algorithm.reset_learning()
+
 class AgentFeatureBased(AgentStateBased):
 
     def __init__(self, actions, environment, feature_set, algorithm=None):
@@ -1175,6 +1179,9 @@ class Algorithm(object):
     def resume_learning(self):
         self.is_learning = True    
 
+    def reset_learning(self):
+        pass
+
 #class RandomAlgorithm(Algorithm):
 #    
 #    def select_action(self):
@@ -1381,6 +1388,9 @@ class SarsaLambdaFeaturized(Sarsa):
         self.e = {}
 
         self.feature_set = feature_set
+        self.init_weights()
+
+    def init_weights(self):
         num_features = self.feature_set.get_num_features()
         if BASE_FEATURE_WEIGHTS == WEIGHTS_OPTIMISTIC and \
                 (self.feature_set.get_num_features() > 0):
@@ -1397,7 +1407,10 @@ class SarsaLambdaFeaturized(Sarsa):
 #            else:
 #                self.w[action] = [self.default_w] * self.feature_set.get_encoding_length()
             self.w[action] = [self.default_w] * self.feature_set.get_encoding_length()
-
+    
+    def reset_learning(self):
+        self.init_weights()
+    
     def add_feature(self, feature):
         # feature_set has already received the new feature
         num_features = self.feature_set.get_num_features()
@@ -1692,9 +1705,9 @@ def arbitrator_test_agent((agent, start_states, start_seeds, max_steps,
         print "testing agent: " + str(agent.feature_set)
     agent.reward_log = [0] * num_episodes
     begin_time = time.clock()
-#    agent.save_learning_state()
+    agent.save_learning_state()
     for trial in range(num_trials): #@UnusedVariable
-#        agent.restore_learning_state()
+        agent.restore_learning_state()
         for episode in range(num_episodes):
             start_state_index = (episode + trial) % num_episodes 
             # get start state
@@ -2037,14 +2050,18 @@ class ArbitratorEvolutionary(Arbitrator):
                 updated_champions.reverse()
                 self.champions = updated_champions
                 for champion in self.champions:
-                    champion_reward = float(sum(champion.reward_log)) / self.generation_episodes
+                    champion_reward = champion.average_reward
+                    # repeating the average reward to replace all episode rewards
+                    champion.reward_log = [champion_reward] * self.generation_episodes
                     self.champion_trial_rewards.append(champion_reward)
                     self.champions_trial_reward_log += champion.reward_log
             else:
                 for champion in self.champions:
                     self.test_agent(champion, start_states, start_seeds, max_steps,
                                     self.generation_episodes, self.champion_trials)
-                    champion_reward = float(sum(champion.reward_log)) / self.generation_episodes
+                    champion_reward = champion.average_reward
+                    # repeating the average reward to replace all episode rewards
+                    champion.reward_log = [champion_reward] * self.generation_episodes
                     self.champion_trial_rewards.append(champion_reward)
                     self.champions_trial_reward_log += champion.reward_log
                     
@@ -2052,10 +2069,14 @@ class ArbitratorEvolutionary(Arbitrator):
         best_champion = None
         best_champion_reward = 0
         for champion in self.champions:
-            champion_reward = float(sum(champion.reward_log)) / self.generation_episodes
+            champion_reward = champion.average_reward
             if best_champion == None or champion_reward > best_champion_reward:
+                best_champion_reward = champion_reward
                 best_champion = champion
-                
+        
+        best_champion.reset_learning()
+        best_champion.resume_learning()
+        
         if DEBUG_PROGRESS:
             print "evaluating best champion: " + str(best_champion.feature_set)
             print "with average reward: %.4f" % best_champion.average_reward
@@ -2066,7 +2087,7 @@ class ArbitratorEvolutionary(Arbitrator):
         # generate start states
         start_states = []
         start_seeds = []
-        for i in range(self.generation_episodes * self.num_generations): #@UnusedVariable
+        for i in range(self.best_champion_episodes): #@UnusedVariable
             start_states.append(self.base_agent.environment.generate_start_state())
             start_seeds.append(random.random())
 
