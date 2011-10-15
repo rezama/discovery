@@ -2020,6 +2020,7 @@ class ArbitratorEvolutionary(Arbitrator):
         # all generations finished
         last_champion = surviving_agents[0]
         if DEBUG_PROGRESS:
+            print ""
             print "last champion: " + str(last_champion.feature_set)
             print "with average reward: %.4f" % last_champion.average_reward
         if DEBUG_ALG_VALUES:
@@ -2029,6 +2030,7 @@ class ArbitratorEvolutionary(Arbitrator):
         # champion trials
         if self.champion_trials != 0:    
             if DEBUG_PROGRESS:
+                print ""
                 print "running champion trials"
             
             # generate start states
@@ -2078,6 +2080,7 @@ class ArbitratorEvolutionary(Arbitrator):
         best_champion.resume_learning()
         
         if DEBUG_PROGRESS:
+            print ""
             print "evaluating best champion: " + str(best_champion.feature_set)
             print "with average reward: %.4f" % best_champion.average_reward
         if DEBUG_ALG_VALUES:

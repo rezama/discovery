@@ -31,5 +31,5 @@ plot "./results-population-interval.txt" using 1:2 title "Population Reward" wit
 set output "graph-best-champion-interval.eps"
 set xlabel "Episode"
 set ylabel "Champion's Reward"
-plot "./results-best-champion-interval.txt" using 1:2 title "Champion Reward"
+plot "./results-best-champion-interval.txt" using 1:2 title "Champion Reward" with lines
 
