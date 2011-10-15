@@ -1444,15 +1444,15 @@ class SarsaLambdaFeaturized(Sarsa):
             self.e[action] = [0] * self.feature_set.get_encoding_length()
                 
     def compute_Q(self, features_present, action):
-        sum = 0
+        q_sum = 0
 #        if USE_NUMPY:
 #            sum = numpy.dot(self.w[action], features_present)
 #        else:
 #            for i in range(self.feature_set.get_encoding_length()):
 #                sum += self.w[action][i] * features_present[i]
         for i in range(self.feature_set.get_encoding_length()):
-            sum += self.w[action][i] * features_present[i]
-        return sum
+            q_sum += self.w[action][i] * features_present[i]
+        return q_sum
     
     def select_action_do(self, state):
         features = self.feature_set.encode_state(state)
@@ -1851,6 +1851,8 @@ class ArbitratorEvolutionary(Arbitrator):
     
             # mutate agents
             highest_reward = surviving_agents[0].average_reward
+            if highest_reward == 0:
+                highest_reward = 1
             for agent in surviving_agents:
                 normalized_reward = agent.average_reward / float(highest_reward)
                 agent.temperature = math.exp(normalized_reward * TAU)
