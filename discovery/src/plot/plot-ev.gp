@@ -12,6 +12,11 @@ set xlabel "Episode"
 set ylabel "Champion's Reward over 15 Generations"
 plot "./results-champion-training.txt" using 1:2 title "Champion Reward"
 
+set output "graph-best-champion.eps"
+set xlabel "Episode"
+set ylabel "Champion's Reward"
+plot "./results-best-champion.txt" using 1:2 title "Champion Reward"
+
 set output "graph-champion-interval.eps"
 set xlabel "Episode"
 set ylabel "Champion's Reward over 15 Generations"
@@ -22,3 +27,9 @@ set output "graph-population-interval.eps"
 set xlabel "Episode"
 set ylabel "Average Population Reward over 15 Generations"
 plot "./results-population-interval.txt" using 1:2 title "Population Reward" with lines
+
+set output "graph-best-champion-interval.eps"
+set xlabel "Episode"
+set ylabel "Champion's Reward"
+plot "./results-best-champion-interval.txt" using 1:2 title "Champion Reward"
+

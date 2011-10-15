@@ -34,7 +34,7 @@ REPORT_RESULTS = True
 PLOT_INTERVALS = 100
 
 # the computational cost parameter 
-DEFAULT_ETA = 0.99
+DEFAULT_ETA = 1.00
 
 # what portion of the training rewards to include in calculating average rewards
 TRAINING_SLACK = 0.0
@@ -51,7 +51,7 @@ MUTATE_NEW_WEIGHTS_MULT = 0.0
 MUTATE_CROSS_OVER_WEIGHTS = WEIGHTS_COPY
 
 SURVIVAL_RATE = .15
-TAU = 2.5
+TAU = 2
 
 # the probability by which the algorithm tries to pick a dynamic state variable
 # when it has both options
@@ -1793,7 +1793,8 @@ class ArbitratorStandard(Arbitrator):
 class ArbitratorEvolutionary(Arbitrator):
     
     def __init__(self, base_agent, featurizers_map, num_generations, 
-                 population_size, generation_episodes, champion_trials, eta):
+                 population_size, generation_episodes, champion_trials, 
+                 best_champion_trials, eta, final_test_episodes = 0):
         super(ArbitratorEvolutionary, self).__init__()
         self.base_agent = base_agent
         self.featurizers_map = featurizers_map
@@ -1801,7 +1802,11 @@ class ArbitratorEvolutionary(Arbitrator):
         self.population_size = population_size
         self.generation_episodes = generation_episodes
         self.champion_trials = champion_trials
+        self.best_champion_trials = best_champion_trials
         self.eta = eta
+        self.final_test_episodes = final_test_episodes
+        if final_test_episodes == 0:
+            self.final_test_episodes = self.generation_episodes * self.num_generations
         
         self.champions = []
         self.champion_training_rewards = []
@@ -1811,6 +1816,8 @@ class ArbitratorEvolutionary(Arbitrator):
         self.champions_training_reward_log = []
         self.champions_trial_reward_log = []
         self.population_reward_log = []
+        self.best_champion_reward_log = []
+
         # check integrity of the featurizers map
         sum_prob = 0.0
         for (prob, featurizer) in featurizers_map: #@UnusedVariable
@@ -1820,9 +1827,12 @@ class ArbitratorEvolutionary(Arbitrator):
             print "Aborting: sum of selection probabilities is %.2f" % sum_prob
             sys.exit(-1)
 
-    def test_agent(self, agent, start_states, start_seeds, max_steps, num_trials=1):
+    def test_agent(self, agent, start_states, start_seeds, max_steps,
+                   num_trials=1, num_episodes=0):
+        if num_episodes == 0:
+            num_episodes = self.generation_episodes
         return arbitrator_test_agent((agent, start_states, start_seeds, max_steps,
-                                     self.generation_episodes, num_trials,
+                                     num_episodes, num_trials,
                                      arbitrator_do_episode))
     
     def run(self, max_steps = 0):
@@ -1850,22 +1860,35 @@ class ArbitratorEvolutionary(Arbitrator):
                 print "generation %i" % (generation)
     
             # mutate agents
-            highest_reward = surviving_agents[0].average_reward
-            if highest_reward == 0:
-                highest_reward = 1
+            highest_reward = surviving_agents[0].average_reward_normalized
+            lowest_reward = surviving_agents[len(surviving_agents) - 1].average_reward_normalized
+#            if highest_reward == 0:
+#                highest_reward = 1
+#            if lowest_reward == 0:
+#                lowest_reward = 1
+            reward_range = highest_reward - lowest_reward
+            if reward_range == 0:
+                reward_range = 1
             for agent in surviving_agents:
-                normalized_reward = agent.average_reward / float(highest_reward)
-                agent.temperature = math.exp(normalized_reward * TAU)
+#                average_reward_normalized_in_generation = agent.average_reward_normalized / float(highest_reward)
+#                agent.temperature = math.exp(average_reward_normalized_in_generation * TAU)
+                reward_ratio = (agent.average_reward_normalized - lowest_reward) / float(reward_range)
+                agent.temperature = math.exp(reward_ratio * TAU)
             
             sum_temperature = 0
             for agent in surviving_agents:
                 sum_temperature += agent.temperature
 
+            if DEBUG_PROGRESS:
+                print "Selection probabilities:"
             cumulative_prob = 0.0
             for agent in surviving_agents:
                 prob = agent.temperature / float(sum_temperature)
                 cumulative_prob += prob
-                agent.selection_probability_top = cumulative_prob 
+                agent.selection_probability_top = cumulative_prob
+                if DEBUG_PROGRESS:
+                    print "Agent with avg reward %.2f, prob: %.2f" % (
+                        agent.average_reward_normalized, prob)
             
             agents = list(surviving_agents)
             while len(agents) < self.population_size:
@@ -1985,13 +2008,15 @@ class ArbitratorEvolutionary(Arbitrator):
     
     
         # all generations finished
-        final_champion = surviving_agents[0]
+        last_champion = surviving_agents[0]
         if DEBUG_PROGRESS:
-            print "final champion: " + str(final_champion.feature_set)
+            print "last champion: " + str(last_champion.feature_set)
+            print "with average reward: %.4f" % last_champion.average_reward
         if DEBUG_ALG_VALUES:
             print "values:"
-            final_champion.algorithm.print_w()
-            
+            last_champion.algorithm.print_w()
+        
+        # champion trials
         if self.champion_trials != 0:    
             if DEBUG_PROGRESS:
                 print "running champion trials"
@@ -2019,11 +2044,40 @@ class ArbitratorEvolutionary(Arbitrator):
                     self.champion_trial_rewards.append(champion_reward)
                     self.champions_trial_reward_log += champion.reward_log
             else:
-                for champion in self.champions: #@UnusedVariable
-                    self.test_agent(champion, start_states, max_steps, self.champion_trials)
+                for champion in self.champions:
+                    self.test_agent(champion, start_states, start_seeds, max_steps,
+                                    self.champion_trials)
                     champion_reward = float(sum(champion.reward_log)) / self.generation_episodes
                     self.champion_trial_rewards.append(champion_reward)
-                    self.champions_training_reward_log += champion.reward_log
+                    self.champions_trial_reward_log += champion.reward_log
+        
+        # final trial with best champion        
+        best_champion = None
+        best_champion_reward = 0
+        for champion in self.champions:
+            champion_reward = float(sum(champion.reward_log)) / self.generation_episodes
+            if best_champion == None or champion_reward > best_champion_reward:
+                best_champion = champion
+                
+        if DEBUG_PROGRESS:
+            print "best champion: " + str(best_champion.feature_set)
+            print "with average reward: %.4f" % best_champion.average_reward
+        if DEBUG_ALG_VALUES:
+            print "values:"
+            last_champion.algorithm.print_w()
+                            
+        # generate start states
+        start_states = []
+        start_seeds = []
+        for i in range(self.generation_episodes * self.num_generations): #@UnusedVariable
+            start_states.append(self.base_agent.environment.generate_start_state())
+            start_seeds.append(random.random())
+
+        # test best champion
+        num_episodes = self.num_generations * self.generation_episodes
+        self.test_agent(champion, start_states, start_seeds, max_steps,
+                        self.best_champion_trials, num_episodes)
+        self.best_champion_reward_log = champion.reward_log
         
         if REPORT_RESULTS:
             self.report_results()
@@ -2082,6 +2136,23 @@ class ArbitratorEvolutionary(Arbitrator):
                                float(sub_sum) / episodes_per_interval)) 
         report_file.close()
         
+        report_file = open(folder_name + 'results-best-champion.txt', 'w')
+        for episode in range(self.num_generations * self.generation_episodes):
+            report_file.write('%d %.2f\n' % 
+                              (episode, self.best_champion_reward_log[episode]))
+        report_file.close()
+    
+        report_file = open(folder_name + 'results-best-champion-interval.txt', 'w')
+        episodes_per_interval = int(self.num_generations * 
+                                    self.generation_episodes / PLOT_INTERVALS) 
+        for interval in range(PLOT_INTERVALS):
+            sub_sum = sum(self.best_champion_reward_log[interval * episodes_per_interval:
+                                     (interval + 1) * episodes_per_interval])
+            report_file.write('%d %.2f\n' % 
+                              (interval * episodes_per_interval, 
+                               float(sub_sum) / episodes_per_interval)) 
+        report_file.close()
+
         report_file = open(folder_name + 'results-population.txt', 'w')
         for episode in range(self.num_generations * self.generation_episodes):
             report_file.write('%d %.2f\n' % 

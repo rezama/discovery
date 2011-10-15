@@ -22,6 +22,7 @@ NUM_GENERATIONS = 15
 POPULATION_SIZE = 30
 GENERATION_EPISODES = 200
 CHAMPION_TRIALS = 200
+BEST_CHAMPION_TRIALS = 200
 
 class KnightJoustStateBasedAgent(rl.AgentStateBased):
     
@@ -428,7 +429,7 @@ def learn_evolutionary():
 
     arbitrator = rl.ArbitratorEvolutionary(base_agent, featurizers_map, 
                     NUM_GENERATIONS, POPULATION_SIZE, GENERATION_EPISODES,
-                    CHAMPION_TRIALS, rl.DEFAULT_ETA)
+                    CHAMPION_TRIALS, BEST_CHAMPION_TRIALS, rl.DEFAULT_ETA)
     arbitrator.run()
         
 def external_config_eta():
