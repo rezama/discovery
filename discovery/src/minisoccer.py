@@ -616,13 +616,13 @@ def external_config_w():
     w = float(sys.argv[1])
     rl.MUTATE_NEW_WEIGHTS_MULT = w
     print "Mutate weights multiplier is %.2f" % rl.MUTATE_NEW_WEIGHTS_MULT
-            
+    
 if __name__ == '__main__':
 #    try_hand_coded()
 #    cost_benchmark()
-#    learn_w_multitile_features()
+    learn_w_multitile_features()
 #    external_config_w()
 #    print rl.MUTATE_NEW_WEIGHTS_MULT
-    external_config_eta()
-    print rl.DEFAULT_ETA
+#    external_config_eta()
+#    print rl.DEFAULT_ETA
     learn_evolutionary()

@@ -1781,7 +1781,11 @@ class ArbitratorStandard(Arbitrator):
             self.report_results()
         
     def report_results(self):
-        folder_name = 'results/%dt%de/' % (self.num_trials, self.num_episodes)
+        program_name = sys.argv[0]
+        program_name_parts = program_name.rsplit(".", 1)
+        program_just_name = program_name_parts[0]        
+        folder_name = 'results/%s-%dt%de/' % (program_just_name, 
+                                              self.num_trials, self.num_episodes)
         if not os.path.exists(folder_name):
             os.makedirs(folder_name)
         report_file = open(folder_name + 'results-standard.txt', 'w')
@@ -2103,7 +2107,11 @@ class ArbitratorEvolutionary(Arbitrator):
             self.report_results()
 
     def report_results(self):
-        folder_name = 'results/g%de%dt%de%dw%d/' % (self.num_generations,
+        program_name = sys.argv[0]
+        program_name_parts = program_name.rsplit(".", 1)
+        program_just_name = program_name_parts[0]
+        folder_name = 'results/%s-g%de%dt%de%dw%d/' % (program_just_name,
+                        self.num_generations,
                         self.generation_episodes, self.champion_trials,
                         self.eta * 100, MUTATE_NEW_WEIGHTS_MULT * 100)
         if not os.path.exists(folder_name):

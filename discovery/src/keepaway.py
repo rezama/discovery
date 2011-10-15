@@ -339,14 +339,18 @@ def learn_evolutionary():
                     rl.DEFAULT_ETA)
     arbitrator.run()
     
-def external_config():
+def external_config_eta():
+    eta = float(sys.argv[1])
+    rl.DEFAULT_ETA = eta
+    print "Eta is %.2f" % rl.DEFAULT_ETA
+    
+def external_config_w():
     w = float(sys.argv[1])
-    print "Mutate weights multiplier is %.2f" % w
     rl.MUTATE_NEW_WEIGHTS_MULT = w
-    learn_evolutionary()
+    print "Mutate weights multiplier is %.2f" % rl.MUTATE_NEW_WEIGHTS_MULT
     
 if __name__ == '__main__':
 
-#    learn_w_multitile_features()
-#    learn_evolutionary()
-    external_config()
+#    external_config()
+    learn_w_multitile_features()
+    learn_evolutionary()

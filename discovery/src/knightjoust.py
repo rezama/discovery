@@ -455,4 +455,4 @@ if __name__ == '__main__':
 #    print rl.MUTATE_NEW_WEIGHTS_MULT
 #    external_config_eta()
 #    print rl.DEFAULT_ETA
-#    learn_evolutionary()
+    learn_evolutionary()
