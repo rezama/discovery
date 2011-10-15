@@ -24,9 +24,6 @@ STAY_PROB = 0.2
 ROLE_PLAYER = 'player'
 ROLE_OPPONENT = 'opponent'
 
-# standard parameters
-NUM_TRIALS = 5
-NUM_EPISODES = 1000
 MAX_STEPS = 400
 
 # evolutionary parameters
@@ -36,6 +33,10 @@ GENERATION_EPISODES = 500
 CHAMPION_TRIALS = 1
 BEST_CHAMPION_TRIALS = 20
 BEST_CHAMPION_EPISODES = NUM_GENERATIONS * GENERATION_EPISODES
+
+# standard parameters
+NUM_TRIALS = BEST_CHAMPION_TRIALS
+NUM_EPISODES = BEST_CHAMPION_EPISODES
 
 # always on the left
 class MiniSoccerAgent(rl.AgentFeatureBased):

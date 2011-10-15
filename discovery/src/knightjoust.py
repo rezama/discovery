@@ -13,17 +13,17 @@ import sys
 # start state configuration
 RANDOMIZE_START_STATE = True
 
-# trials
-NUM_TRIALS = 1
-NUM_EPISODES = 1000
-
-# evolutionary settings
+# evolutionary parameters
 NUM_GENERATIONS = 15
 POPULATION_SIZE = 30
 GENERATION_EPISODES = 200
 CHAMPION_TRIALS = 1
 BEST_CHAMPION_TRIALS = 20
 BEST_CHAMPION_EPISODES = NUM_GENERATIONS * GENERATION_EPISODES
+
+# standard parameters
+NUM_TRIALS = BEST_CHAMPION_TRIALS
+NUM_EPISODES = BEST_CHAMPION_EPISODES
 
 class KnightJoustStateBasedAgent(rl.AgentStateBased):
     
@@ -450,9 +450,9 @@ if __name__ == '__main__':
 #    test_stuff()
 #    learn_w_raw_state()
 #    learn_w_features()
-#    learn_w_multitile_features()
+    learn_w_multitile_features()
 #    external_config_w()
 #    print rl.MUTATE_NEW_WEIGHTS_MULT
 #    external_config_eta()
-    print rl.DEFAULT_ETA
-    learn_evolutionary()
+#    print rl.DEFAULT_ETA
+#    learn_evolutionary()
