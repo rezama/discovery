@@ -19,7 +19,9 @@ NUM_EPISODES = 2000
 NUM_GENERATIONS = 15
 POPULATION_SIZE = 50
 GENERATION_EPISODES = 200
-CHAMPION_TRIALS = 20
+CHAMPION_TRIALS = 200
+BEST_CHAMPION_TRIALS = 200
+BEST_CHAMPION_EPISODES = NUM_GENERATIONS * GENERATION_EPISODES
 
 # reporting
 PLOT_INTERVALS = 100
@@ -331,8 +333,10 @@ def learn_evolutionary():
                        (0.4, dist_featurizer)]
     
     arbitrator = rl.ArbitratorEvolutionary(base_agent, featurizers_map, 
-                    NUM_GENERATIONS, POPULATION_SIZE, GENERATION_EPISODES,
-                    CHAMPION_TRIALS, rl.DEFAULT_ETA)
+                    NUM_GENERATIONS, POPULATION_SIZE,
+                    GENERATION_EPISODES, CHAMPION_TRIALS, 
+                    BEST_CHAMPION_EPISODES, BEST_CHAMPION_TRIALS,
+                    rl.DEFAULT_ETA)
     arbitrator.run()
     
 def external_config():

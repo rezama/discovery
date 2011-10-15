@@ -1794,7 +1794,7 @@ class ArbitratorEvolutionary(Arbitrator):
     
     def __init__(self, base_agent, featurizers_map, num_generations, 
                  population_size, generation_episodes, champion_trials, 
-                 best_champion_trials, eta, final_test_episodes = 0):
+                 best_champion_episodes, best_champion_trials, eta):
         super(ArbitratorEvolutionary, self).__init__()
         self.base_agent = base_agent
         self.featurizers_map = featurizers_map
@@ -1802,11 +1802,9 @@ class ArbitratorEvolutionary(Arbitrator):
         self.population_size = population_size
         self.generation_episodes = generation_episodes
         self.champion_trials = champion_trials
+        self.best_champion_episodes = best_champion_episodes
         self.best_champion_trials = best_champion_trials
         self.eta = eta
-        self.final_test_episodes = final_test_episodes
-        if final_test_episodes == 0:
-            self.final_test_episodes = self.generation_episodes * self.num_generations
         
         self.champions = []
         self.champion_training_rewards = []
@@ -1828,9 +1826,7 @@ class ArbitratorEvolutionary(Arbitrator):
             sys.exit(-1)
 
     def test_agent(self, agent, start_states, start_seeds, max_steps,
-                   num_trials=1, num_episodes=0):
-        if num_episodes == 0:
-            num_episodes = self.generation_episodes
+                   num_episodes, num_trials):
         return arbitrator_test_agent((agent, start_states, start_seeds, max_steps,
                                      num_episodes, num_trials,
                                      arbitrator_do_episode))
@@ -1922,7 +1918,8 @@ class ArbitratorEvolutionary(Arbitrator):
                 agents = updated_champions
             else:
                 for agent in agents:
-                    self.test_agent(agent, start_states, start_seeds, max_steps)
+                    self.test_agent(agent, start_states, start_seeds, max_steps,
+                                    self.generation_episodes, 1)
             
             # update population averages
             for agent in agents:
@@ -2046,11 +2043,11 @@ class ArbitratorEvolutionary(Arbitrator):
             else:
                 for champion in self.champions:
                     self.test_agent(champion, start_states, start_seeds, max_steps,
-                                    self.champion_trials)
+                                    self.generation_episodes, self.champion_trials)
                     champion_reward = float(sum(champion.reward_log)) / self.generation_episodes
                     self.champion_trial_rewards.append(champion_reward)
                     self.champions_trial_reward_log += champion.reward_log
-        
+                    
         # final trial with best champion        
         best_champion = None
         best_champion_reward = 0
@@ -2060,7 +2057,7 @@ class ArbitratorEvolutionary(Arbitrator):
                 best_champion = champion
                 
         if DEBUG_PROGRESS:
-            print "best champion: " + str(best_champion.feature_set)
+            print "evaluating best champion: " + str(best_champion.feature_set)
             print "with average reward: %.4f" % best_champion.average_reward
         if DEBUG_ALG_VALUES:
             print "values:"
@@ -2074,9 +2071,8 @@ class ArbitratorEvolutionary(Arbitrator):
             start_seeds.append(random.random())
 
         # test best champion
-        num_episodes = self.num_generations * self.generation_episodes
         self.test_agent(champion, start_states, start_seeds, max_steps,
-                        self.best_champion_trials, num_episodes)
+                        self.best_champion_episodes, self.best_champion_trials)
         self.best_champion_reward_log = champion.reward_log
         
         if REPORT_RESULTS:
