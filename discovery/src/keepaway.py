@@ -338,20 +338,19 @@ def learn_evolutionary():
     featurizer_dist = rl.FeaturizerDist(state_vars)
     featurizer_dist_x = rl.FeaturizerDistX(state_vars)
     featurizer_dist_y = rl.FeaturizerDistY(state_vars)
-    featurizer_flag = rl.FeaturizerFlag(state_vars)
+#    featurizer_flag = rl.FeaturizerFlag(state_vars)
     featurizer_point_xy = rl.FeaturizerPointXY(state_vars)
     featurizer_point_x = rl.FeaturizerPointX(state_vars)
     featurizer_point_y = rl.FeaturizerPointY(state_vars)
     
     featurizers_map = [
-        (0.12, featurizer_retile),
+        (0.16, featurizer_retile),
         (0.15, featurizer_interaction),
-        (0.10, featurizer_flag),
         (0.16, featurizer_angle),
-        (0.12, featurizer_dist),
-        (0.09, featurizer_dist_x),
-        (0.09, featurizer_dist_y),
-        (0.07, featurizer_point_xy),
+        (0.13, featurizer_dist),
+        (0.11, featurizer_dist_x),
+        (0.11, featurizer_dist_y),
+        (0.08, featurizer_point_xy),
         (0.05, featurizer_point_x),
         (0.05, featurizer_point_y)
     ]
