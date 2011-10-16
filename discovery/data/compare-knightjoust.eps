@@ -1,7 +1,7 @@
 %!PS-Adobe-2.0 EPSF-2.0
-%%Title: graph-best-champion-interval.eps
-%%Creator: gnuplot 4.2 patchlevel 6 
-%%CreationDate: Sun Oct 16 09:28:42 2011
+%%Title: compare-knightjoust.eps
+%%Creator: gnuplot 4.4 patchlevel 2
+%%CreationDate: Sun Oct 16 09:29:36 2011
 %%DocumentFonts: (atend)
 %%BoundingBox: 50 50 410 302
 %%EndComments
@@ -9,8 +9,8 @@
 /gnudict 256 dict def
 gnudict begin
 %
-% The following 6 true/false flags may be edited by hand if required
-% The unit line width may also be changed
+% The following true/false flags may be edited by hand if desired.
+% The unit line width and grayscale image gamma correction may also be changed.
 %
 /Color true def
 /Blacktext false def
@@ -19,9 +19,11 @@ gnudict begin
 /Landscape false def
 /Level1 false def
 /Rounded false def
+/ClipToBoundingBox false def
 /TransparentPatterns false def
 /gnulinewidth 5.000 def
 /userlinewidth gnulinewidth def
+/Gamma 1.0 def
 %
 /vshift -46 def
 /dl1 {
@@ -42,18 +44,26 @@ systemdict /pdfmark known not {
   userdict /pdfmark systemdict /cleartomark get put
 } if
 SDict begin [
-  /Title (graph-best-champion-interval.eps)
+  /Title (compare-knightjoust.eps)
   /Subject (gnuplot plot)
-  /Creator (gnuplot 4.2 patchlevel 6 )
-  /Author (Reza Mahjourian,,,,)
+  /Creator (gnuplot 4.4 patchlevel 2)
+  /Author (reza)
 %  /Producer (gnuplot)
 %  /Keywords ()
-  /CreationDate (Sun Oct 16 09:28:42 2011)
+  /CreationDate (Sun Oct 16 09:29:36 2011)
   /DOCINFO pdfmark
 end
 } ifelse
+/doclip {
+  ClipToBoundingBox {
+    newpath 50 50 moveto 410 50 lineto 410 302 lineto 50 302 lineto closepath
+    clip
+  } if
+} def
 %
-% Gnuplot Prolog Version 4.2 (August 2006)
+% Gnuplot Prolog Version 4.4 (August 2010)
+%
+%/SuppressPDFMark true def
 %
 /M {moveto} bind def
 /L {lineto} bind def
@@ -63,6 +73,8 @@ end
 /Z {closepath} bind def
 /C {setrgbcolor} bind def
 /f {rlineto fill} bind def
+/g {setgray} bind def
+/Gshow {show} def   % May be redefined later in the file to support UTF-8
 /vpt2 vpt 2 mul def
 /hpt2 hpt 2 mul def
 /Lshow {currentpoint stroke M 0 vshift R 
@@ -83,6 +95,7 @@ end
 	dup 1 lt {pop 1} if 10 mul /udl exch def} def
 /PL {stroke userlinewidth setlinewidth
 	Rounded {1 setlinejoin 1 setlinecap} if} def
+3.8 setmiterlimit
 % Default Line colors
 /LCw {1 1 1} def
 /LCb {0 0 0} def
@@ -424,6 +437,7 @@ end
 %%EndProlog
 gnudict begin
 gsave
+doclip
 50 50 translate
 0.050 0.050 scale
 0 setgray
@@ -431,370 +445,674 @@ newpath
 (Helvetica) findfont 140 scalefont setfont
 1.000 UL
 LTb
-1.000 UL
-LTa
-854 448 M
-6136 0 V
-stroke
-LTb
-854 448 M
+686 448 M
 63 0 V
-6073 0 R
+6198 0 R
 -63 0 V
-770 448 M
-( 378) Rshow
+602 448 M
+( 240) Rshow
 1.000 UL
 LTb
-1.000 UL
-LTa
-854 1001 M
-6136 0 V
-stroke
-LTb
-854 1001 M
+686 1001 M
 63 0 V
-6073 0 R
+6198 0 R
 -63 0 V
--6157 0 R
+-6282 0 R
+( 260) Rshow
+1.000 UL
+LTb
+686 1554 M
+63 0 V
+6198 0 R
+-63 0 V
+-6282 0 R
+( 280) Rshow
+1.000 UL
+LTb
+686 2107 M
+63 0 V
+6198 0 R
+-63 0 V
+-6282 0 R
+( 300) Rshow
+1.000 UL
+LTb
+686 2660 M
+63 0 V
+6198 0 R
+-63 0 V
+-6282 0 R
+( 320) Rshow
+1.000 UL
+LTb
+686 3212 M
+63 0 V
+6198 0 R
+-63 0 V
+-6282 0 R
+( 340) Rshow
+1.000 UL
+LTb
+686 3765 M
+63 0 V
+6198 0 R
+-63 0 V
+-6282 0 R
+( 360) Rshow
+1.000 UL
+LTb
+686 4318 M
+63 0 V
+6198 0 R
+-63 0 V
+-6282 0 R
 ( 380) Rshow
 1.000 UL
 LTb
-1.000 UL
-LTa
-854 1554 M
-6136 0 V
-stroke
-LTb
-854 1554 M
+686 4871 M
 63 0 V
-6073 0 R
+6198 0 R
 -63 0 V
--6157 0 R
-( 382) Rshow
+-6282 0 R
+( 400) Rshow
 1.000 UL
 LTb
-1.000 UL
-LTa
-854 2107 M
-6136 0 V
-stroke
-LTb
-854 2107 M
-63 0 V
-6073 0 R
--63 0 V
--6157 0 R
-( 384) Rshow
-1.000 UL
-LTb
-1.000 UL
-LTa
-854 2660 M
-6136 0 V
-stroke
-LTb
-854 2660 M
-63 0 V
-6073 0 R
--63 0 V
--6157 0 R
-( 386) Rshow
-1.000 UL
-LTb
-1.000 UL
-LTa
-854 3213 M
-6136 0 V
-stroke
-LTb
-854 3213 M
-63 0 V
-6073 0 R
--63 0 V
--6157 0 R
-( 388) Rshow
-1.000 UL
-LTb
-1.000 UL
-LTa
-854 3766 M
-6136 0 V
-stroke
-LTb
-854 3766 M
-63 0 V
-6073 0 R
--63 0 V
--6157 0 R
-( 390) Rshow
-1.000 UL
-LTb
-1.000 UL
-LTa
-854 4319 M
-6136 0 V
-stroke
-LTb
-854 4319 M
-63 0 V
-6073 0 R
--63 0 V
--6157 0 R
-( 392) Rshow
-1.000 UL
-LTb
-1.000 UL
-LTa
-854 4872 M
-6136 0 V
-stroke
-LTb
-854 4872 M
-63 0 V
-6073 0 R
--63 0 V
--6157 0 R
-( 394) Rshow
-1.000 UL
-LTb
-1.000 UL
-LTa
-854 448 M
-0 4424 V
-stroke
-LTb
-854 448 M
+686 448 M
 0 63 V
-0 4361 R
+0 4360 R
 0 -63 V
-854 308 M
+686 308 M
 ( 0) Cshow
 1.000 UL
 LTb
-1.000 UL
-LTa
-1877 448 M
-0 4424 V
-stroke
-LTb
-1877 448 M
+1103 448 M
 0 63 V
-0 4361 R
+0 4360 R
 0 -63 V
-0 -4501 R
-( 500) Cshow
+0 -4500 R
+( 200) Cshow
 1.000 UL
 LTb
-1.000 UL
-LTa
-2899 448 M
-0 4424 V
-stroke
-LTb
-2899 448 M
+1521 448 M
 0 63 V
-0 4361 R
+0 4360 R
 0 -63 V
-0 -4501 R
+0 -4500 R
+( 400) Cshow
+1.000 UL
+LTb
+1938 448 M
+0 63 V
+0 4360 R
+0 -63 V
+0 -4500 R
+( 600) Cshow
+1.000 UL
+LTb
+2356 448 M
+0 63 V
+0 4360 R
+0 -63 V
+0 -4500 R
+( 800) Cshow
+1.000 UL
+LTb
+2773 448 M
+0 63 V
+0 4360 R
+0 -63 V
+0 -4500 R
 ( 1000) Cshow
 1.000 UL
 LTb
-1.000 UL
-LTa
-3922 448 M
-0 4424 V
-stroke
-LTb
-3922 448 M
+3190 448 M
 0 63 V
-0 4361 R
+0 4360 R
 0 -63 V
-0 -4501 R
-( 1500) Cshow
+0 -4500 R
+( 1200) Cshow
 1.000 UL
 LTb
-1.000 UL
-LTa
-4945 448 M
-0 4221 V
-0 140 R
+3608 448 M
 0 63 V
-stroke
-LTb
-4945 448 M
-0 63 V
-0 4361 R
+0 4360 R
 0 -63 V
-0 -4501 R
+0 -4500 R
+( 1400) Cshow
+1.000 UL
+LTb
+4025 448 M
+0 63 V
+0 4360 R
+0 -63 V
+0 -4500 R
+( 1600) Cshow
+1.000 UL
+LTb
+4443 448 M
+0 63 V
+0 4360 R
+0 -63 V
+0 -4500 R
+( 1800) Cshow
+1.000 UL
+LTb
+4860 448 M
+0 63 V
+0 4360 R
+0 -63 V
+0 -4500 R
 ( 2000) Cshow
 1.000 UL
 LTb
-1.000 UL
-LTa
-5967 448 M
-0 4221 V
-0 140 R
+5277 448 M
 0 63 V
-stroke
-LTb
-5967 448 M
-0 63 V
-0 4361 R
+0 4360 R
 0 -63 V
-0 -4501 R
-( 2500) Cshow
+0 -4500 R
+( 2200) Cshow
 1.000 UL
 LTb
-1.000 UL
-LTa
-6990 448 M
-0 4424 V
-stroke
-LTb
-6990 448 M
+5695 448 M
 0 63 V
-0 4361 R
+0 4360 R
 0 -63 V
-0 -4501 R
+0 -4500 R
+( 2400) Cshow
+1.000 UL
+LTb
+6112 448 M
+0 63 V
+0 4360 R
+0 -63 V
+0 -4500 R
+( 2600) Cshow
+1.000 UL
+LTb
+6530 448 M
+0 63 V
+0 4360 R
+0 -63 V
+0 -4500 R
+( 2800) Cshow
+1.000 UL
+LTb
+6947 448 M
+0 63 V
+0 4360 R
+0 -63 V
+0 -4500 R
 ( 3000) Cshow
 1.000 UL
 LTb
 1.000 UL
 LTb
-854 4872 N
-854 448 L
-6136 0 V
-0 4424 V
--6136 0 V
+686 4871 N
+686 448 L
+6261 0 V
+0 4423 V
+-6261 0 V
 Z stroke
 LCb setrgbcolor
-280 2660 M
-currentpoint gsave translate 90 rotate 0 0 M
-(Champion's Reward) Cshow
+112 2659 M
+currentpoint gsave translate -270 rotate 0 0 M
+(Reward) Cshow
 grestore
 LTb
 LCb setrgbcolor
-3922 98 M
+3816 98 M
 (Episode) Cshow
 LTb
 1.000 UP
 1.000 UL
 LTb
+% Begin plot #1
 1.000 UL
 LT0
-LTb
-6339 4739 M
-(Best Champion Reward) Rshow
+LCb setrgbcolor
+6296 4738 M
+(Champions Training) Rshow
 LT0
-6423 4739 M
+6380 4738 M
 399 0 V
-854 2475 M
-61 177 V
-62 -351 V
-61 -119 V
-61 -288 V
-62 896 V
-61 -158 V
-62 664 V
-61 312 V
-61 -2386 V
-62 1170 V
-61 1540 V
-61 -636 V
-62 -1844 V
-61 1493 V
-1774 863 L
-62 1335 V
-61 1521 V
-61 -321 V
-62 -1299 V
-61 1592 V
-62 -2054 V
-61 2038 V
-61 -987 V
-62 -103 V
-61 -367 V
-61 -719 V
-62 1280 V
-61 -443 V
-61 1375 V
-62 -1079 V
-61 352 V
-62 -103 V
-61 -110 V
-61 -213 V
-62 -479 V
-61 506 V
-61 1098 V
-62 747 V
-61 -1292 V
-61 932 V
-62 -1695 V
-61 -509 V
-61 2121 V
-62 -1639 V
-61 146 V
-62 379 V
-61 -1236 V
-61 379 V
-62 1216 V
-61 -1899 V
-61 766 V
-62 763 V
-61 -570 V
-61 589 V
-62 517 V
-61 -1319 V
-62 194 V
-61 -534 V
-61 949 V
-62 691 V
-61 395 V
-61 -1106 V
-62 -727 V
-61 821 V
-61 -398 V
-62 138 V
-61 1505 V
-61 -553 V
-62 -1162 V
-61 802 V
-62 376 V
-61 -1004 V
-61 -185 V
-62 138 V
-61 802 V
-61 774 V
-62 -608 V
-61 -1935 V
-61 442 V
-62 1698 V
-61 -296 V
-62 -304 V
-61 -36 V
-61 387 V
-62 -849 V
-61 304 V
-61 -1631 V
-62 1335 V
-61 28 V
-61 -802 V
-62 1797 V
-61 -1233 V
-61 -83 V
-62 183 V
-61 959 V
-62 -932 V
-61 75 V
-6867 578 L
-62 3769 V
+686 1591 M
+63 129 V
+62 442 V
+63 -184 V
+62 -940 V
+63 -74 V
+63 -37 V
+62 1235 V
+63 -516 V
+62 1327 V
+63 -92 V
+63 295 V
+62 -1567 V
+63 369 V
+63 -166 V
+62 737 V
+63 -74 V
+62 92 V
+63 774 V
+63 -350 V
+62 332 V
+63 -1124 V
+62 829 V
+63 -590 V
+63 387 V
+62 -516 V
+63 977 V
+62 -1032 V
+63 848 V
+63 405 V
+62 74 V
+63 55 V
+63 -534 V
+62 0 V
+63 368 V
+62 129 V
+63 -221 V
+63 387 V
+62 -258 V
+63 -110 V
+62 424 V
+63 -1346 V
+63 1511 V
+62 -36 V
+63 405 V
+62 -387 V
+63 -1032 V
+63 -203 V
+62 -73 V
+63 921 V
+63 461 V
+62 -314 V
+63 -276 V
+62 1032 V
+63 -571 V
+63 -406 V
+62 -184 V
+63 719 V
+62 -443 V
+63 -313 V
+63 995 V
+62 -497 V
+63 -387 V
+62 460 V
+63 351 V
+63 -1161 V
+62 -793 V
+63 977 V
+62 -221 V
+63 774 V
+63 755 V
+62 -553 V
+63 -110 V
+63 184 V
+62 92 V
+63 0 V
+62 185 V
+63 -922 V
+63 663 V
+62 -737 V
+63 1272 V
+62 -645 V
+63 -184 V
+63 442 V
+62 -55 V
+63 -664 V
+62 -203 V
+63 977 V
+63 -663 V
+62 350 V
+63 18 V
+63 148 V
+62 -313 V
+63 0 V
+62 589 V
+63 -589 V
+63 -885 V
+62 1290 V
+63 203 V
+62 -940 V
+% End plot #1
+% Begin plot #2
+stroke
+LT1
+LCb setrgbcolor
+6296 4598 M
+(Best Champion's Policy 20 Trials) Rshow
+LT1
+6380 4598 M
+399 0 V
+686 4465 M
+63 18 V
+62 -35 V
+63 -12 V
+62 -29 V
+63 90 V
+63 -16 V
+62 67 V
+63 31 V
+62 -239 V
+63 117 V
+63 154 V
+62 -63 V
+63 -185 V
+63 149 V
+62 -208 V
+63 134 V
+62 152 V
+63 -32 V
+63 -130 V
+62 159 V
+63 -205 V
+62 203 V
+63 -98 V
+63 -10 V
+62 -37 V
+63 -72 V
+62 128 V
+63 -44 V
+63 137 V
+62 -108 V
+63 35 V
+63 -10 V
+62 -11 V
+63 -21 V
+62 -48 V
+63 51 V
+63 109 V
+62 75 V
+63 -129 V
+62 93 V
+63 -169 V
+63 -51 V
+62 212 V
+63 -164 V
+62 14 V
+63 38 V
+63 -123 V
+62 38 V
+63 121 V
+63 -190 V
+62 77 V
+63 76 V
+62 -57 V
+63 59 V
+63 52 V
+62 -132 V
+63 19 V
+62 -53 V
+63 95 V
+63 69 V
+62 39 V
+63 -110 V
+62 -73 V
+63 82 V
+63 -40 V
+62 14 V
+63 151 V
+62 -56 V
+63 -116 V
+63 80 V
+62 38 V
+63 -100 V
+63 -19 V
+62 14 V
+63 80 V
+62 78 V
+63 -61 V
+63 -194 V
+62 44 V
+63 170 V
+62 -29 V
+63 -31 V
+63 -3 V
+62 38 V
+63 -85 V
+62 31 V
+63 -163 V
+63 133 V
+62 3 V
+63 -80 V
+63 180 V
+62 -124 V
+63 -8 V
+62 18 V
+63 96 V
+63 -93 V
+62 7 V
+63 -191 V
+62 377 V
+% End plot #2
+% Begin plot #3
+stroke
+LT2
+LCb setrgbcolor
+6296 4458 M
+(Handcoded Features Training 20 Trials) Rshow
+LT2
+6380 4458 M
+399 0 V
+686 1744 M
+63 -104 V
+62 12 V
+63 379 V
+62 -172 V
+63 511 V
+63 -135 V
+62 35 V
+63 72 V
+62 -25 V
+63 3 V
+63 243 V
+62 -133 V
+63 154 V
+63 104 V
+62 -4 V
+63 166 V
+62 29 V
+63 52 V
+63 -42 V
+62 28 V
+63 314 V
+62 59 V
+63 -309 V
+63 510 V
+62 -198 V
+63 -28 V
+62 -21 V
+63 280 V
+63 -200 V
+62 -109 V
+63 200 V
+63 -62 V
+62 88 V
+63 -28 V
+62 206 V
+63 -166 V
+63 -227 V
+62 61 V
+63 258 V
+62 62 V
+63 -17 V
+63 93 V
+62 -383 V
+63 116 V
+62 -49 V
+63 59 V
+63 51 V
+62 -242 V
+63 180 V
+63 -75 V
+62 -81 V
+63 163 V
+62 -63 V
+63 33 V
+63 20 V
+62 99 V
+63 -298 V
+62 290 V
+63 85 V
+63 -94 V
+62 -118 V
+63 140 V
+62 -422 V
+63 -45 V
+63 308 V
+62 -228 V
+63 321 V
+62 -170 V
+63 80 V
+63 -45 V
+62 -62 V
+63 -93 V
+63 219 V
+62 -238 V
+63 61 V
+62 -117 V
+63 433 V
+63 36 V
+62 -586 V
+63 300 V
+62 -90 V
+63 197 V
+63 50 V
+62 -221 V
+63 124 V
+62 -125 V
+63 199 V
+63 -132 V
+62 -79 V
+63 241 V
+63 -284 V
+62 68 V
+63 119 V
+62 -273 V
+63 101 V
+63 -132 V
+62 480 V
+63 -371 V
+62 155 V
+% End plot #3
+% Begin plot #4
+stroke
+LT3
+LCb setrgbcolor
+6296 4318 M
+(Handcoded Features Policy 20 Trials) Rshow
+LT3
+6380 4318 M
+399 0 V
+686 3079 M
+63 87 V
+62 -328 V
+63 244 V
+62 -58 V
+63 -81 V
+63 10 V
+62 222 V
+63 -123 V
+62 -22 V
+63 154 V
+63 47 V
+62 -253 V
+63 15 V
+63 -31 V
+62 92 V
+63 -161 V
+62 163 V
+63 -50 V
+63 40 V
+62 52 V
+63 -85 V
+62 -65 V
+63 87 V
+63 -20 V
+62 186 V
+63 -197 V
+62 18 V
+63 0 V
+63 36 V
+62 73 V
+63 -16 V
+63 -181 V
+62 95 V
+63 -14 V
+62 99 V
+63 -134 V
+63 -20 V
+62 178 V
+63 -161 V
+62 92 V
+63 35 V
+63 -129 V
+62 155 V
+63 -99 V
+62 52 V
+63 -106 V
+63 51 V
+62 -6 V
+63 129 V
+63 -247 V
+62 -15 V
+63 93 V
+62 167 V
+63 -112 V
+63 68 V
+62 -17 V
+63 -132 V
+62 45 V
+63 88 V
+63 100 V
+62 -37 V
+63 -243 V
+62 136 V
+63 7 V
+63 -108 V
+62 97 V
+63 -16 V
+62 116 V
+63 27 V
+63 4 V
+62 -253 V
+63 297 V
+63 -119 V
+62 -78 V
+63 -53 V
+62 6 V
+63 5 V
+63 117 V
+62 -18 V
+63 14 V
+62 6 V
+63 -89 V
+63 107 V
+62 20 V
+63 20 V
+62 -85 V
+63 94 V
+63 -219 V
+62 114 V
+63 61 V
+63 -64 V
+62 38 V
+63 -167 V
+62 78 V
+63 7 V
+63 193 V
+62 -270 V
+63 70 V
+62 18 V
+% End plot #4
 stroke
 LTb
-854 4872 N
-854 448 L
-6136 0 V
-0 4424 V
--6136 0 V
+686 4871 N
+686 448 L
+6261 0 V
+0 4423 V
+-6261 0 V
 Z stroke
 1.000 UP
 1.000 UL

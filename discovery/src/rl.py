@@ -59,7 +59,7 @@ WEIGHTS_ZERO = "Zero"
 WEIGHTS_OPTIMISTIC = "Optimistic"
 WEIGHTS_COPY = "Copy"
 
-BASE_FEATURE_WEIGHTS = WEIGHTS_ZERO
+BASE_FEATURE_WEIGHTS = WEIGHTS_OPTIMISTIC
 MUTATE_NEW_WEIGHTS_MULT = 0.0
 MUTATE_CROSS_OVER_WEIGHTS = WEIGHTS_COPY
 
@@ -1854,9 +1854,18 @@ class ArbitratorStandard(Arbitrator):
                 best_agent = agent
                 best_agent_reward = agent.average_reward
         
+#        trained = self.test_agents_seedless([self.agent], max_steps,
+#                                             self.num_episodes, 
+#                                             use_common_states=False)
+# 
+#        self.agent = trained[0]
+#               
+#        self.reward_log = self.agent.reward_log
+
+        self.agent = best_agent
         
         # evaluate it
-        best_agent.pause_learning()
+        self.agent.pause_learning()
         
         self.eval_reward_log = [0] * self.num_episodes
         if DEBUG_PROGRESS:
@@ -1864,7 +1873,7 @@ class ArbitratorStandard(Arbitrator):
             
         trial_agents = []
         for i in range(self.num_trials): #@UnusedVariable
-            trial_agents.append(copy.deepcopy(best_agent))
+            trial_agents.append(copy.deepcopy(self.agent))
 
         # run multiple trials with different start states
         trial_agents = self.test_agents_seedless(trial_agents, max_steps,
