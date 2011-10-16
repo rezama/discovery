@@ -1746,12 +1746,60 @@ class Arbitrator(object):
     def run(self, max_steps = 0):
         return NotImplemented
     
+    def test_agents_seedless(self, agents, max_steps, num_episodes,
+                             use_common_states):
+        if DEBUG_PROGRESS:
+            print "generating start states"
+
+        start_states = {}
+        start_seeds = {}
+        for trial in range(len(agents)):
+            start_states[trial] = []
+            start_seeds[trial] = []
+                      
+        for episode in range(num_episodes): #@UnusedVariable
+            state = agents[0].environment.generate_start_state()
+            seed = random.random()
+            for trial in range(len(agents)):
+                if not use_common_states:
+                    state = agents[0].environment.generate_start_state()
+                    seed = random.random()
+                start_states[trial].append(state)
+                start_seeds[trial].append(seed)
+        
+        return self.test_agents(agents, start_states, start_seeds, max_steps,
+                                num_episodes)
+    
+    def test_agents(self, agents, start_states, start_seeds, max_steps,
+                    num_episodes):
+
+        if DEBUG_PROGRESS:
+            print "testing the agents"
+
+        # experiment with agents
+        if USE_MULTIPROCESSING:
+            pool = multiprocessing.Pool(processes=NUM_CORES)
+            params = []
+            for run_case in range(len(agents)):
+                params.append((agents[run_case], start_states[run_case], 
+                               start_seeds[run_case], max_steps,
+                               num_episodes, 1, arbitrator_do_episode))
+            updated_agents = pool.map(arbitrator_test_agent, params)
+            agents = updated_agents
+        else:
+            for run_case in range(len(agents)):
+                self.test_agent(agents[run_case], start_states[run_case],
+                                start_seeds[run_case], max_steps,
+                                num_episodes, 1) 
+                
+        return agents       
+
     def test_agent(self, agent, start_states, start_seeds, max_steps,
                    num_episodes, num_trials):
         return arbitrator_test_agent((agent, start_states, start_seeds, max_steps,
                                      num_episodes, num_trials,
                                      arbitrator_do_episode))
-
+        
     def do_episode(self, agent, start_state, max_steps):
         return arbitrator_do_episode((agent, start_state, max_steps))
 
@@ -1782,35 +1830,12 @@ class ArbitratorStandard(Arbitrator):
         for i in range(self.num_trials): #@UnusedVariable
             trial_agents.append(copy.deepcopy(self.agent))
 
-        if DEBUG_PROGRESS:
-            print "generating start states"
-
-        start_states_all_trials = {}
-        start_seeds_all_trials = {}
-        for trial in range(self.num_trials):
-            start_states_all_trials[trial] = []
-            start_seeds_all_trials[trial] = []            
-            for i in range(self.num_episodes): #@UnusedVariable
-                start_states_all_trials[trial].append(self.agent.environment.generate_start_state())
-                start_seeds_all_trials[trial].append(random.random())
-
-        if DEBUG_PROGRESS:
-            print "testing the agents"
-
-        # experiment with agents
-        if USE_MULTIPROCESSING:
-            pool = multiprocessing.Pool(processes=NUM_CORES)
-            params = []
-            for trial in range(self.num_trials):
-                params.append((trial_agents[trial], start_states_all_trials[trial], start_seeds_all_trials[trial], max_steps,
-                               self.num_episodes, 1, arbitrator_do_episode))
-            updated_agents = pool.map(arbitrator_test_agent, params)
-            trial_agents = updated_agents
-        else:
-            for trial in range(self.num_trials):
-                self.test_agent(trial_agents[trial], start_states_all_trials[trial], start_seeds_all_trials[trial], max_steps,
-                                self.num_episodes, 1)
+        # run multiple trials with different start states
+        trial_agents = self.test_agents_seedless(trial_agents, max_steps,
+                                                 self.num_episodes, 
+                                                 use_common_states=False)
         
+        # average rewards
         for agent in trial_agents:
             for episode in range(self.num_episodes):
                 self.reward_log[episode] += agent.reward_log[episode]
@@ -1818,34 +1843,34 @@ class ArbitratorStandard(Arbitrator):
         if REPORT_RESULTS:
             self.report_results()
         
-    def run_old_non_parallel(self, max_steps = 0):
-        self.reward_log = [0] * self.num_episodes
-        self.agent.save_learning_state()
-        for trial in range(self.num_trials):
-            self.agent.restore_learning_state()
-            trial_reward = 0
-            for episode in range(self.num_episodes):
-                if DEBUG_PROGRESS and (episode % DEBUG_REPORT_ON_EPISODE == 0):
-                    print "trial %i episode %i" % (trial, episode)
-#                    print agent.w
-                start_state = self.agent.environment.generate_start_state()
-                (episode_reward, steps) = self.do_episode(self.agent, start_state, max_steps)
-                trial_reward += episode_reward
-                self.reward_log[episode] += episode_reward
-                if DEBUG_EPISODE_REWARD:
-                    print "episode %i: reward %.2f, steps:%d" % (episode, 
-                                                    episode_reward, steps)
-#                    print "trace:"
-#                    print self.agent.get_episode_trace()
-                if DEBUG_ALG_VALUES:
-                    print "values:"
-                    self.agent.algorithm.print_values()
-        
-        if DEBUG_PROGRESS:
-            print "average reward: %.2f" % (float(trial_reward) / self.num_episodes) 
-        
-        if REPORT_RESULTS:
-            self.report_results()
+#    def run_old_non_parallel(self, max_steps = 0):
+#        self.reward_log = [0] * self.num_episodes
+#        self.agent.save_learning_state()
+#        for trial in range(self.num_trials):
+#            self.agent.restore_learning_state()
+#            trial_reward = 0
+#            for episode in range(self.num_episodes):
+#                if DEBUG_PROGRESS and (episode % DEBUG_REPORT_ON_EPISODE == 0):
+#                    print "trial %i episode %i" % (trial, episode)
+##                    print agent.w
+#                start_state = self.agent.environment.generate_start_state()
+#                (episode_reward, steps) = self.do_episode(self.agent, start_state, max_steps)
+#                trial_reward += episode_reward
+#                self.reward_log[episode] += episode_reward
+#                if DEBUG_EPISODE_REWARD:
+#                    print "episode %i: reward %.2f, steps:%d" % (episode, 
+#                                                    episode_reward, steps)
+##                    print "trace:"
+##                    print self.agent.get_episode_trace()
+#                if DEBUG_ALG_VALUES:
+#                    print "values:"
+#                    self.agent.algorithm.print_values()
+#        
+#        if DEBUG_PROGRESS:
+#            print "average reward: %.2f" % (float(trial_reward) / self.num_episodes) 
+#        
+#        if REPORT_RESULTS:
+#            self.report_results()
         
     def report_results(self):
         program_name = sys.argv[0]
@@ -1979,27 +2004,32 @@ class ArbitratorEvolutionary(Arbitrator):
                 new_agent = mutator.mutate(agent_to_mutate)
                 agents.append(new_agent)
             
-            # set up start states            
-            start_states = []
-            start_seeds = []
-            for i in range(self.num_generation_episodes): #@UnusedVariable
-                start_states.append(self.base_agent.environment.generate_start_state())
-                start_seeds.append(random.random())
-            
-            # experiment with agents
-            if USE_MULTIPROCESSING:
-                pool = multiprocessing.Pool(processes=NUM_CORES)
-                params = []
-                for agent in agents:
-                    params.append((agent, start_states, start_seeds, max_steps,
-                                   self.num_generation_episodes, 1, arbitrator_do_episode))
-                updated_champions = pool.map(arbitrator_test_agent, params)
-                agents = updated_champions
-            else:
-                for agent in agents:
-                    self.test_agent(agent, start_states, start_seeds, max_steps,
-                                    self.num_generation_episodes, 1)
-            
+#            # set up start states            
+#            start_states = []
+#            start_seeds = []
+#            for i in range(self.num_generation_episodes): #@UnusedVariable
+#                start_states.append(self.base_agent.environment.generate_start_state())
+#                start_seeds.append(random.random())
+#            
+#            # experiment with agents
+#            if USE_MULTIPROCESSING:
+#                pool = multiprocessing.Pool(processes=NUM_CORES)
+#                params = []
+#                for agent in agents:
+#                    params.append((agent, start_states, start_seeds, max_steps,
+#                                   self.num_generation_episodes, 1, arbitrator_do_episode))
+#                updated_champions = pool.map(arbitrator_test_agent, params)
+#                agents = updated_champions
+#            else:
+#                for agent in agents:
+#                    self.test_agent(agent, start_states, start_seeds, max_steps,
+#                                    self.num_generation_episodes, 1)
+
+            # test all the population on the same start states
+            agents = self.test_agents_seedless(agents, max_steps, 
+                                               self.num_generation_episodes,
+                                               use_common_states = True)
+
             # update population averages
             for agent in agents:
                 for episode in range(self.num_generation_episodes):
@@ -2101,40 +2131,51 @@ class ArbitratorEvolutionary(Arbitrator):
                 print ""
                 print "running champion trials"
             
-            # generate start states
-            start_states = []
-            start_seeds = []
-            for i in range(self.num_generation_episodes): #@UnusedVariable
-                start_states.append(self.base_agent.environment.generate_start_state())
-                start_seeds.append(random.random())
-
-            # extra trials with champions
-            if USE_MULTIPROCESSING:
-                pool = multiprocessing.Pool(processes=NUM_CORES)
-                params = []
-                for champion in reversed(self.champions):
-                    params.append((champion, start_states, start_seeds, max_steps,
-                                   self.num_generation_episodes, self.num_champion_trials,
-                                   arbitrator_do_episode))
-                updated_champions = pool.map(arbitrator_test_agent, params)
-                updated_champions.reverse()
-                self.champions = updated_champions
-                for champion in self.champions:
-                    champion_reward = champion.average_reward
-                    # repeating the average reward to replace all episode rewards
-                    champion.reward_log = [champion_reward] * self.num_generation_episodes
-                    self.champion_trial_rewards.append(champion_reward)
-                    self.champions_trial_reward_log += champion.reward_log
-            else:
-                for champion in self.champions:
-                    self.test_agent(champion, start_states, start_seeds, max_steps,
-                                    self.num_generation_episodes, self.num_champion_trials)
-                    champion_reward = champion.average_reward
-                    # repeating the average reward to replace all episode rewards
-                    champion.reward_log = [champion_reward] * self.num_generation_episodes
-                    self.champion_trial_rewards.append(champion_reward)
-                    self.champions_trial_reward_log += champion.reward_log
+#            # generate start states
+#            start_states = []
+#            start_seeds = []
+#            for i in range(self.num_generation_episodes): #@UnusedVariable
+#                start_states.append(self.base_agent.environment.generate_start_state())
+#                start_seeds.append(random.random())
+#
+#            # extra trials with champions
+#            if USE_MULTIPROCESSING:
+#                pool = multiprocessing.Pool(processes=NUM_CORES)
+#                params = []
+#                for champion in reversed(self.champions):
+#                    params.append((champion, start_states, start_seeds, max_steps,
+#                                   self.num_generation_episodes, self.num_champion_trials,
+#                                   arbitrator_do_episode))
+#                updated_champions = pool.map(arbitrator_test_agent, params)
+#                updated_champions.reverse()
+#                self.champions = updated_champions
+#                for champion in self.champions:
+#                    champion_reward = champion.average_reward
+#                    # repeating the average reward to replace all episode rewards
+#                    champion.reward_log = [champion_reward] * self.num_generation_episodes
+#                    self.champion_trial_rewards.append(champion_reward)
+#                    self.champions_trial_reward_log += champion.reward_log
+#            else:
+#                for champion in self.champions:
+#                    self.test_agent(champion, start_states, start_seeds, max_steps,
+#                                    self.num_generation_episodes, self.num_champion_trials)
+#                    champion_reward = champion.average_reward
+#                    # repeating the average reward to replace all episode rewards
+#                    champion.reward_log = [champion_reward] * self.num_generation_episodes
+#                    self.champion_trial_rewards.append(champion_reward)
+#                    self.champions_trial_reward_log += champion.reward_log
                     
+            self.champions = self.test_agents_seedless(self.champions, max_steps,
+                                                       self.num_generation_episodes,
+                                                       use_common_states=True)
+            
+            for champion in self.champions:
+                champion_reward = champion.average_reward
+                # repeating the average reward to replace all episode rewards
+                champion.reward_log = [champion_reward] * self.num_generation_episodes
+                self.champion_trial_rewards.append(champion_reward)
+                self.champions_trial_reward_log += champion.reward_log
+            
         # final trial with best champion        
         best_champion = None
         best_champion_reward = 0
@@ -2144,8 +2185,8 @@ class ArbitratorEvolutionary(Arbitrator):
                 best_champion_reward = champion_reward
                 best_champion = champion
         
-        best_champion.reset_learning()
-        best_champion.resume_learning()
+#        best_champion.reset_learning()
+#        best_champion.resume_learning()
         
         if DEBUG_PROGRESS:
             print ""
@@ -2170,41 +2211,45 @@ class ArbitratorEvolutionary(Arbitrator):
         if DEBUG_PROGRESS:
             print "generating %d copies of the agent" % self.num_best_champion_trials
 
-        trial_agents = []
+        best_champion_copies = []
         for i in range(self.num_best_champion_trials): #@UnusedVariable
-            trial_agents.append(copy.deepcopy(best_champion))
+            best_champion_copies.append(copy.deepcopy(best_champion))
 
-        if DEBUG_PROGRESS:
-            print "generating start states"
+#        if DEBUG_PROGRESS:
+#            print "generating start states"
+#
+#        start_states_all_trials = {}
+#        start_seeds_all_trials = {}
+#        for trial in range(self.num_best_champion_trials):
+#            start_states_all_trials[trial] = []
+#            start_seeds_all_trials[trial] = []            
+#            for i in range(self.num_best_champion_episodes): #@UnusedVariable
+#                start_states_all_trials[trial].append(best_champion.environment.generate_start_state())
+#                start_seeds_all_trials[trial].append(random.random())
+#
+#        if DEBUG_PROGRESS:
+#            print "testing the agents"
+#
+#        # experiment with agents
+#        if USE_MULTIPROCESSING:
+#            pool = multiprocessing.Pool(processes=NUM_CORES)
+#            params = []
+#            for trial in range(self.num_best_champion_trials):
+#                params.append((best_champion_copies[trial], start_states_all_trials[trial], start_seeds_all_trials[trial], max_steps,
+#                               self.num_best_champion_episodes, 1, arbitrator_do_episode))
+#            updated_agents = pool.map(arbitrator_test_agent, params)
+#            best_champion_copies = updated_agents
+#        else:
+#            for trial in range(self.num_trials):
+#                self.test_agent(best_champion_copies[trial], start_states_all_trials[trial], start_seeds_all_trials[trial], max_steps,
+#                                self.num_episodes, 1)
 
-        start_states_all_trials = {}
-        start_seeds_all_trials = {}
-        for trial in range(self.num_best_champion_trials):
-            start_states_all_trials[trial] = []
-            start_seeds_all_trials[trial] = []            
-            for i in range(self.num_best_champion_episodes): #@UnusedVariable
-                start_states_all_trials[trial].append(best_champion.environment.generate_start_state())
-                start_seeds_all_trials[trial].append(random.random())
-
-        if DEBUG_PROGRESS:
-            print "testing the agents"
-
-        # experiment with agents
-        if USE_MULTIPROCESSING:
-            pool = multiprocessing.Pool(processes=NUM_CORES)
-            params = []
-            for trial in range(self.num_best_champion_trials):
-                params.append((trial_agents[trial], start_states_all_trials[trial], start_seeds_all_trials[trial], max_steps,
-                               self.num_best_champion_episodes, 1, arbitrator_do_episode))
-            updated_agents = pool.map(arbitrator_test_agent, params)
-            trial_agents = updated_agents
-        else:
-            for trial in range(self.num_trials):
-                self.test_agent(trial_agents[trial], start_states_all_trials[trial], start_seeds_all_trials[trial], max_steps,
-                                self.num_episodes, 1)
+        best_champion_copies = self.test_agents_seedless(best_champion_copies,
+                                max_steps, self.num_best_champion_episodes,
+                                use_common_states=False)
         
         self.best_champion_reward_log = [0] * self.num_best_champion_episodes
-        for agent in trial_agents:
+        for agent in best_champion_copies:
             for episode in range(self.num_best_champion_episodes):
                 self.best_champion_reward_log[episode] += agent.reward_log[episode]
         
