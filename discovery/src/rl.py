@@ -2191,7 +2191,7 @@ class ArbitratorEvolutionary(Arbitrator):
             params = []
             for trial in range(self.num_best_champion_trials):
                 params.append((trial_agents[trial], start_states_all_trials[trial], start_seeds_all_trials[trial], max_steps,
-                               self.num_episodes, 1, arbitrator_do_episode))
+                               self.num_best_champion_episodes, 1, arbitrator_do_episode))
             updated_agents = pool.map(arbitrator_test_agent, params)
             trial_agents = updated_agents
         else:
