@@ -1,0 +1,45 @@
+Champion 0, average training reward: 15.38, normalized: 15.38, average trial reward: 15.40, training time: 0.3
+dist(keeper2-taker2)[1.0]
+
+Champion 1, average training reward: 22.29, normalized: 22.29, average trial reward: 27.33, training time: 1.3
+angle(keeper1-taker1-taker2)[0.3]
+
+Champion 2, average training reward: 24.39, normalized: 24.39, average trial reward: 30.98, training time: 1.3
+dist(taker1-keeper3)[0.1] | dist(taker2-keeper1)[0.2] | dist(taker1-keeper3)[0.3]
+
+Champion 3, average training reward: 26.09, normalized: 26.09, average trial reward: 32.17, training time: 1.8
+angle(keeper1-taker1-taker2)[0.3] | dist(keeper2-taker1)[0.6] | dist(taker2-keeper1)[0.5] | angle(keeper3-upperright-taker2)[0.9]
+
+Champion 4, average training reward: 24.33, normalized: 24.33, average trial reward: 33.82, training time: 1.2
+angle(keeper1-taker1-taker2)[0.3] | dist(keeper2-taker1)[0.6] | dist(taker2-keeper1)[0.5] | angle(keeper3-upperright-taker2)[0.9] | angle(taker2-keeper3-taker1)[0.7]
+
+Champion 5, average training reward: 24.80, normalized: 24.80, average trial reward: 32.16, training time: 1.0
+angle(keeper1-taker1-taker2)[0.3] | dist(keeper2-taker1)[0.6] | dist(taker2-keeper1)[0.5] | angle(keeper3-upperright-taker2)[0.9] | dist(keeper2-upperleft)[0.3] | angle(taker1-taker2-lowerleft)[0.5]
+
+Champion 6, average training reward: 24.66, normalized: 24.66, average trial reward: 26.43, training time: 0.9
+angle(keeper1-taker1-taker2)[0.3] | dist(keeper2-taker1)[0.6] | dist(taker2-keeper1)[0.5] | angle(keeper3-upperright-taker2)[0.9] | dist(keeper2-upperleft)[0.3] | dist(taker2-keeper2)[0.6] | dist(keeper2-taker1)[0.2]
+
+Champion 7, average training reward: 24.27, normalized: 24.27, average trial reward: 35.49, training time: 1.2
+angle(keeper1-taker1-taker2)[0.3] | dist(keeper2-taker1)[0.6] | dist(taker2-keeper1)[0.5] | angle(keeper3-upperright-taker2)[0.9] | dist(keeper2-upperleft)[0.3] | angle(keeper1-keeper3-lowerright)[0.1] | angle(keeper1-taker1-taker2)[0.1] | angle(keeper2-center-taker1)[0.2]
+
+Champion 8, average training reward: 27.16, normalized: 27.16, average trial reward: 35.77, training time: 1.2
+angle(keeper1-taker1-taker2)[0.3] | dist(keeper2-taker1)[0.6] | dist(taker2-keeper1)[0.5] | angle(keeper3-upperright-taker2)[0.9] | dist(keeper2-upperleft)[0.3] | angle(taker1-taker2-lowerleft)[0.5] | dist(taker1-center)[0.6] | angle(taker1-taker2-lowerleft)[0.8] | dist(keeper2-upperleft)[0.1]
+
+Champion 9, average training reward: 28.43, normalized: 28.43, average trial reward: 34.60, training time: 1.5
+angle(keeper1-taker1-taker2)[0.3] | dist(keeper2-taker1)[0.6] | dist(taker2-keeper1)[0.5] | angle(keeper3-upperright-taker2)[0.9] | dist(keeper2-upperleft)[0.3] | angle(taker1-taker2-lowerleft)[0.5] | dist(taker1-center)[0.6] | angle(taker1-taker2-lowerleft)[0.8] | angle(taker2-taker1-keeper2)[0.8] | dist(taker2-taker1)[0.0]
+
+Champion 10, average training reward: 28.58, normalized: 28.58, average trial reward: 30.95, training time: 1.3
+angle(keeper1-taker1-taker2)[0.3] | dist(keeper2-taker1)[0.6] | dist(taker2-keeper1)[0.5] | angle(keeper3-upperright-taker2)[0.9] | dist(keeper2-upperleft)[0.3] | angle(taker1-taker2-lowerleft)[0.5] | dist(taker1-center)[0.6] | angle(taker1-taker2-lowerleft)[0.8] | angle(taker2-taker1-keeper2)[0.8] | dist(keeper3-center)[0.1] | dist(keeper2-taker1)[0.6]
+
+Champion 11, average training reward: 26.52, normalized: 26.52, average trial reward: 31.49, training time: 1.5
+angle(keeper1-taker1-taker2)[0.3] | dist(keeper2-taker1)[0.6] | dist(taker2-keeper1)[0.5] | angle(keeper3-upperright-taker2)[0.9] | dist(keeper2-upperleft)[0.3] | angle(taker1-taker2-lowerleft)[0.5] | dist(taker1-center)[0.6] | angle(taker1-taker2-lowerleft)[0.8] | angle(taker2-taker1-keeper2)[0.8] | dist(keeper3-center)[0.1] | dist(keeper2-taker1)[0.6] | dist(taker2-keeper2)[0.9]
+
+Champion 12, average training reward: 27.54, normalized: 27.54, average trial reward: 32.51, training time: 2.7
+angle(keeper1-taker1-taker2)[0.3] | dist(keeper2-taker1)[0.6] | dist(taker2-keeper1)[0.5] | angle(keeper3-upperright-taker2)[0.9] | dist(keeper2-upperleft)[0.3] | angle(taker1-taker2-lowerleft)[0.5] | dist(taker1-center)[0.6] | angle(taker1-taker2-lowerleft)[0.8] | angle(taker2-taker1-keeper2)[0.8] | dist(keeper3-center)[0.1] | angle(taker2-keeper2-upperright)[0.2] | dist(taker2-keeper1)[0.5] | angle(keeper2-taker2-taker1)[0.5]
+
+Champion 13, average training reward: 28.53, normalized: 28.53, average trial reward: 32.51, training time: 1.7
+angle(keeper1-taker1-taker2)[0.3] | dist(keeper2-taker1)[0.6] | dist(taker2-keeper1)[0.5] | angle(keeper3-upperright-taker2)[0.9] | dist(keeper2-upperleft)[0.3] | angle(taker1-taker2-lowerleft)[0.5] | dist(taker1-center)[0.6] | angle(taker1-taker2-lowerleft)[0.8] | angle(taker2-taker1-keeper2)[0.8] | dist(keeper3-center)[0.1] | angle(taker2-keeper2-upperright)[0.2] | dist(taker2-keeper1)[0.5] | angle(keeper2-taker2-taker1)[0.5] | angle(taker2-taker1-lowerleft)[0.0]
+
+Champion 14, average training reward: 26.99, normalized: 26.99, average trial reward: 29.18, training time: 1.7
+angle(keeper1-taker1-taker2)[0.3] | dist(keeper2-taker1)[0.6] | dist(taker2-keeper1)[0.5] | angle(keeper3-upperright-taker2)[0.9] | dist(keeper2-upperleft)[0.3] | angle(taker1-taker2-lowerleft)[0.5] | dist(taker1-center)[0.6] | angle(taker1-taker2-lowerleft)[0.8] | angle(taker2-taker1-keeper2)[0.8] | dist(keeper3-center)[0.1] | angle(taker2-keeper2-upperright)[0.2] | dist(taker2-keeper1)[0.5] | angle(keeper2-taker2-taker1)[0.5] | angle(taker2-taker1-lowerleft)[0.0] | angle(taker1-upperright-keeper1)[0.7]
+
