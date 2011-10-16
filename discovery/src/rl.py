@@ -1362,10 +1362,10 @@ class SarsaLambda(Sarsa):
 #        return episode_reward
 
     def save_learning_state(self):
-        self.Q_save = self.Q
+        self.Q_save = copy.deepcopy(self.Q)
         
     def restore_learning_state(self):
-        self.Q = self.Q_save
+        self.Q = copy.deepcopy(self.Q_save)
 
     def print_Q(self):
         Q_keys = self.Q.keys()
@@ -1635,10 +1635,10 @@ class SarsaLambdaFeaturized(Sarsa):
 #        return episode_reward
          
     def save_learning_state(self):
-        self.w_save = self.w
+        self.w_save = copy.deepcopy(self.w)
         
     def restore_learning_state(self):
-        self.w = self.w_save
+        self.w = copy.deepcopy(self.w_save)
         
     def print_w(self):
         w_keys = self.w.keys()
@@ -1697,6 +1697,7 @@ def arbitrator_test_agent((agent, start_states, start_seeds, max_steps,
     begin_time = time.clock()
     agent.save_learning_state()
     for trial in range(num_trials): #@UnusedVariable
+        trial_reward = 0
         agent.restore_learning_state()
         for episode in range(num_episodes):
             start_state_index = (episode + trial) % num_episodes 
@@ -1707,6 +1708,7 @@ def arbitrator_test_agent((agent, start_states, start_seeds, max_steps,
             random.seed(start_seeds[start_state_index])
             (episode_reward, steps) = do_episode_func((agent, start_state, max_steps))
             agent.reward_log[episode] += episode_reward
+            trial_reward += episode_reward
     
             if DEBUG_EPISODE_REWARD:
                 print "episode %i: reward %.2f, steps:%d" % (episode,
@@ -1714,6 +1716,8 @@ def arbitrator_test_agent((agent, start_states, start_seeds, max_steps,
             if DEBUG_ALG_VALUES:
                 print "values:"
                 agent.algorithm.print_values()
+        if DEBUG_PROGRESS and (num_trials != 0):
+            print "trial reward: %.2f" % (float(trial_reward) / num_episodes) 
     end_time = time.clock()
     agent.training_time = end_time - begin_time
     
@@ -2143,18 +2147,6 @@ class ArbitratorEvolutionary(Arbitrator):
         best_champion.reset_learning()
         best_champion.resume_learning()
         
-#        # generate start states
-#        start_states = []
-#        start_seeds = []
-#        for i in range(self.num_best_champion_episodes): #@UnusedVariable
-#            start_states.append(self.base_agent.environment.generate_start_state())
-#            start_seeds.append(random.random())
-#
-#        # test best champion
-#        self.test_agent(champion, start_states, start_seeds, max_steps,
-#                        self.num_best_champion_episodes, self.num_best_champion_trials)
-#        self.best_champion_reward_log = champion.reward_log
-
         if DEBUG_PROGRESS:
             print ""
             print "evaluating best champion: " + str(best_champion.feature_set)
@@ -2163,9 +2155,21 @@ class ArbitratorEvolutionary(Arbitrator):
             print "values:"
             last_champion.algorithm.print_w()
                             
+#        # generate start states
+#        start_states = []
+#        start_seeds = []
+#        for i in range(self.num_best_champion_episodes): #@UnusedVariable
+#            start_states.append(self.base_agent.environment.generate_start_state())
+#            start_seeds.append(random.random())
+#
+#        # test best champion
+#        self.test_agent(best_champion, start_states, start_seeds, max_steps,
+#                        self.num_best_champion_episodes, self.num_best_champion_trials)
+#        self.best_champion_reward_log = best_champion.reward_log
+            
         if DEBUG_PROGRESS:
             print "generating %d copies of the agent" % self.num_best_champion_trials
-            
+
         trial_agents = []
         for i in range(self.num_best_champion_trials): #@UnusedVariable
             trial_agents.append(copy.deepcopy(best_champion))
