@@ -202,9 +202,9 @@ class KeepAwayEnvironment(rl.Environment):
                 state.index['keeper3'] = keeper2
                             
             # keeper movement
-#            self.move_keeper(me)
-#            self.move_keeper(keeper2)
-#            self.move_keeper(keeper3)
+            self.move_keeper(me)
+            self.move_keeper(keeper2)
+            self.move_keeper(keeper3)
 
             # taker movement
             self.move_taker(taker1, me, 1)

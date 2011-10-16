@@ -1673,26 +1673,6 @@ class SarsaLambdaFeaturized(Sarsa):
 #        self.optimistic_weights_multiplier = optimistic_weights_multiplier
 #        self.eta = eta
 
-class Arbitrator(object):
-
-    def __init__(self):
-        pass
-    
-    def run(self, max_steps = 0):
-        return NotImplemented
-    
-    def do_episode(self, agent, start_state, max_steps):
-        return arbitrator_do_episode((agent, start_state, max_steps))
-
-    def plot(self, folder_name, script_name, parameters):
-        orig_wd = os.getcwd()
-        os.chdir(folder_name)
-        if DEBUG_PROGRESS:
-            print "generating plot"
-        subprocess.call('gnuplot ../../plot/%s.gp' % script_name, shell=True)
-#        subprocess.call('../../plot/%s.sh %s' % (script_name, parameters), shell=True)
-        os.chdir(orig_wd)
-
 # multiprocessing method
 def arbitrator_do_episode((agent, start_state, max_steps)):
     agent.begin_episode(start_state)
@@ -1748,12 +1728,38 @@ def arbitrator_test_agent((agent, start_states, start_seeds, max_steps,
     if DEBUG_PROGRESS:
         if USE_MULTIPROCESSING:
             print "tested agent: " + str(agent.feature_set)
-        print "average reward: %.2f, training time: %.1f" % (
+        print "average reward: %.2f, training time: %.1fs" % (
                 agent.average_reward, agent.training_time)
 
 #    gc.collect()
     return agent
         
+class Arbitrator(object):
+
+    def __init__(self):
+        pass
+    
+    def run(self, max_steps = 0):
+        return NotImplemented
+    
+    def test_agent(self, agent, start_states, start_seeds, max_steps,
+                   num_episodes, num_trials):
+        return arbitrator_test_agent((agent, start_states, start_seeds, max_steps,
+                                     num_episodes, num_trials,
+                                     arbitrator_do_episode))
+
+    def do_episode(self, agent, start_state, max_steps):
+        return arbitrator_do_episode((agent, start_state, max_steps))
+
+    def plot(self, folder_name, script_name, parameters):
+        orig_wd = os.getcwd()
+        os.chdir(folder_name)
+        if DEBUG_PROGRESS:
+            print "generating plot"
+        subprocess.call('gnuplot ../../plot/%s.gp' % script_name, shell=True)
+#        subprocess.call('../../plot/%s.sh %s' % (script_name, parameters), shell=True)
+        os.chdir(orig_wd)
+
 class ArbitratorStandard(Arbitrator):
     
     def __init__(self, agent, num_trials, num_episodes):
@@ -1764,6 +1770,51 @@ class ArbitratorStandard(Arbitrator):
         self.reward_log = []
 
     def run(self, max_steps = 0):
+        self.reward_log = [0] * self.num_episodes
+        if DEBUG_PROGRESS:
+            print "generating %d copies of the agent" % self.num_trials
+            
+        trial_agents = []
+        for i in range(self.num_trials): #@UnusedVariable
+            trial_agents.append(copy.deepcopy(self.agent))
+
+        if DEBUG_PROGRESS:
+            print "generating start states"
+
+        start_states_all_trials = {}
+        start_seeds_all_trials = {}
+        for trial in range(self.num_trials):
+            start_states_all_trials[trial] = []
+            start_seeds_all_trials[trial] = []            
+            for i in range(self.num_episodes): #@UnusedVariable
+                start_states_all_trials[trial].append(self.agent.environment.generate_start_state())
+                start_seeds_all_trials[trial].append(random.random())
+
+        if DEBUG_PROGRESS:
+            print "testing the agents"
+
+        # experiment with agents
+        if USE_MULTIPROCESSING:
+            pool = multiprocessing.Pool(processes=NUM_CORES)
+            params = []
+            for trial in range(self.num_trials):
+                params.append((trial_agents[trial], start_states_all_trials[trial], start_seeds_all_trials[trial], max_steps,
+                               self.num_episodes, 1, arbitrator_do_episode))
+            updated_agents = pool.map(arbitrator_test_agent, params)
+            trial_agents = updated_agents
+        else:
+            for trial in range(self.num_trials):
+                self.test_agent(trial_agents[trial], start_states_all_trials[trial], start_seeds_all_trials[trial], max_steps,
+                                self.num_episodes, 1)
+        
+        for agent in trial_agents:
+            for episode in range(self.num_episodes):
+                self.reward_log[episode] += agent.reward_log[episode]
+        
+        if REPORT_RESULTS:
+            self.report_results()
+        
+    def run_old_non_parallel(self, max_steps = 0):
         self.reward_log = [0] * self.num_episodes
         self.agent.save_learning_state()
         for trial in range(self.num_trials):
@@ -1796,7 +1847,7 @@ class ArbitratorStandard(Arbitrator):
         program_name = sys.argv[0]
         program_name_parts = program_name.rsplit(".", 1)
         program_just_name = program_name_parts[0]        
-        folder_name = 'results/%s-t%d%de%dw%d/' % (program_just_name, 
+        folder_name = 'results/%s-t%de%dw%d/' % (program_just_name, 
                                               self.num_trials, self.num_episodes,
                                               MUTATE_NEW_WEIGHTS_MULT * 100)
         if not os.path.exists(folder_name):
@@ -1854,12 +1905,6 @@ class ArbitratorEvolutionary(Arbitrator):
         if round(sum_prob, 4) != 1.0:
             print "Aborting: sum of selection probabilities is %.2f" % sum_prob
             sys.exit(-1)
-
-    def test_agent(self, agent, start_states, start_seeds, max_steps,
-                   num_episodes, num_trials):
-        return arbitrator_test_agent((agent, start_states, start_seeds, max_steps,
-                                     num_episodes, num_trials,
-                                     arbitrator_do_episode))
     
     def run(self, max_steps = 0):
         
@@ -2098,26 +2143,70 @@ class ArbitratorEvolutionary(Arbitrator):
         best_champion.reset_learning()
         best_champion.resume_learning()
         
+#        # generate start states
+#        start_states = []
+#        start_seeds = []
+#        for i in range(self.num_best_champion_episodes): #@UnusedVariable
+#            start_states.append(self.base_agent.environment.generate_start_state())
+#            start_seeds.append(random.random())
+#
+#        # test best champion
+#        self.test_agent(champion, start_states, start_seeds, max_steps,
+#                        self.num_best_champion_episodes, self.num_best_champion_trials)
+#        self.best_champion_reward_log = champion.reward_log
+
         if DEBUG_PROGRESS:
             print ""
             print "evaluating best champion: " + str(best_champion.feature_set)
-            print "with average reward: %.4f" % best_champion.average_reward
+            print "with average reward: %.2f" % best_champion.average_reward
         if DEBUG_ALG_VALUES:
             print "values:"
             last_champion.algorithm.print_w()
                             
-        # generate start states
-        start_states = []
-        start_seeds = []
-        for i in range(self.num_best_champion_episodes): #@UnusedVariable
-            start_states.append(self.base_agent.environment.generate_start_state())
-            start_seeds.append(random.random())
+        if DEBUG_PROGRESS:
+            print "generating %d copies of the agent" % self.num_best_champion_trials
+            
+        trial_agents = []
+        for i in range(self.num_best_champion_trials): #@UnusedVariable
+            trial_agents.append(copy.deepcopy(self.best_champion))
 
-        # test best champion
-        self.test_agent(champion, start_states, start_seeds, max_steps,
-                        self.num_best_champion_episodes, self.num_best_champion_trials)
-        self.best_champion_reward_log = champion.reward_log
+        if DEBUG_PROGRESS:
+            print "generating start states"
+
+        start_states_all_trials = {}
+        start_seeds_all_trials = {}
+        for trial in range(self.num_best_champion_trials):
+            start_states_all_trials[trial] = []
+            start_seeds_all_trials[trial] = []            
+            for i in range(self.num_best_champion_episodes): #@UnusedVariable
+                start_states_all_trials[trial].append(self.best_champion.environment.generate_start_state())
+                start_seeds_all_trials[trial].append(random.random())
+
+        if DEBUG_PROGRESS:
+            print "testing the agents"
+
+        # experiment with agents
+        if USE_MULTIPROCESSING:
+            pool = multiprocessing.Pool(processes=NUM_CORES)
+            params = []
+            for trial in range(self.num_best_champion_trials):
+                params.append((trial_agents[trial], start_states_all_trials[trial], start_seeds_all_trials[trial], max_steps,
+                               self.num_episodes, 1, arbitrator_do_episode))
+            updated_agents = pool.map(arbitrator_test_agent, params)
+            trial_agents = updated_agents
+        else:
+            for trial in range(self.num_trials):
+                self.test_agent(trial_agents[trial], start_states_all_trials[trial], start_seeds_all_trials[trial], max_steps,
+                                self.num_episodes, 1)
         
+        self.best_champion_reward_log = [0] * self.num_best_champion_episodes
+        for agent in trial_agents:
+            for episode in range(self.num_best_champion_episodes):
+                self.best_champion_reward_log[episode] += agent.reward_log[episode]
+        
+        for episode in range(self.num_best_champion_episodes):
+            self.best_champion_reward_log[episode] /= float(self.num_best_champion_trials)
+
         if REPORT_RESULTS:
             self.report_results()
 
@@ -2138,7 +2227,7 @@ class ArbitratorEvolutionary(Arbitrator):
             training_reward_normalized = self.champion_training_rewards_normalized[generation]
             trial_reward = self.champion_trial_rewards[generation]
             training_time = self.champion_training_times[generation]
-            report_file.write('Champion %d, average training reward: %.2f, normalized: %.2f, average trial reward: %.2f, training time: %.1f\n' % 
+            report_file.write('Champion %d, average training reward: %.2f, normalized: %.2f, average trial reward: %.2f, training time: %.1fs\n' % 
                               (generation, training_reward, training_reward_normalized, trial_reward, training_time))
             report_file.write(champion.get_name())
             report_file.write('\n\n')
