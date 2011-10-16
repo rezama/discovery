@@ -1821,6 +1821,7 @@ class ArbitratorStandard(Arbitrator):
         self.num_trials = num_trials
         self.num_episodes = num_episodes
         self.reward_log = []
+        self.eval_reward_log = []
 
     def run(self, max_steps = 0):
         self.reward_log = [0] * self.num_episodes
@@ -1841,6 +1842,43 @@ class ArbitratorStandard(Arbitrator):
             for episode in range(self.num_episodes):
                 self.reward_log[episode] += agent.reward_log[episode]
         
+        for episode in range(self.num_episodes):
+            self.reward_log[episode] /= float(self.num_trials)
+
+        
+        # find agent with best performance
+        best_agent = None
+        best_agent_reward = 0
+        for agent in trial_agents:
+            if best_agent is None or agent.average_reward > best_agent_reward:
+                best_agent = agent
+                best_agent_reward = agent.average_reward
+        
+        
+        # evaluate it
+        best_agent.pause_learning()
+        
+        self.eval_reward_log = [0] * self.num_episodes
+        if DEBUG_PROGRESS:
+            print "generating %d copies of the agent" % self.num_trials
+            
+        trial_agents = []
+        for i in range(self.num_trials): #@UnusedVariable
+            trial_agents.append(copy.deepcopy(best_agent))
+
+        # run multiple trials with different start states
+        trial_agents = self.test_agents_seedless(trial_agents, max_steps,
+                                                 self.num_episodes, 
+                                                 use_common_states=False)
+        
+        # average rewards
+        for agent in trial_agents:
+            for episode in range(self.num_episodes):
+                self.eval_reward_log[episode] += agent.reward_log[episode]
+        
+        for episode in range(self.num_episodes):
+            self.eval_reward_log[episode] /= float(self.num_trials)
+
         if REPORT_RESULTS:
             self.report_results()
         
@@ -1882,22 +1920,39 @@ class ArbitratorStandard(Arbitrator):
                                               MUTATE_NEW_WEIGHTS_MULT * 100)
         if not os.path.exists(folder_name):
             os.makedirs(folder_name)
-        report_file = open(folder_name + 'results-standard.txt', 'w')
+            
+        report_file = open(folder_name + 'results-standard-training.txt', 'w')
         for episode in range(self.num_episodes):
             report_file.write('%d %.2f\n' % 
-                              (episode, float(self.reward_log[episode]) / self.num_trials)) 
+                              (episode, self.reward_log[episode])) 
         report_file.close()
     
-        report_file = open(folder_name + 'results-standard-interval.txt', 'w')
+        report_file = open(folder_name + 'results-standard-training-interval.txt', 'w')
         episodes_per_interval = int (self.num_episodes / PLOT_INTERVALS) 
         for interval in range(PLOT_INTERVALS):
             sub_sum = sum(self.reward_log[interval * episodes_per_interval:
                                      (interval + 1) * episodes_per_interval])
             report_file.write('%d %.2f\n' % 
                               (interval * episodes_per_interval, 
-                               float(sub_sum) / (self.num_trials * episodes_per_interval))) 
+                               float(sub_sum) / episodes_per_interval)) 
         report_file.close()
         
+        report_file = open(folder_name + 'results-standard-eval.txt', 'w')
+        for episode in range(self.num_episodes):
+            report_file.write('%d %.2f\n' % 
+                              (episode, self.eval_reward_log[episode])) 
+        report_file.close()
+    
+        report_file = open(folder_name + 'results-standard-eval-interval.txt', 'w')
+        episodes_per_interval = int (self.num_episodes / PLOT_INTERVALS) 
+        for interval in range(PLOT_INTERVALS):
+            sub_sum = sum(self.eval_reward_log[interval * episodes_per_interval:
+                                     (interval + 1) * episodes_per_interval])
+            report_file.write('%d %.2f\n' % 
+                              (interval * episodes_per_interval, 
+                               float(sub_sum) / episodes_per_interval)) 
+        report_file.close()
+
         self.plot(folder_name, 'plot-standard', 
                   '%d %d' % (self.num_trials, self.num_episodes))
 
@@ -1921,9 +1976,9 @@ class ArbitratorEvolutionary(Arbitrator):
         self.champion_training_rewards = []
         self.champion_training_rewards_normalized = []
         self.champion_training_times = []
-        self.champion_trial_rewards = []
+        self.champion_eval_rewards = []
         self.champions_training_reward_log = []
-        self.champions_trial_reward_log = []
+        self.champions_eval_reward_log = []
         self.population_reward_log = []
         self.best_champion_reward_log = []
 
@@ -2154,8 +2209,8 @@ class ArbitratorEvolutionary(Arbitrator):
 #                    champion_reward = champion.average_reward
 #                    # repeating the average reward to replace all episode rewards
 #                    champion.reward_log = [champion_reward] * self.num_generation_episodes
-#                    self.champion_trial_rewards.append(champion_reward)
-#                    self.champions_trial_reward_log += champion.reward_log
+#                    self.champion_eval_rewards.append(champion_reward)
+#                    self.champions_eval_reward_log += champion.reward_log
 #            else:
 #                for champion in self.champions:
 #                    self.test_agent(champion, start_states, start_seeds, max_steps,
@@ -2163,8 +2218,8 @@ class ArbitratorEvolutionary(Arbitrator):
 #                    champion_reward = champion.average_reward
 #                    # repeating the average reward to replace all episode rewards
 #                    champion.reward_log = [champion_reward] * self.num_generation_episodes
-#                    self.champion_trial_rewards.append(champion_reward)
-#                    self.champions_trial_reward_log += champion.reward_log
+#                    self.champion_eval_rewards.append(champion_reward)
+#                    self.champions_eval_reward_log += champion.reward_log
                     
             self.champions = self.test_agents_seedless(self.champions, max_steps,
                                                        self.num_generation_episodes,
@@ -2174,8 +2229,8 @@ class ArbitratorEvolutionary(Arbitrator):
                 champion_reward = champion.average_reward
                 # repeating the average reward to replace all episode rewards
                 champion.reward_log = [champion_reward] * self.num_generation_episodes
-                self.champion_trial_rewards.append(champion_reward)
-                self.champions_trial_reward_log += champion.reward_log
+                self.champion_eval_rewards.append(champion_reward)
+                self.champions_eval_reward_log += champion.reward_log
             
         # final trial with best champion        
         best_champion = None
@@ -2275,22 +2330,22 @@ class ArbitratorEvolutionary(Arbitrator):
         for champion in self.champions:
             training_reward = self.champion_training_rewards[generation]
             training_reward_normalized = self.champion_training_rewards_normalized[generation]
-            trial_reward = self.champion_trial_rewards[generation]
+            trial_reward = self.champion_eval_rewards[generation]
             training_time = self.champion_training_times[generation]
-            report_file.write('Champion %d, average training reward: %.2f, normalized: %.2f, average trial reward: %.2f, training time: %.1fs\n' % 
+            report_file.write('Champion %d, average training reward: %.2f, normalized: %.2f, average eval reward: %.2f, training time: %.1fs\n' % 
                               (generation, training_reward, training_reward_normalized, trial_reward, training_time))
             report_file.write(champion.get_name())
             report_file.write('\n\n')
             generation += 1
         report_file.close()
         
-        report_file = open(folder_name + 'results-champion-training.txt', 'w')
+        report_file = open(folder_name + 'results-champions-training.txt', 'w')
         for episode in range(self.num_generations * self.num_generation_episodes):
             report_file.write('%d %.2f\n' % 
                               (episode, self.champions_training_reward_log[episode]))
         report_file.close()
     
-        report_file = open(folder_name + 'results-champion-training-interval.txt', 'w')
+        report_file = open(folder_name + 'results-champions-training-interval.txt', 'w')
         episodes_per_interval = int(self.num_generations * 
                                     self.num_generation_episodes / PLOT_INTERVALS) 
         for interval in range(PLOT_INTERVALS):
@@ -2301,17 +2356,17 @@ class ArbitratorEvolutionary(Arbitrator):
                                float(sub_sum) / episodes_per_interval)) 
         report_file.close()
         
-        report_file = open(folder_name + 'results-champion-trial.txt', 'w')
+        report_file = open(folder_name + 'results-champions-eval.txt', 'w')
         for episode in range(self.num_generations * self.num_generation_episodes):
             report_file.write('%d %.2f\n' % 
-                              (episode, self.champions_trial_reward_log[episode]))
+                              (episode, self.champions_eval_reward_log[episode]))
         report_file.close()
     
-        report_file = open(folder_name + 'results-champion-trial-interval.txt', 'w')
+        report_file = open(folder_name + 'results-champions-eval-interval.txt', 'w')
         episodes_per_interval = int(self.num_generations * 
                                     self.num_generation_episodes / PLOT_INTERVALS) 
         for interval in range(PLOT_INTERVALS):
-            sub_sum = sum(self.champions_trial_reward_log[interval * episodes_per_interval:
+            sub_sum = sum(self.champions_eval_reward_log[interval * episodes_per_interval:
                                      (interval + 1) * episodes_per_interval])
             report_file.write('%d %.2f\n' % 
                               (interval * episodes_per_interval, 

@@ -548,8 +548,10 @@ def learn_w_multitile_features():
     player_has_ball = sample_state.index['player_has_ball']
     right_goal_center = sample_state.index['rightgoalcenter']
     left_goal_center = sample_state.index['leftgoalcenter']
-    upper_right = sample_state.index['upperright']
-    lower_right = sample_state.index['lowerleft']
+    right_goal_top = sample_state.index['rightgoaltop']
+    right_goal_bottom = sample_state.index['rightgoalbottom']
+    left_goal_top = sample_state.index['leftgoaltop']
+    left_goal_bottom = sample_state.index['leftgoalbottom']
         
     features = [
         rl.FeatureDist(player, opponent),
@@ -557,8 +559,8 @@ def learn_w_multitile_features():
         rl.FeatureDist(player, left_goal_center),
         rl.FeatureDist(opponent, right_goal_center),
         rl.FeatureDist(opponent, left_goal_center),
-        rl.FeatureAngle(player, opponent, upper_right),
-        rl.FeatureAngle(player, opponent, lower_right),
+        rl.FeatureAngle(player, opponent, right_goal_top),
+        rl.FeatureAngle(player, opponent, left_goal_bottom)
     ]
     
     offsets = rl.TiledFeature.EVEN_OFFSETS
