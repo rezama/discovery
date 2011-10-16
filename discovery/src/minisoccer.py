@@ -8,6 +8,7 @@ import rl
 import random
 import time
 import sys
+import copy
 
 # Debug
 DEBUG = False
@@ -512,20 +513,20 @@ def cost_benchmark():
     print "Running time: %.1f" % base_time
     
     feature_lists = [
-                     [rl.FeatureFlag(player_has_ball)], 
-                     [rl.FeatureAngle(opponent, left_goal_center, upper_left)],
-                     [rl.FeatureAngle(opponent, left_goal_center, upper_left, 20)],
-                     [rl.FeatureDist(opponent, player)],
-                     [rl.FeatureDist(opponent, player, 20)],
-                     [rl.FeatureDistX(opponent, player)],
-                     [rl.FeatureDistX(opponent, player, 20)],
-                     [rl.FeaturePointXY(opponent)],
-                     [rl.FeaturePointXY(opponent, 400)],
-                     [rl.FeatureInteraction([rl.FeatureDist(opponent, player), rl.FeatureAngle(opponent, left_goal_center, upper_left)])],
-                     [rl.FeatureInteraction([rl.FeatureDist(opponent, player, 20), rl.FeatureAngle(opponent, left_goal_center, upper_left)])],
-                     [rl.FeatureInteraction([rl.FeatureDist(opponent, player), rl.FeaturePointXY(opponent)])],
-                     [rl.FeatureInteraction([rl.FeatureDist(opponent, player, 20), rl.FeaturePointXY(opponent)])],
-                    ]
+        [rl.FeatureFlag(player_has_ball)], 
+        [rl.FeatureAngle(opponent, left_goal_center, upper_left)],
+        [rl.FeatureAngle(opponent, left_goal_center, upper_left, 20)],
+        [rl.FeatureDist(opponent, player)],
+        [rl.FeatureDist(opponent, player, 20)],
+        [rl.FeatureDistX(opponent, player)],
+        [rl.FeatureDistX(opponent, player, 20)],
+        [rl.FeaturePointXY(opponent)],
+        [rl.FeaturePointXY(opponent, 400)],
+        [rl.FeatureInteraction([rl.FeatureDist(opponent, player), rl.FeatureAngle(opponent, left_goal_center, upper_left)])],
+        [rl.FeatureInteraction([rl.FeatureDist(opponent, player, 20), rl.FeatureAngle(opponent, left_goal_center, upper_left)])],
+        [rl.FeatureInteraction([rl.FeatureDist(opponent, player), rl.FeaturePointXY(opponent)])],
+        [rl.FeatureInteraction([rl.FeatureDist(opponent, player, 20), rl.FeaturePointXY(opponent)])],
+    ]
     
     for feature_list in feature_lists:
         agent = base_agent.clone()
@@ -544,16 +545,32 @@ def learn_w_multitile_features():
 
     player = sample_state.index['player']
     opponent = sample_state.index['opponent']
-#    player_on_left = sample_state.index['player_on_left']
     player_has_ball = sample_state.index['player_has_ball']
     right_goal_center = sample_state.index['rightgoalcenter']
+    left_goal_center = sample_state.index['leftgoalcenter']
+    upper_right = sample_state.index['upperright']
+    lower_right = sample_state.index['lowerleft']
+        
+    features = [
+        rl.FeatureDist(player, opponent),
+        rl.FeatureDist(player, right_goal_center),
+        rl.FeatureDist(player, left_goal_center),
+        rl.FeatureDist(opponent, right_goal_center),
+        rl.FeatureDist(opponent, left_goal_center),
+        rl.FeatureAngle(player, opponent, upper_right),
+        rl.FeatureAngle(player, opponent, lower_right),
+    ]
     
-    features = [rl.FeatureFlag(player_has_ball),
-                rl.FeatureAngle(player, opponent, right_goal_center),
-                rl.FeatureDist(player, opponent)]
+    offsets = rl.TiledFeature.EVEN_OFFSETS
     
-    feature_list = features
-    
+    feature_list = []
+    feature_list.append(rl.FeatureFlag(player_has_ball))
+    for offset in offsets:
+        for i in range(len(features)):
+            the_feature = copy.deepcopy(features[i])
+            the_feature.offset = offset
+            feature_list.append(the_feature)
+
     agent = MiniSoccerAgent(rl.FeatureSet(feature_list))
             
     arbitrator = rl.ArbitratorStandard(agent, NUM_TRIALS, NUM_EPISODES)
