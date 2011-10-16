@@ -1406,7 +1406,8 @@ class SarsaLambdaFeaturized(Sarsa):
                 (self.feature_set.get_num_features() > 0):
             optimistic_reward = (self.environment.get_max_episode_reward() * 
                                  INIT_Q_VALUE_MULTIPLIER)
-            self.default_w = float(optimistic_reward) / num_features
+#            self.default_w = float(optimistic_reward) / num_features
+            self.default_w = optimistic_reward
         else:
             self.default_w = 0
             
@@ -1716,7 +1717,7 @@ def arbitrator_test_agent((agent, start_states, start_seeds, max_steps,
             if DEBUG_ALG_VALUES:
                 print "values:"
                 agent.algorithm.print_values()
-        if DEBUG_PROGRESS and (num_trials != 0):
+        if DEBUG_PROGRESS and (num_trials != 1):
             print "trial reward: %.2f" % (float(trial_reward) / num_episodes) 
     end_time = time.clock()
     agent.training_time = end_time - begin_time
