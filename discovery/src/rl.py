@@ -23,7 +23,7 @@ DEFAULT_NUM_TRIALS = 20
 DEFAULT_NUM_GENERATIONS = 15
 DEFAULT_POPULATION_SIZE = 50
 DEFAULT_NUM_GENERATION_EPISODES = 200
-DEFAULT_NUM_EPISODES = DEFAULT_NUM_TRIALS * DEFAULT_NUM_GENERATION_EPISODES
+DEFAULT_NUM_EPISODES = DEFAULT_NUM_GENERATIONS * DEFAULT_NUM_GENERATION_EPISODES
 DEFAULT_NUM_CHAMPION_TRIALS = 1
 
 # evolutionary params
@@ -1796,8 +1796,9 @@ class ArbitratorStandard(Arbitrator):
         program_name = sys.argv[0]
         program_name_parts = program_name.rsplit(".", 1)
         program_just_name = program_name_parts[0]        
-        folder_name = 'results/%s-%dt%de/' % (program_just_name, 
-                                              self.num_trials, self.num_episodes)
+        folder_name = 'results/%s-t%d%de%dw%d/' % (program_just_name, 
+                                              self.num_trials, self.num_episodes,
+                                              MUTATE_NEW_WEIGHTS_MULT * 100)
         if not os.path.exists(folder_name):
             os.makedirs(folder_name)
         report_file = open(folder_name + 'results-standard.txt', 'w')
