@@ -29,7 +29,7 @@ MAX_STEPS = 400
 
 # evolutionary parameters
 NUM_GENERATIONS = rl.DEFAULT_NUM_GENERATIONS
-POPULATION_SIZE = 100
+POPULATION_SIZE = rl.DEFAULT_POPULATION_SIZE
 NUM_GENERATION_EPISODES = rl.DEFAULT_NUM_GENERATION_EPISODES
 NUM_CHAMPION_TRIALS = rl.DEFAULT_NUM_CHAMPION_TRIALS
 NUM_BEST_CHAMPION_TRIALS = rl.DEFAULT_NUM_TRIALS
@@ -595,17 +595,18 @@ def learn_evolutionary():
     featurizer_point_x = rl.FeaturizerPointX(state_vars)
     featurizer_point_y = rl.FeaturizerPointY(state_vars)
     
-    featurizers_map = [(0.12, featurizer_retile), #@UnusedVariable
-                       (0.15, featurizer_interaction),
-                       (0.10, featurizer_flag),
-                       (0.16, featurizer_angle),
-                       (0.12, featurizer_dist),
-                       (0.09, featurizer_dist_x),
-                       (0.09, featurizer_dist_y),
-                       (0.07, featurizer_point_xy),
-                       (0.05, featurizer_point_x),
-                       (0.05, featurizer_point_y)
-                       ]
+    featurizers_map = [
+        (0.12, featurizer_retile),
+        (0.15, featurizer_interaction),
+        (0.10, featurizer_flag),
+        (0.16, featurizer_angle),
+        (0.12, featurizer_dist),
+        (0.09, featurizer_dist_x),
+        (0.09, featurizer_dist_y),
+        (0.07, featurizer_point_xy),
+        (0.05, featurizer_point_x),
+        (0.05, featurizer_point_y)
+    ]
 
 #    featurizers_map = [(0.15, featurizer_retile),
 #                       (0.10, featurizer_interaction),

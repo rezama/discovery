@@ -324,13 +324,37 @@ def learn_evolutionary():
     sample_state = base_agent.environment.generate_start_state()
     state_vars = sample_state.state_variables
     
-    retile_featurizer = rl.FeaturizerRetile(state_vars)
-    angle_featurizer = rl.FeaturizerAngle(state_vars)
-    dist_featurizer = rl.FeaturizerDist(state_vars)
+#    retile_featurizer = rl.FeaturizerRetile(state_vars)
+#    angle_featurizer = rl.FeaturizerAngle(state_vars)
+#    dist_featurizer = rl.FeaturizerDist(state_vars)
+#    
+#    featurizers_map = [(0.2, retile_featurizer),
+#                       (0.4, angle_featurizer),
+#                       (0.4, dist_featurizer)]
     
-    featurizers_map = [(0.2, retile_featurizer),
-                       (0.4, angle_featurizer),
-                       (0.4, dist_featurizer)]
+    featurizer_retile = rl.FeaturizerRetile(state_vars)
+    featurizer_interaction = rl.FeaturizerInteraction(state_vars)
+    featurizer_angle = rl.FeaturizerAngle(state_vars)
+    featurizer_dist = rl.FeaturizerDist(state_vars)
+    featurizer_dist_x = rl.FeaturizerDistX(state_vars)
+    featurizer_dist_y = rl.FeaturizerDistY(state_vars)
+    featurizer_flag = rl.FeaturizerFlag(state_vars)
+    featurizer_point_xy = rl.FeaturizerPointXY(state_vars)
+    featurizer_point_x = rl.FeaturizerPointX(state_vars)
+    featurizer_point_y = rl.FeaturizerPointY(state_vars)
+    
+    featurizers_map = [
+        (0.12, featurizer_retile),
+        (0.15, featurizer_interaction),
+        (0.10, featurizer_flag),
+        (0.16, featurizer_angle),
+        (0.12, featurizer_dist),
+        (0.09, featurizer_dist_x),
+        (0.09, featurizer_dist_y),
+        (0.07, featurizer_point_xy),
+        (0.05, featurizer_point_x),
+        (0.05, featurizer_point_y)
+    ]
     
     arbitrator = rl.ArbitratorEvolutionary(base_agent, featurizers_map, 
                     NUM_GENERATIONS, POPULATION_SIZE,
