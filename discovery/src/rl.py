@@ -18,7 +18,17 @@ USE_NUMPY = False
 USE_MULTIPROCESSING = True
 NUM_CORES = 8
 
-DEFAULT_GAMMA = 1.0
+# default trial and episode numbers
+DEFAULT_NUM_TRIALS = 20
+DEFAULT_NUM_GENERATIONS = 15
+DEFAULT_POPULATION_SIZE = 50
+DEFAULT_NUM_GENERATION_EPISODES = 200
+DEFAULT_NUM_EPISODES = DEFAULT_NUM_TRIALS * DEFAULT_NUM_GENERATION_EPISODES
+DEFAULT_NUM_CHAMPION_TRIALS = 1
+
+# evolutionary params
+SURVIVAL_RATE = .15
+TAU = 2
 
 # debug
 DEBUG_PROGRESS = True
@@ -33,11 +43,14 @@ DEBUG_REPORT_ON_EPISODE = 100
 REPORT_RESULTS = True
 PLOT_INTERVALS = 100
 
+# what portion of the training rewards to include in calculating average rewards
+TRAINING_SLACK = 0.0
+
 # the computational cost parameter 
 DEFAULT_ETA = 1.00
 
-# what portion of the training rewards to include in calculating average rewards
-TRAINING_SLACK = 0.0
+# gamma
+DEFAULT_GAMMA = 1.0
 
 # default multiplier for initial Q values based on maximum possible reward
 INIT_Q_VALUE_MULTIPLIER = 1.0
@@ -49,9 +62,6 @@ WEIGHTS_COPY = "Copy"
 BASE_FEATURE_WEIGHTS = WEIGHTS_OPTIMISTIC
 MUTATE_NEW_WEIGHTS_MULT = 0.0
 MUTATE_CROSS_OVER_WEIGHTS = WEIGHTS_COPY
-
-SURVIVAL_RATE = .15
-TAU = 2
 
 # the probability by which the algorithm tries to pick a dynamic state variable
 # when it has both options
@@ -1654,12 +1664,12 @@ class SarsaLambdaFeaturized(Sarsa):
 
 #class ExperimentParameters(object):
 #    def __init__(self, num_generations=15, population_size=50,
-#                 num_episodes=200,  champion_trials=20,
+#                 num_episodes=200,  num_champion_trials=20,
 #                 optimistic_weights_multiplier=0.0, eta = 1.0):
 #        self.num_generations = num_generations
 #        self.population_size = population_size
 #        self.num_episodes = num_episodes
-#        self.champion_trials = champion_trials
+#        self.num_champion_trials = num_champion_trials
 #        self.optimistic_weights_multiplier = optimistic_weights_multiplier
 #        self.eta = eta
 
@@ -1812,17 +1822,17 @@ class ArbitratorStandard(Arbitrator):
 class ArbitratorEvolutionary(Arbitrator):
     
     def __init__(self, base_agent, featurizers_map, num_generations, 
-                 population_size, generation_episodes, champion_trials, 
-                 best_champion_episodes, best_champion_trials, eta):
+                 population_size, num_generation_episodes, num_champion_trials, 
+                 num_best_champion_episodes, num_best_champion_trials, eta):
         super(ArbitratorEvolutionary, self).__init__()
         self.base_agent = base_agent
         self.featurizers_map = featurizers_map
         self.num_generations = num_generations
         self.population_size = population_size
-        self.generation_episodes = generation_episodes
-        self.champion_trials = champion_trials
-        self.best_champion_episodes = best_champion_episodes
-        self.best_champion_trials = best_champion_trials
+        self.num_generation_episodes = num_generation_episodes
+        self.num_champion_trials = num_champion_trials
+        self.num_best_champion_episodes = num_best_champion_episodes
+        self.num_best_champion_trials = num_best_champion_trials
         self.eta = eta
         
         self.champions = []
@@ -1868,7 +1878,7 @@ class ArbitratorEvolutionary(Arbitrator):
             surviving_agents.append(new_agent)
             
         self.champions_training_reward_log = []
-        self.population_reward_log = [0] * (self.num_generations * self.generation_episodes)
+        self.population_reward_log = [0] * (self.num_generations * self.num_generation_episodes)
         
         for generation in range(self.num_generations):
             if DEBUG_PROGRESS:
@@ -1922,7 +1932,7 @@ class ArbitratorEvolutionary(Arbitrator):
             # set up start states            
             start_states = []
             start_seeds = []
-            for i in range(self.generation_episodes): #@UnusedVariable
+            for i in range(self.num_generation_episodes): #@UnusedVariable
                 start_states.append(self.base_agent.environment.generate_start_state())
                 start_seeds.append(random.random())
             
@@ -1932,18 +1942,18 @@ class ArbitratorEvolutionary(Arbitrator):
                 params = []
                 for agent in agents:
                     params.append((agent, start_states, start_seeds, max_steps,
-                                   self.generation_episodes, 1, arbitrator_do_episode))
+                                   self.num_generation_episodes, 1, arbitrator_do_episode))
                 updated_champions = pool.map(arbitrator_test_agent, params)
                 agents = updated_champions
             else:
                 for agent in agents:
                     self.test_agent(agent, start_states, start_seeds, max_steps,
-                                    self.generation_episodes, 1)
+                                    self.num_generation_episodes, 1)
             
             # update population averages
             for agent in agents:
-                for episode in range(self.generation_episodes):
-                    index = generation * self.generation_episodes + episode
+                for episode in range(self.num_generation_episodes):
+                    index = generation * self.num_generation_episodes + episode
                     self.population_reward_log[index] += agent.reward_log[episode]
             
             # find lowest training time
@@ -2036,7 +2046,7 @@ class ArbitratorEvolutionary(Arbitrator):
             last_champion.algorithm.print_w()
         
         # champion trials
-        if self.champion_trials != 0:    
+        if self.num_champion_trials != 0:    
             if DEBUG_PROGRESS:
                 print ""
                 print "running champion trials"
@@ -2044,7 +2054,7 @@ class ArbitratorEvolutionary(Arbitrator):
             # generate start states
             start_states = []
             start_seeds = []
-            for i in range(self.generation_episodes): #@UnusedVariable
+            for i in range(self.num_generation_episodes): #@UnusedVariable
                 start_states.append(self.base_agent.environment.generate_start_state())
                 start_seeds.append(random.random())
 
@@ -2054,7 +2064,7 @@ class ArbitratorEvolutionary(Arbitrator):
                 params = []
                 for champion in reversed(self.champions):
                     params.append((champion, start_states, start_seeds, max_steps,
-                                   self.generation_episodes, self.champion_trials,
+                                   self.num_generation_episodes, self.num_champion_trials,
                                    arbitrator_do_episode))
                 updated_champions = pool.map(arbitrator_test_agent, params)
                 updated_champions.reverse()
@@ -2062,16 +2072,16 @@ class ArbitratorEvolutionary(Arbitrator):
                 for champion in self.champions:
                     champion_reward = champion.average_reward
                     # repeating the average reward to replace all episode rewards
-                    champion.reward_log = [champion_reward] * self.generation_episodes
+                    champion.reward_log = [champion_reward] * self.num_generation_episodes
                     self.champion_trial_rewards.append(champion_reward)
                     self.champions_trial_reward_log += champion.reward_log
             else:
                 for champion in self.champions:
                     self.test_agent(champion, start_states, start_seeds, max_steps,
-                                    self.generation_episodes, self.champion_trials)
+                                    self.num_generation_episodes, self.num_champion_trials)
                     champion_reward = champion.average_reward
                     # repeating the average reward to replace all episode rewards
-                    champion.reward_log = [champion_reward] * self.generation_episodes
+                    champion.reward_log = [champion_reward] * self.num_generation_episodes
                     self.champion_trial_rewards.append(champion_reward)
                     self.champions_trial_reward_log += champion.reward_log
                     
@@ -2098,13 +2108,13 @@ class ArbitratorEvolutionary(Arbitrator):
         # generate start states
         start_states = []
         start_seeds = []
-        for i in range(self.best_champion_episodes): #@UnusedVariable
+        for i in range(self.num_best_champion_episodes): #@UnusedVariable
             start_states.append(self.base_agent.environment.generate_start_state())
             start_seeds.append(random.random())
 
         # test best champion
         self.test_agent(champion, start_states, start_seeds, max_steps,
-                        self.best_champion_episodes, self.best_champion_trials)
+                        self.num_best_champion_episodes, self.num_best_champion_trials)
         self.best_champion_reward_log = champion.reward_log
         
         if REPORT_RESULTS:
@@ -2116,7 +2126,7 @@ class ArbitratorEvolutionary(Arbitrator):
         program_just_name = program_name_parts[0]
         folder_name = 'results/%s-g%de%dt%de%dw%d/' % (program_just_name,
                         self.num_generations,
-                        self.generation_episodes, self.champion_trials,
+                        self.num_generation_episodes, self.num_champion_trials,
                         self.eta * 100, MUTATE_NEW_WEIGHTS_MULT * 100)
         if not os.path.exists(folder_name):
             os.makedirs(folder_name)
@@ -2135,14 +2145,14 @@ class ArbitratorEvolutionary(Arbitrator):
         report_file.close()
         
         report_file = open(folder_name + 'results-champion-training.txt', 'w')
-        for episode in range(self.num_generations * self.generation_episodes):
+        for episode in range(self.num_generations * self.num_generation_episodes):
             report_file.write('%d %.2f\n' % 
                               (episode, self.champions_training_reward_log[episode]))
         report_file.close()
     
         report_file = open(folder_name + 'results-champion-training-interval.txt', 'w')
         episodes_per_interval = int(self.num_generations * 
-                                    self.generation_episodes / PLOT_INTERVALS) 
+                                    self.num_generation_episodes / PLOT_INTERVALS) 
         for interval in range(PLOT_INTERVALS):
             sub_sum = sum(self.champions_training_reward_log[interval * episodes_per_interval:
                                      (interval + 1) * episodes_per_interval])
@@ -2152,14 +2162,14 @@ class ArbitratorEvolutionary(Arbitrator):
         report_file.close()
         
         report_file = open(folder_name + 'results-champion-trial.txt', 'w')
-        for episode in range(self.num_generations * self.generation_episodes):
+        for episode in range(self.num_generations * self.num_generation_episodes):
             report_file.write('%d %.2f\n' % 
                               (episode, self.champions_trial_reward_log[episode]))
         report_file.close()
     
         report_file = open(folder_name + 'results-champion-trial-interval.txt', 'w')
         episodes_per_interval = int(self.num_generations * 
-                                    self.generation_episodes / PLOT_INTERVALS) 
+                                    self.num_generation_episodes / PLOT_INTERVALS) 
         for interval in range(PLOT_INTERVALS):
             sub_sum = sum(self.champions_trial_reward_log[interval * episodes_per_interval:
                                      (interval + 1) * episodes_per_interval])
@@ -2169,14 +2179,14 @@ class ArbitratorEvolutionary(Arbitrator):
         report_file.close()
         
         report_file = open(folder_name + 'results-best-champion.txt', 'w')
-        for episode in range(self.num_generations * self.generation_episodes):
+        for episode in range(self.num_generations * self.num_generation_episodes):
             report_file.write('%d %.2f\n' % 
                               (episode, self.best_champion_reward_log[episode]))
         report_file.close()
     
         report_file = open(folder_name + 'results-best-champion-interval.txt', 'w')
         episodes_per_interval = int(self.num_generations * 
-                                    self.generation_episodes / PLOT_INTERVALS) 
+                                    self.num_generation_episodes / PLOT_INTERVALS) 
         for interval in range(PLOT_INTERVALS):
             sub_sum = sum(self.best_champion_reward_log[interval * episodes_per_interval:
                                      (interval + 1) * episodes_per_interval])
@@ -2186,7 +2196,7 @@ class ArbitratorEvolutionary(Arbitrator):
         report_file.close()
 
         report_file = open(folder_name + 'results-population.txt', 'w')
-        for episode in range(self.num_generations * self.generation_episodes):
+        for episode in range(self.num_generations * self.num_generation_episodes):
             report_file.write('%d %.2f\n' % 
                               (episode, float(self.population_reward_log[episode]) /
                               self.population_size))
@@ -2194,7 +2204,7 @@ class ArbitratorEvolutionary(Arbitrator):
     
         report_file = open(folder_name + 'results-population-interval.txt', 'w')
         episodes_per_interval = int(self.num_generations * 
-                                    self.generation_episodes / PLOT_INTERVALS) 
+                                    self.num_generation_episodes / PLOT_INTERVALS) 
         for interval in range(PLOT_INTERVALS):
             sub_sum = sum(self.population_reward_log[interval * episodes_per_interval:
                                      (interval + 1) * episodes_per_interval])
@@ -2206,6 +2216,5 @@ class ArbitratorEvolutionary(Arbitrator):
         print "episodes per plot interval: " + str(episodes_per_interval)
 
         self.plot(folder_name, 'plot-ev',
-                  '%d %d' % (self.num_generations, self.generation_episodes))
-
+                  '%d %d' % (self.num_generations, self.num_generation_episodes))
 
