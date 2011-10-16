@@ -2012,10 +2012,12 @@ class ArbitratorEvolutionary(Arbitrator):
             index = 0
             while (len(surviving_agents) < num_survivors) and (index < len(generation_sorted)):
                 agent = generation_sorted[index][1]
+                has_new_signature = True 
                 for existing_agent in surviving_agents:
                     if agent.get_name() == existing_agent.get_name():
-                        continue
-                surviving_agents.append(agent)
+                        has_new_signature = False
+                if has_new_signature:
+                    surviving_agents.append(agent)
                 index += 1
         
 #            gc.collect()
