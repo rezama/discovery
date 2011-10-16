@@ -2168,7 +2168,7 @@ class ArbitratorEvolutionary(Arbitrator):
             
         trial_agents = []
         for i in range(self.num_best_champion_trials): #@UnusedVariable
-            trial_agents.append(copy.deepcopy(self.best_champion))
+            trial_agents.append(copy.deepcopy(best_champion))
 
         if DEBUG_PROGRESS:
             print "generating start states"
@@ -2179,7 +2179,7 @@ class ArbitratorEvolutionary(Arbitrator):
             start_states_all_trials[trial] = []
             start_seeds_all_trials[trial] = []            
             for i in range(self.num_best_champion_episodes): #@UnusedVariable
-                start_states_all_trials[trial].append(self.best_champion.environment.generate_start_state())
+                start_states_all_trials[trial].append(best_champion.environment.generate_start_state())
                 start_seeds_all_trials[trial].append(random.random())
 
         if DEBUG_PROGRESS:
