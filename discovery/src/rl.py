@@ -59,7 +59,7 @@ WEIGHTS_ZERO = "Zero"
 WEIGHTS_OPTIMISTIC = "Optimistic"
 WEIGHTS_COPY = "Copy"
 
-BASE_FEATURE_WEIGHTS = WEIGHTS_OPTIMISTIC
+BASE_FEATURE_WEIGHTS = WEIGHTS_ZERO
 MUTATE_NEW_WEIGHTS_MULT = 0.0
 MUTATE_CROSS_OVER_WEIGHTS = WEIGHTS_COPY
 
@@ -1406,8 +1406,8 @@ class SarsaLambdaFeaturized(Sarsa):
                 (self.feature_set.get_num_features() > 0):
             optimistic_reward = (self.environment.get_max_episode_reward() * 
                                  INIT_Q_VALUE_MULTIPLIER)
-#            self.default_w = float(optimistic_reward) / num_features
-            self.default_w = optimistic_reward
+            self.default_w = float(optimistic_reward) / num_features
+#            self.default_w = optimistic_reward
         else:
             self.default_w = 0
             
