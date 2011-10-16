@@ -1755,7 +1755,9 @@ class ArbitratorStandard(Arbitrator):
 
     def run(self, max_steps = 0):
         self.reward_log = [0] * self.num_episodes
+        self.agent.save_learning_state()
         for trial in range(self.num_trials):
+            self.agent.restore_learning_state()
             trial_reward = 0
             for episode in range(self.num_episodes):
                 if DEBUG_PROGRESS and (episode % DEBUG_REPORT_ON_EPISODE == 0):
