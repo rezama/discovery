@@ -1864,6 +1864,14 @@ class ArbitratorStandard(Arbitrator):
 
         self.agent = best_agent
         
+        if DEBUG_PROGRESS:
+            print ""
+            print "best eval agent: %s" % self.agent.feature_set
+            print "with average reward: %.4f" % self.agent.average_reward
+        if DEBUG_ALG_VALUES:
+            print "values:"    
+            self.agent.algorithm.print_w()
+
         # evaluate it
         self.agent.pause_learning()
         

@@ -1,0 +1,45 @@
+Champion 0, average training reward: 15.46, normalized: 15.46, average eval reward: 14.62, training time: 0.5s
+dist-Y(keeper2-upperleft)[1]
+
+Champion 1, average training reward: 17.91, normalized: 17.91, average eval reward: 24.75, training time: 0.5s
+dist-Y(keeper2-upperleft)[1] | dist-Y(taker1-keeper1)[0]
+
+Champion 2, average training reward: 21.02, normalized: 21.02, average eval reward: 24.79, training time: 0.7s
+dist-Y(keeper2-upperleft)[1] | dist-Y(taker1-keeper1)[0] | dist-X(taker1-keeper2)[1]
+
+Champion 3, average training reward: 22.71, normalized: 22.71, average eval reward: 27.23, training time: 3.7s
+dist(taker2-upperright)[0.6] | dist-Y(taker2-keeper1)[0] | pointXY(taker2)[0.7] | interaction(dist-Y(taker2-keeper1)[0] * pointXY(taker2)[0.7])
+
+Champion 4, average training reward: 22.32, normalized: 22.32, average eval reward: 25.23, training time: 1.8s
+dist(taker2-upperright)[0.6] | dist-Y(taker2-keeper1)[0] | pointXY(taker2)[0.7] | dist(taker2-lowerleft)[0.3] | pointXY(taker1)[0.1]
+
+Champion 5, average training reward: 23.22, normalized: 23.22, average eval reward: 28.45, training time: 1.2s
+dist(taker2-upperright)[0.6] | dist-Y(taker2-keeper1)[0] | pointXY(taker2)[0.7] | dist(taker2-lowerleft)[0.3] | angle(taker1-center-keeper1)[0.6] | dist-X(keeper1-taker1)[0]
+
+Champion 6, average training reward: 24.06, normalized: 24.06, average eval reward: 27.28, training time: 1.3s
+dist(taker2-upperright)[0.6] | dist-Y(taker2-keeper1)[0] | pointX(keeper2)[0.4] | dist(keeper3-keeper2)[0.8] | interaction(dist-Y(taker2-keeper1)[0] * dist(taker2-upperright)[0.6]) | dist(keeper3-taker2)[0.8]
+
+Champion 7, average training reward: 24.39, normalized: 24.39, average eval reward: 26.49, training time: 1.2s
+dist(taker2-upperright)[0.6] | dist-Y(taker2-keeper1)[0] | pointX(keeper2)[0.4] | dist(keeper3-keeper2)[0.8] | interaction(dist-Y(taker2-keeper1)[0] * dist(taker2-upperright)[0.6]) | dist(keeper3-taker2)[0.8] | dist(keeper3-keeper1)[0.3]
+
+Champion 8, average training reward: 24.30, normalized: 24.30, average eval reward: 26.54, training time: 0.7s
+dist(taker2-upperright)[0.6] | dist-Y(taker2-keeper1)[0] | pointX(keeper2)[0.4] | dist(keeper3-keeper2)[0.8] | interaction(dist-Y(taker2-keeper1)[0] * dist(taker2-upperright)[0.6]) | dist(keeper3-taker2)[0.8] | dist-Y(taker2-upperright)[0] | pointX(keeper1)[0.1]
+
+Champion 9, average training reward: 22.86, normalized: 22.86, average eval reward: 24.05, training time: 0.8s
+dist(taker2-upperright)[0.6] | dist-Y(taker2-keeper1)[0] | pointX(keeper2)[0.4] | dist(keeper3-keeper2)[0.8] | interaction(dist-Y(taker2-keeper1)[0] * dist(taker2-upperright)[0.6]) | dist(keeper3-taker2)[0.8] | dist-Y(taker2-upperright)[0] | angle(taker2-keeper1-upperleft)[0.0] | dist-X(taker2-lowerright)[0]
+
+Champion 10, average training reward: 22.72, normalized: 22.72, average eval reward: 28.58, training time: 1.7s
+dist(taker2-upperright)[0.6] | dist-Y(taker2-keeper1)[0] | pointX(keeper2)[0.4] | dist(keeper3-keeper2)[0.8] | interaction(dist-Y(taker2-keeper1)[0] * dist(taker2-upperright)[0.6]) | pointX(taker1)[0.7] | dist-Y(taker2-keeper1)[1] | interaction(dist-Y(taker2-keeper1)[0] * dist-Y(taker2-keeper1)[1]) | dist-Y(keeper2-lowerleft)[1]
+
+Champion 11, average training reward: 23.52, normalized: 23.52, average eval reward: 25.29, training time: 1.5s
+dist(taker2-upperright)[0.6] | dist-Y(taker2-keeper1)[0] | pointX(keeper2)[0.4] | dist(keeper3-keeper2)[0.8] | interaction(dist-Y(taker2-keeper1)[0] * dist(taker2-upperright)[0.6]) | pointX(taker1)[0.7] | dist-Y(taker2-keeper1)[1] | dist-X(keeper2-lowerleft)[1] | pointX(keeper2)[0.4]
+
+Champion 12, average training reward: 22.45, normalized: 22.45, average eval reward: 26.50, training time: 1.4s
+dist(taker2-upperright)[0.6] | dist-Y(taker2-keeper1)[0] | pointX(keeper2)[0.4] | dist(keeper3-keeper2)[0.8] | interaction(dist-Y(taker2-keeper1)[0] * dist(taker2-upperright)[0.6]) | pointX(taker1)[0.7] | dist-Y(taker2-keeper1)[1] | dist-X(keeper2-lowerleft)[1] | pointX(keeper2)[0.4] | pointX(keeper2)[0.3] | dist(keeper3-keeper2)[0.0]
+
+Champion 13, average training reward: 23.61, normalized: 23.61, average eval reward: 29.36, training time: 3.7s
+dist(taker2-upperright)[0.6] | dist-Y(taker2-keeper1)[0] | pointX(keeper2)[0.4] | dist(keeper3-keeper2)[0.8] | interaction(dist-Y(taker2-keeper1)[0] * dist(taker2-upperright)[0.6]) | pointX(taker1)[0.7] | dist-Y(taker2-keeper1)[1] | interaction(dist-Y(taker2-keeper1)[0] * dist-Y(taker2-keeper1)[1]) | interaction(dist(taker2-upperright)[0.6] * dist(keeper3-keeper2)[0.8]) | interaction(dist(keeper3-keeper2)[0.8] * pointX(keeper2)[0.4]) | dist-X(keeper2-taker1)[0]
+
+Champion 14, average training reward: 22.38, normalized: 22.38, average eval reward: 30.23, training time: 1.3s
+dist(taker2-upperright)[0.6] | dist-Y(taker2-keeper1)[0] | pointX(keeper2)[0.4] | dist(keeper3-keeper2)[0.8] | interaction(dist-Y(taker2-keeper1)[0] * dist(taker2-upperright)[0.6]) | pointX(taker1)[0.7] | dist-Y(taker2-keeper1)[1] | dist-X(keeper2-lowerleft)[1] | pointX(keeper2)[0.4] | pointX(taker1)[0.7] | dist-X(taker1-keeper2)[1] | interaction(pointX(keeper2)[0.4] * pointX(taker1)[0.7])
+
