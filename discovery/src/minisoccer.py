@@ -424,8 +424,8 @@ class MiniSoccerState(rl.ModularState):
 #            OPPONENT_Y_START = MiniSoccerEnvironment.MIN_GOAL_Y
 #            player_has_ball = False
         
-#        ball_with_player = random.choice((True, False))
-        ball_with_player = True
+        ball_with_player = random.choice((True, False))
+#        ball_with_player = True
 #        ball_with_player = False
 
         player = rl.StateVarPoint2D("player", cls.PLAYER_X_START, cls.PLAYER_Y_START,
